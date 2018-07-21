@@ -1,0 +1,4 @@
+<LogTags>
+    <Tag name="Events" writeToDebugger="false" writeToFile="false"/>
+	<Tag name="Entity" writeToDebugger="true" writeToFile="false"/>
+</LogTags>

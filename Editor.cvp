@@ -1,0 +1,5 @@
+﻿<CaravelProject name="CaravelEditor">
+  <ResourceBundles>
+    <Bundle name="_EditorDefault" file="EditorAssets.zip" />
+  </ResourceBundles>
+</CaravelProject>

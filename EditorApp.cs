@@ -1,0 +1,97 @@
+using Caravel.Core;
+using Caravel.Core.Physics;
+using CaravelEditor;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Forms.Services;
+
+namespace Caravel.Editor
+{
+    public class EditorApp : CaravelApp
+    {
+        public EditorWindow EWindow
+        {
+            get; set;
+        }
+
+        public EditorForm EForm
+        {
+            get; set;
+        }
+
+        public string CurrentScene
+        {
+            get; set;
+        }
+
+        public string CurrentResourceBundle
+        {
+            get; set;
+        }
+
+        public EditorLogic EditorLogic
+        {
+            get
+            {
+                return (EditorLogic) GameLogic;
+            }
+        }
+
+        private UpdateService _updateService;
+
+        public EditorApp(GraphicsDevice gd, UpdateService editor, int screenWidth, int screenHeight) : base(screenWidth, screenHeight)
+        {
+            CurrentGraphicsDevice = gd;
+            _updateService = editor;
+            EditorRunning = true;
+            UseDevelopmentDirectories = true;
+            IsMouseVisible = true;
+        }
+
+        protected override bool VCheckGameSystemResources()
+        {
+            return true;
+        }
+
+        protected override Cv_GameLogic VCreateGameLogic()
+        {
+            return new EditorLogic(this);
+        }
+
+        protected override Cv_GamePhysics VCreateGamePhysics()
+        {
+            return Cv_GamePhysics.CreateNullPhysics();
+        }
+
+        protected override Cv_GameView[] VCreateGameViews()
+        {
+            var gvs = new Cv_GameView[1];
+            gvs[0] = new EditorView(PlayerIndex.One, _updateService.spriteBatch);
+            return gvs;
+        }
+
+        protected override string VGetGameAppDirectoryName()
+        {
+            return "CaravelEditor/1.0";
+        }
+
+        protected override string VGetGameTitle()
+        {
+            return "Caravel Editor";
+        }
+
+        protected override bool VInitialize()
+        {
+            EditorLogic.EditorView.Init();
+            return true;
+        }
+
+        protected override bool VLoadGame()
+        {
+            GameLogic.LoadScene(CurrentScene, CurrentResourceBundle);
+            EForm.InitializeSceneEntitiess();
+            EForm.InitializeAssets();
+            return true;
+        }
+    }
+}
