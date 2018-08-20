@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -24,6 +25,7 @@ namespace CaravelEditor
         private Panel m_Panel;
         private EditorForm m_EditorForm;
         private EditorApp m_EditorApp;
+        private Color m_BgColor = Color.FromArgb(140, 140, 140);
 
         public EntityComponentEditor(Panel panel, EditorForm eForm, EditorApp editorApp)
         {
@@ -34,6 +36,21 @@ namespace CaravelEditor
             m_Panel = panel;
             m_iLineSpacing = m_Panel.Font.Height * 2;
         }
+
+        #region Auxiliar XML methods
+        private XmlNode FindEditorElementFromXPath(string xpath)
+        {
+            XmlNode root = m_SelectedEntityComponents.FirstChild;
+            XmlNodeList nodeList = root.SelectNodes(xpath);
+            return nodeList[0];
+        }
+        
+        private XmlNode FindEntityElementFromXPath(string xpath)
+        {
+            XmlNodeList nodeList = m_EntityXml.OwnerDocument.DocumentElement.SelectNodes(xpath);
+            return nodeList[0];
+        }
+        #endregion
 
         public void Initialize()
         {
@@ -49,9 +66,10 @@ namespace CaravelEditor
                 m_ComponentsByName[component.Attributes["name"].Value] = component;
             }
         }
-        
+
         public void ShowEntityComponents(XmlNode entityXml)
         {
+            var scrollValue = m_Panel.VerticalScroll.Value;
             m_EntityXml = entityXml;
 
             m_SelectedEntityComponents = new XmlDocument();
@@ -60,36 +78,116 @@ namespace CaravelEditor
 
             m_Panel.Controls.Clear();
 
-            // Enables vertical scroll, disables horizontal scroll
-            m_Panel.HorizontalScroll.Maximum = 0;
-            m_Panel.AutoScroll = false;
-            m_Panel.VerticalScroll.Visible = false;
-            m_Panel.AutoScroll = true;
-
-            XmlNodeList entityValueComponents = m_EntityXml.SelectNodes("child::*");
-            int lineNum = 0;
-            foreach (XmlNode entityValueComponent in entityValueComponents)
+            if (m_EntityXml != null)
             {
-                // [mrmike] - if you crash right here you have a component that you've never defined in Editor\components.xml
-                XmlNode sourceEditorComponent = m_ComponentsByName[entityValueComponent.Name];
-                XmlDocument ownerDoc = editorComponents.OwnerDocument;
-                XmlNode editorComponent = ownerDoc.ImportNode(sourceEditorComponent, true);
-                editorComponents.AppendChild(editorComponent);
-                lineNum = AddComponentUI(entityValueComponent, editorComponent, lineNum);
+                // Enables vertical scroll, disables horizontal scroll
+                m_Panel.HorizontalScroll.Maximum = 0;
+                m_Panel.AutoScroll = false;
+                m_Panel.VerticalScroll.Visible = false;
+                m_Panel.AutoScroll = true;
+
+                XmlNodeList entityValueComponents = m_EntityXml.SelectNodes("child::*");
+                int lineNum = 0;
+                foreach (XmlNode entityValueComponent in entityValueComponents)
+                {
+                    // [mrmike] - if you crash right here you have a component that you've never defined in Editor\components.xml
+                    XmlNode sourceEditorComponent = m_ComponentsByName[entityValueComponent.Name];
+                    XmlDocument ownerDoc = editorComponents.OwnerDocument;
+                    XmlNode editorComponent = ownerDoc.ImportNode(sourceEditorComponent, true);
+                    editorComponents.AppendChild(editorComponent);
+                    lineNum = AddComponentUI(entityValueComponent, editorComponent, lineNum);
+                }
+
+                AddElementLabel("", lineNum, 0, m_Panel.Width, 30, System.Drawing.Color.FromArgb(90, 90, 90));
+
+                Button button = new Button();
+                var location = new Point(m_Panel.Width / 4, lineNum * m_iLineSpacing + 3);
+                button.Name = EditorUtils.GetXPathToNode(m_EntityXml) + "AddComponentButton";
+                button.Text = "Add Component";
+                button.Location = location;
+                button.FlatStyle = FlatStyle.Flat;
+                button.FlatAppearance.BorderColor = m_BgColor;
+                button.Width = m_Panel.Width / 2;
+                button.MouseClick += new MouseEventHandler(AddNewComponent);
+                m_Panel.Controls.Add(button);
+                button.BringToFront();
+
+                m_Panel.VerticalScroll.Value = scrollValue;
+                m_Panel.PerformLayout();
             }
         }
-        
-        private XmlNode FindEditorElementFromXPath(string xpath)
+
+        public void AddNewComponent(object sender, MouseEventArgs e)
         {
-            XmlNode root = m_SelectedEntityComponents.FirstChild;
-            XmlNodeList nodeList = root.SelectNodes(xpath);
-            return nodeList[0];
+            var components = new List<string>(m_ComponentsByName.Keys);
+
+            XmlNodeList entityValueComponents = m_EntityXml.SelectNodes("child::*");
+
+            var entityComponentList = new List<string>();
+            foreach (XmlNode entComp in entityValueComponents)
+            {
+                entityComponentList.Add(entComp.Name);
+            }
+
+            using (var form = new AddComponentForm(components.ToArray(), entityComponentList.ToArray()))
+            {
+                var result = form.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    var compName = form.GetSelectedComponent();
+                    var comp = m_EditorApp.EditorLogic.CreateComponent(compName);
+
+                    if (m_EntityXml.Attributes["resource"] != null)
+                    {
+                        var componentNode = comp.VToXML();
+                        AddComponentToType(componentNode);
+                        SaveToFile();
+                        m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+                        ShowEntityComponents(m_EntityXml);
+                    }
+                    else
+                    {
+                        m_EditorForm.AddNewComponentToEntity(comp);
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
         }
-        
-        private XmlNode FindEntityElementFromXPath(string xpath)
+
+        public void AddComponentToType(XmlNode componentNode)
         {
-            XmlNodeList nodeList = m_EntityXml.OwnerDocument.DocumentElement.SelectNodes(xpath);
-            return nodeList[0];
+            var importedNode = m_EntityXml.OwnerDocument.ImportNode(componentNode, true);
+            m_EntityXml.AppendChild(importedNode);
+        }
+
+        public void DeleteComponent(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+            string buttonDesc = "Button";
+            string elementName = button.Name.Substring(0, button.Name.Length - buttonDesc.Length);
+
+            XmlNode node = FindEntityElementFromXPath(elementName);
+
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                DeleteComponentFromType(node);
+                SaveToFile();
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+                ShowEntityComponents(m_EntityXml);
+            }
+            else
+            {
+                m_EditorForm.RemoveComponentFromEntity(node.Name);
+            }
+        }
+
+        public void DeleteComponentFromType(XmlNode componentNode)
+        {
+            m_EntityXml.RemoveChild(componentNode);
         }
 
         public int AddComponentUI(XmlNode entityComponentValues, XmlNode editorComponentValues, int lineNum)
@@ -97,7 +195,24 @@ namespace CaravelEditor
             string componentName = entityComponentValues.Name;
             try
             {
-                AddElementLabel("     " + componentName, lineNum, 0, m_Panel.Width, System.Drawing.SystemColors.ControlDark);
+                AddElementLabel("     " + componentName, lineNum, 0, m_Panel.Width, 30, System.Drawing.Color.FromArgb(90,90,90));
+
+                if (!m_EditorForm.TypeHasComponent(m_EntityXml.Attributes["type"].Value, componentName))
+                {
+                    Button button = new Button();
+                    var location = new Point(m_iLabelColumnWidth + m_iLeftPaddingElements, lineNum * m_iLineSpacing + 3);
+                    button.Name = EditorUtils.GetXPathToNode(entityComponentValues) + "Button";
+                    button.Text = "Remove";
+                    button.Location = location;
+                    button.FlatStyle = FlatStyle.Flat;
+                    button.FlatAppearance.BorderColor = m_BgColor;
+                    button.Width = m_iElementLabelWidth;
+                    button.MouseClick += new MouseEventHandler(DeleteComponent);
+                    m_Panel.Controls.Add(button);
+                    button.BringToFront();
+                }
+                
+                ++lineNum;
                 ++lineNum;
                 int elementNum = 0;
 
@@ -164,7 +279,7 @@ namespace CaravelEditor
                             break;
 
                         case "boolean":
-                            List<string> options = new List<string>(new string[] { "false", "true" });
+                            List<string> options = new List<string>(new string[] { "False", "True" });
                             lineNum = AddCombobox(entityValues, xpath, options, lineNum, 60);
                             break;
 
@@ -180,6 +295,8 @@ namespace CaravelEditor
 
                     ++elementNum;
                 }
+
+                lineNum++;
             }
             catch (Exception e)
             {
@@ -189,7 +306,101 @@ namespace CaravelEditor
             return lineNum;
         }
 
+        public int AddElementLabel(string labelText, int lineNum, int padding, int width, int? height = null, Color? color = null)
+        {
+            Label label = new Label();
+            Point location = new Point(padding, lineNum * m_iLineSpacing);
+            label.Location = location;
 
+            if (height != null)
+            {
+                label.Height = height.Value;
+            }         
+            label.Width = width;
+            label.Text = labelText;
+            label.TextAlign = ContentAlignment.MiddleLeft;
+
+            if (color != null)
+            {
+                label.BackColor = color.Value;
+            }
+
+            m_Panel.Controls.Add(label);
+
+            return lineNum;
+        }
+
+        private void DeleteElement(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+            string buttonDesc = "Button";
+            string elementName = button.Name.Substring(0, button.Name.Length - buttonDesc.Length);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+            xmlDoc.AppendChild(xmlEntity);
+
+            XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+            xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+            xmlEntity.Attributes.Append(xmlEntityId);
+
+            XmlNode node = FindEntityElementFromXPath(elementName);
+            var elemLevel = 3;
+
+            XmlNode componentNode = null;
+
+            XmlNode tmpNode = node.ParentNode;
+            var subLevels = elementName.Split('/').Length - 1;
+
+            for (var i = elemLevel; i < subLevels; i++)
+            {
+                tmpNode = tmpNode.ParentNode;
+            }
+
+            componentNode = tmpNode;
+
+            var parentNode = node.ParentNode;
+            parentNode.RemoveChild(node);
+
+            XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
+            xmlEntity.AppendChild(xmlComponent);
+            
+            SaveToFile();
+
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+            }
+            else
+            {
+                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            }
+
+            ShowEntityComponents(m_EntityXml);
+        }
+
+        private void SaveToFile()
+        {
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                XmlWriterSettings oSettings = new XmlWriterSettings();
+                oSettings.Indent = true;
+                oSettings.OmitXmlDeclaration = true;
+                oSettings.Encoding = Encoding.UTF8;
+                oSettings.ConformanceLevel = ConformanceLevel.Auto;
+
+                string entityTypeLocation = Path.Combine(m_EditorForm.CurrentProjectDirectory, Path.GetFileNameWithoutExtension(m_EditorForm.CurrentResourceBundle));
+                entityTypeLocation = Path.Combine(entityTypeLocation, m_EntityXml.Attributes["resource"].Value);
+
+                using (XmlWriter writer = XmlWriter.Create(entityTypeLocation, oSettings))
+                {
+                    m_EntityXml.WriteTo(writer);
+                }
+            }
+            
+        }
+
+        #region File Element
         public int AddFileElement(XmlNode entityValues, string elementName, int lineNum)
         {
             const int boxWidth = 100;
@@ -205,6 +416,10 @@ namespace CaravelEditor
                 Point location = new Point(m_iElementLabelWidth + m_iLeftPaddingElements, lineNum * m_iLineSpacing);
                 textBox.Name = elementName + "/@" + field;
                 textBox.Location = location;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
                 textBox.Text = entityValues.Attributes[field].Value;
                 textBox.TextChanged += new EventHandler(FileElementChanged);
                 textBox.ReadOnly = true;
@@ -215,6 +430,8 @@ namespace CaravelEditor
                 button.Name = elementName + "/@" + field + "Button";
                 button.Text = "Browse...";
                 button.Location = location;
+                button.FlatStyle = FlatStyle.Flat;
+                button.FlatAppearance.BorderColor = m_BgColor;
                 button.MouseClick += new MouseEventHandler(SelectFile);
                 m_Panel.Controls.Add(button);
             }
@@ -261,8 +478,17 @@ namespace CaravelEditor
 
             XmlNode newElementNode = xmlDoc.ImportNode(elementNode, true);
             xmlComponent.AppendChild(newElementNode);
+            
+            SaveToFile();
 
-            m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+            }
+            else
+            {
+                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            }
         }
         
         private void SelectFile(object sender, MouseEventArgs e)
@@ -276,6 +502,7 @@ namespace CaravelEditor
 
             XmlNode fileElement = FindEditorElementFromXPath(elementName);
 
+            openFile.InitialDirectory = resourceBundleFullPath;
             openFile.Filter = fileElement.Attributes["extensions"].Value;
             openFile.ShowDialog();
             if (openFile.FileNames.Length > 0)
@@ -299,28 +526,9 @@ namespace CaravelEditor
                 }
             }
         }
+        #endregion
 
-        public int AddElementLabel(string labelText, int lineNum, int padding, int width, Color? color = null)
-        {
-            Label label = new Label();
-            Point location = new Point(padding, lineNum * m_iLineSpacing);
-            label.Location = location;
-            //                label.Height = m_Panel.Font.Height;
-            label.Width = width;
-            label.Text = labelText;
-            label.TextAlign = ContentAlignment.MiddleLeft;
-
-            if (color != null)
-            {
-                label.BackColor = color.Value;
-            }
-
-            m_Panel.Controls.Add(label);
-
-            return lineNum;
-        }
-
-
+        #region Num Element
         protected int AddNum(XmlNode entityValues, string xpath, string format, int lineNum)
         {
             const int boxWidth = 40;
@@ -351,7 +559,10 @@ namespace CaravelEditor
                 float entityValue = Convert.ToSingle(entityValues.Attributes[field].Value, CultureInfo.InvariantCulture);
                 textBox.Text = entityValue.ToString();
                 textBox.Location = location;
-                textBox.TextAlign = HorizontalAlignment.Right;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
                 textBox.Leave += new EventHandler(NumElementChanged);
                 textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -390,10 +601,12 @@ namespace CaravelEditor
 
                 XmlNode elementNode;
                 XmlNode node = FindEntityElementFromXPath(xPath);
+                var elemLevel = 3;
                 if (node.ParentNode == null)
                 {
                     XmlAttribute attribute = (XmlAttribute)node;
                     elementNode = attribute.OwnerElement;
+                    elemLevel = 4;
 
                     attribute.Value = newValue;
                 }
@@ -403,25 +616,41 @@ namespace CaravelEditor
                     elementNode.InnerText = newValue;
                 }
 
-                XmlNode componentNode = elementNode.ParentNode;
 
-                string componentName = componentNode.Name;
-                string elementName = elementNode.Name;
+                XmlNode componentNode = null;
 
-                XmlElement xmlComponent = xmlDoc.CreateElement(componentName);
+                XmlNode tmpNode = elementNode.ParentNode;
+                var subLevels = xPath.Split('/').Length - 1;
+
+                for (var i = elemLevel; i < subLevels; i++)
+                {
+                    tmpNode = tmpNode.ParentNode;
+                }
+
+                componentNode = tmpNode;
+
+                XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
                 xmlEntity.AppendChild(xmlComponent);
 
-                XmlNode newElementNode = xmlDoc.ImportNode(elementNode, true);
-                xmlComponent.AppendChild(newElementNode);
+                SaveToFile();
 
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                if (m_EntityXml.Attributes["resource"] != null)
+                {
+                    m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+                }
+                else
+                {
+                    m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
         }
+        #endregion
 
+        #region ComboBox Elements
         public int AddCombobox(XmlNode entityValues, string elementName, List<string> values, int lineNum, int width)
         {
             XmlNode fieldsElement = FindEditorElementFromXPath(elementName);
@@ -445,6 +674,9 @@ namespace CaravelEditor
                 comboBox.Name = elementName + "/@" + field;
                 comboBox.Location = location;
                 comboBox.Width = width;
+                comboBox.BackColor = m_BgColor;
+                comboBox.ForeColor = System.Drawing.SystemColors.Window;
+                comboBox.FlatStyle = FlatStyle.Flat;
 
                 foreach (string s in options)
                 {
@@ -476,10 +708,12 @@ namespace CaravelEditor
                 xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
                 xmlEntity.Attributes.Append(xmlEntityId);
 
+                var elemLevel = 3;
                 XmlNode elementNode;
                 XmlNode node = FindEntityElementFromXPath(xPath);
                 if (node.ParentNode == null)
                 {
+                    elemLevel = 4;
                     XmlAttribute attribute = (XmlAttribute)node;
                     elementNode = attribute.OwnerElement;
 
@@ -491,26 +725,40 @@ namespace CaravelEditor
                     elementNode.InnerText = newValue;
                 }
 
-                XmlNode componentNode = elementNode.ParentNode;
+                XmlNode componentNode = null;
 
-                string componentName = componentNode.Name;
-                string elementName = elementNode.Name;
+                XmlNode tmpNode = elementNode.ParentNode;
+                var subLevels = xPath.Split('/').Length - 1;
 
-                XmlElement xmlComponent = xmlDoc.CreateElement(componentName);
+                for (var i = elemLevel; i < subLevels; i++)
+                {
+                    tmpNode = tmpNode.ParentNode;
+                }
+
+                componentNode = tmpNode;
+
+                XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
                 xmlEntity.AppendChild(xmlComponent);
+                
+                SaveToFile();
 
-                XmlNode newElementNode = xmlDoc.ImportNode(elementNode, true);
-
-                xmlComponent.AppendChild(newElementNode);
-
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                if (m_EntityXml.Attributes["resource"] != null)
+                {
+                    m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+                }
+                else
+                {
+                    m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
         }
+        #endregion
 
+        #region RGBA Elements
         public int AddRGBA(XmlNode entityValues, string elementName, int lineNum)
         {
             const int boxWidth = 40;
@@ -526,12 +774,17 @@ namespace CaravelEditor
             var r = Convert.ToInt32(entityValues.Attributes["r"].Value);
             var g = Convert.ToInt32(entityValues.Attributes["g"].Value);
             var b = Convert.ToInt32(entityValues.Attributes["b"].Value);
-            // FUTURE WORK - We need a text box to enter Alpha values 
-            var a = Convert.ToInt32(entityValues.Attributes["a"].Value);
+            // FUTURE WORK - We need a text box to enter Alpha values
+
+            var a = 255;
+
+            if (entityValues.Attributes["a"] != null)
+            {
+                a = Convert.ToInt32(entityValues.Attributes["a"].Value);
+            }
 
             textBox.BackColor = Color.FromArgb(255, (int)(r), (int)(g), (int)(b));
             textBox.TextChanged += new EventHandler(RGBAElementTextChanged);
-            textBox.BackColorChanged += new EventHandler(RGBAElementChanged);
             m_Panel.Controls.Add(textBox);
 
             Button button = new Button();
@@ -539,67 +792,18 @@ namespace CaravelEditor
             button.Name = elementName + "Button";
             button.Text = "Choose...";
             button.Location = location;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderColor = m_BgColor;
             button.MouseClick += new MouseEventHandler(SelectRGBA);
             m_Panel.Controls.Add(button);
 
             return lineNum;
         }
 
-
         private void RGBAElementTextChanged(object sender, EventArgs e)
         {
             TextBox textBox = (TextBox)sender;
             textBox.Text = "";
-        }
-
-        private void RGBAElementChanged(object sender, EventArgs e)
-        {
-            TextBox textBox = (TextBox)sender;
-            string xPath = textBox.Name;
-            string newValue = textBox.Text;
-
-            XmlDocument xmlDoc = new XmlDocument();
-            XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
-            xmlDoc.AppendChild(xmlEntity);
-
-            XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
-            xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
-            xmlEntity.Attributes.Append(xmlEntityId);
-
-            XmlNode elementNode = FindEntityElementFromXPath(xPath);
-            XmlNode componentNode = elementNode.ParentNode;
-
-            string componentName = componentNode.Name;
-            string elementName = elementNode.Name;
-
-            XmlElement xmlComponent = xmlDoc.CreateElement(componentName);
-            xmlEntity.AppendChild(xmlComponent);
-
-            XmlElement xmlElementName = xmlDoc.CreateElement(elementName);
-            xmlComponent.AppendChild(xmlElementName);
-
-            string format = "{0:0.00}";
-            XmlAttribute rAttribute = xmlDoc.CreateAttribute("r");
-            float r = Convert.ToSingle(textBox.BackColor.R);
-            rAttribute.Value = String.Format(format, r.ToString());
-            xmlElementName.Attributes.Append(rAttribute);
-
-            XmlAttribute gAttribute = xmlDoc.CreateAttribute("g");
-            float g = Convert.ToSingle(textBox.BackColor.G);
-            gAttribute.Value = String.Format(format, g.ToString());
-            xmlElementName.Attributes.Append(gAttribute);
-
-            XmlAttribute bAttribute = xmlDoc.CreateAttribute("b");
-            float b = Convert.ToSingle(textBox.BackColor.B);
-            bAttribute.Value = String.Format(format, b.ToString());
-            xmlElementName.Attributes.Append(bAttribute);
-
-            XmlAttribute aAttribute = xmlDoc.CreateAttribute("a");
-            float a = Convert.ToSingle(textBox.BackColor.A);
-            aAttribute.Value = String.Format(format, a.ToString());
-            xmlElementName.Attributes.Append(aAttribute);
-
-            m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
         }
 
         private void SelectRGBA(object sender, MouseEventArgs e)
@@ -621,9 +825,68 @@ namespace CaravelEditor
             if (MyDialog.ShowDialog() == DialogResult.OK)
             {
                 textBox.BackColor = Color.FromArgb(255, MyDialog.Color.R, MyDialog.Color.G, MyDialog.Color.B);
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+                xmlDoc.AppendChild(xmlEntity);
+
+                XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+                xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+                xmlEntity.Attributes.Append(xmlEntityId);
+
+                XmlElement elementNode = (XmlElement)FindEntityElementFromXPath(textBoxElementName);
+                XmlNode componentNode = elementNode.ParentNode;
+
+                string componentName = componentNode.Name;
+                string elementName = elementNode.Name;
+
+                XmlElement xmlComponent = xmlDoc.CreateElement(componentName);
+                xmlEntity.AppendChild(xmlComponent);
+
+                XmlElement xmlElementName = xmlDoc.CreateElement(elementName);
+                xmlComponent.AppendChild(xmlElementName);
+
+                string format = "{0:0.00}";
+                XmlAttribute rAttribute = xmlDoc.CreateAttribute("r");
+                float r = Convert.ToSingle(MyDialog.Color.R);
+                rAttribute.Value = String.Format(format, r.ToString());
+                xmlElementName.Attributes.Append(rAttribute);
+
+                XmlAttribute gAttribute = xmlDoc.CreateAttribute("g");
+                float g = Convert.ToSingle(MyDialog.Color.G);
+                gAttribute.Value = String.Format(format, g.ToString());
+                xmlElementName.Attributes.Append(gAttribute);
+
+                XmlAttribute bAttribute = xmlDoc.CreateAttribute("b");
+                float b = Convert.ToSingle(MyDialog.Color.B);
+                bAttribute.Value = String.Format(format, b.ToString());
+                xmlElementName.Attributes.Append(bAttribute);
+
+                XmlAttribute aAttribute = xmlDoc.CreateAttribute("a");
+                float a = Convert.ToSingle(MyDialog.Color.A);
+                aAttribute.Value = String.Format(format, a.ToString());
+                xmlElementName.Attributes.Append(aAttribute);
+
+                elementNode.SetAttribute("r", rAttribute.Value);
+                elementNode.SetAttribute("g", gAttribute.Value);
+                elementNode.SetAttribute("b", bAttribute.Value);
+                elementNode.SetAttribute("a", aAttribute.Value);
+                
+                SaveToFile();
+
+                if (m_EntityXml.Attributes["resource"] != null)
+                {
+                    m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+                }
+                else
+                {
+                    m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                }
             }
         }
+        #endregion
 
+        #region Camera Component
         public int AddCameraProperties(XmlNode entityValues, string elementName, int lineNum)
         {
             const int boxWidth = 60;
@@ -639,7 +902,10 @@ namespace CaravelEditor
             float entityValue = Convert.ToSingle(entityValues.Attributes["zoom"].Value, CultureInfo.InvariantCulture);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -648,13 +914,16 @@ namespace CaravelEditor
 
             AddElementLabel("IsDefault:", lineNum+1, m_iElementLabelWidth + m_iLeftPaddingElements, isDefaultLabelWidth);
 
-            List<string> options = new List<string> { "true", "false" };
+            List<string> options = new List<string> { "True", "False" };
 
             ComboBox comboBox = new ComboBox();
             location = new Point(m_iElementLabelWidth + m_iLeftPaddingElements + isDefaultLabelWidth, (lineNum+1) * m_iLineSpacing);
             comboBox.Name = elementName + "/@defaultCamera";
             comboBox.Location = location;
             comboBox.Width = 60;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in options)
             {
@@ -668,7 +937,9 @@ namespace CaravelEditor
 
             return lineNum + 1;
         }
+        #endregion
 
+        #region Sprite Component
         public int AddAnimationProperties(XmlNode entityValues, string elementName, int lineNum)
         {
             const int boxWidth = 35;
@@ -687,7 +958,10 @@ namespace CaravelEditor
             int frameValue = Convert.ToInt32(entityValues.Attributes["fx"].Value);
             textBox.Text = frameValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -704,7 +978,10 @@ namespace CaravelEditor
             frameValue = Convert.ToInt32(entityValues.Attributes["fy"].Value);
             textBox.Text = frameValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -717,13 +994,16 @@ namespace CaravelEditor
             // ----------------- Looping --------------------
             AddElementLabel("Looping:", lineNum, m_iElementLabelWidth + m_iLeftPaddingElements, labelWidth);
 
-            List<string> options = new List<string> { "true", "false" };
+            List<string> options = new List<string> { "True", "False" };
 
             ComboBox comboBox = new ComboBox();
             location = new Point(m_iElementLabelWidth + m_iLeftPaddingElements + labelWidth, lineNum * m_iLineSpacing);
             comboBox.Name = elementName + "/@loop";
             comboBox.Location = location;
             comboBox.Width = 60;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in options)
             {
@@ -757,6 +1037,9 @@ namespace CaravelEditor
                 comboBox.Name = elementName + "/@defaultAnim";
                 comboBox.Location = location;
                 comboBox.Width = 100;
+                comboBox.BackColor = m_BgColor;
+                comboBox.ForeColor = System.Drawing.SystemColors.Window;
+                comboBox.FlatStyle = FlatStyle.Flat;
 
                 foreach (string s in options)
                 {
@@ -779,7 +1062,9 @@ namespace CaravelEditor
                 button.Name = elementName + "/SubAnimation[" + (i+1) + "]Button";
                 button.Text = "Remove";
                 button.Location = location;
-                //button.MouseClick += new MouseEventHandler(SelectRGBA);
+                button.FlatStyle = FlatStyle.Flat;
+                button.FlatAppearance.BorderColor = m_BgColor;
+                button.MouseClick += new MouseEventHandler(DeleteElement);
                 m_Panel.Controls.Add(button);
 
                 lineNum++;
@@ -794,7 +1079,10 @@ namespace CaravelEditor
                 frameValue = Convert.ToInt32(subAnimations[i].Attributes["startFrame"].Value);
                 textBox.Text = frameValue.ToString();
                 textBox.Location = location;
-                textBox.TextAlign = HorizontalAlignment.Right;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
                 textBox.Leave += new EventHandler(NumElementChanged);
                 textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -811,7 +1099,10 @@ namespace CaravelEditor
                 frameValue = Convert.ToInt32(subAnimations[i].Attributes["endFrame"].Value);
                 textBox.Text = frameValue.ToString();
                 textBox.Location = location;
-                textBox.TextAlign = HorizontalAlignment.Right;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
                 textBox.Leave += new EventHandler(NumElementChanged);
                 textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -830,7 +1121,10 @@ namespace CaravelEditor
                 var speedValue = Convert.ToInt32(subAnimations[i].Attributes["speed"].Value);
                 textBox.Text = speedValue.ToString();
                 textBox.Location = location;
-                textBox.TextAlign = HorizontalAlignment.Right;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
                 textBox.Leave += new EventHandler(NumElementChanged);
                 textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -846,26 +1140,104 @@ namespace CaravelEditor
             addButton.Name = elementName + "/SubAnimation_AddButton";
             addButton.Text = "Add Animation";
             addButton.Location = location;
+            addButton.FlatStyle = FlatStyle.Flat;
+            addButton.FlatAppearance.BorderColor = m_BgColor;
             addButton.Width = largeLabelWidth;
-            //button.MouseClick += new MouseEventHandler(SelectRGBA);
+            addButton.MouseClick += new MouseEventHandler(AddSubAnimation);
             m_Panel.Controls.Add(addButton);
 
             return lineNum;
         }
 
+        private void AddSubAnimation(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+            string buttonDesc = "/SubAnimation_AddButton";
+            string elementName = button.Name.Substring(0, button.Name.Length - buttonDesc.Length);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+            xmlDoc.AppendChild(xmlEntity);
+
+            XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+            xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+            xmlEntity.Attributes.Append(xmlEntityId);
+
+            XmlNode node = FindEntityElementFromXPath(elementName);
+            var elemLevel = 3;
+
+            XmlNode componentNode = null;
+
+            XmlNode tmpNode = node.ParentNode;
+            var subLevels = elementName.Split('/').Length - 1;
+
+            for (var i = elemLevel; i < subLevels; i++)
+            {
+                tmpNode = tmpNode.ParentNode;
+            }
+
+            componentNode = tmpNode;
+
+            XmlElement newAnimation = node.OwnerDocument.CreateElement("SubAnimation");
+            newAnimation.SetAttribute("startFrame", "0");
+            newAnimation.SetAttribute("endFrame", "0");
+            newAnimation.SetAttribute("speed", "0");
+
+            using (var form = new AddAnimationForm())
+            {
+                var result = form.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    newAnimation.SetAttribute("id", form.GetAnimationId());
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            node.AppendChild(newAnimation);
+            if (node.Attributes["defaultAnim"] == null)
+            {
+                ((XmlElement)node).SetAttribute("defaultAnim", newAnimation.Attributes["id"].Value);
+            }
+
+            XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
+            xmlEntity.AppendChild(xmlComponent);
+            
+            SaveToFile();
+
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+            }
+            else
+            {
+                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            }
+
+            ShowEntityComponents(m_EntityXml);
+        }
+        #endregion
+
+        #region Rigid Body Component
         public int AddPhysicsProperties(XmlNode entityValues, string elementName, int lineNum)
         {
             const int largeLabelWidth = 100;
             const int boxWidth = 40;
             AddElementLabel("UseEntityRotation:", lineNum, m_iElementLabelWidth + m_iLeftPaddingElements, largeLabelWidth);
 
-            List<string> options = new List<string> { "true", "false" };
+            List<string> options = new List<string> { "True", "False" };
 
             ComboBox comboBox = new ComboBox();
             var location = new Point(m_iElementLabelWidth + m_iLeftPaddingElements + largeLabelWidth, lineNum * m_iLineSpacing);
             comboBox.Name = elementName + "/@fixedRotation";
             comboBox.Location = location;
             comboBox.Width = 60;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in options)
             {
@@ -888,7 +1260,10 @@ namespace CaravelEditor
             float entityValue = Convert.ToSingle(entityValues.Attributes["gravityScale"].Value, CultureInfo.InvariantCulture);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -906,7 +1281,10 @@ namespace CaravelEditor
             entityValue = Convert.ToSingle(entityValues.Attributes["maxVelocity"].Value, CultureInfo.InvariantCulture);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -924,7 +1302,10 @@ namespace CaravelEditor
             entityValue = Convert.ToSingle(entityValues.Attributes["maxAngVelocity"].Value, CultureInfo.InvariantCulture);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -948,7 +1329,10 @@ namespace CaravelEditor
             float entityValue = Convert.ToSingle(entityValues.Attributes["linearDamping"].Value, CultureInfo.InvariantCulture);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -966,7 +1350,10 @@ namespace CaravelEditor
             entityValue = Convert.ToSingle(entityValues.Attributes["angularDamping"].Value, CultureInfo.InvariantCulture);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -984,6 +1371,9 @@ namespace CaravelEditor
             comboBox.Name = elementName + "/@type";
             comboBox.Location = location;
             comboBox.Width = 80;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in options)
             {
@@ -999,13 +1389,16 @@ namespace CaravelEditor
 
             AddElementLabel("Follow Entity Rotation:", lineNum, m_iElementLabelWidth + m_iLeftPaddingElements, largeLargeLabelWidth);
 
-            options = new List<string> { "false", "true" };
+            options = new List<string> { "False", "True" };
 
             comboBox = new ComboBox();
             location = new Point(m_iElementLabelWidth + m_iLeftPaddingElements + largeLargeLabelWidth, lineNum * m_iLineSpacing);
             comboBox.Name = elementName + "/@followEntityRotation";
             comboBox.Location = location;
             comboBox.Width = 60;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in options)
             {
@@ -1029,6 +1422,7 @@ namespace CaravelEditor
             {
                 var shapePath = elementName + "/Box[" + (i + 1) + "]";
                 lineNum = AddBoxShape(boxShapes[i], shapePath, lineNum);
+                lineNum++;
             }
 
             var circleShapes = entityValues.SelectNodes("//Circle");
@@ -1037,6 +1431,7 @@ namespace CaravelEditor
             {
                 var shapePath = elementName + "/Circle[" + (i + 1) + "]";
                 lineNum = AddCircleShape(circleShapes[i], shapePath, lineNum);
+                lineNum++;
             }
 
             var triggerShapes = entityValues.SelectNodes("//Trigger");
@@ -1045,6 +1440,7 @@ namespace CaravelEditor
             {
                 var shapePath = elementName + "/Trigger[" + (i + 1) + "]";
                 lineNum = AddTriggerShape(triggerShapes[i], shapePath, lineNum);
+                lineNum++;
             }
 
             var polygonShapes = entityValues.SelectNodes("//Polygon");
@@ -1053,10 +1449,105 @@ namespace CaravelEditor
             {
                 var shapePath = elementName + "/Polygon[" + (i + 1) + "]";
                 lineNum = AddPolygonShape(polygonShapes[i], shapePath, lineNum);
+                lineNum++;
             }
 
+            Button addButton = new Button();
+            var buttonLocation = new Point(m_iElementLabelWidth + m_iLeftPaddingElements, lineNum * m_iLineSpacing);
+            addButton.Name = elementName + "/Shape_AddButton";
+            addButton.Text = "Add Shape";
+            addButton.Location = buttonLocation;
+            addButton.FlatStyle = FlatStyle.Flat;
+            addButton.FlatAppearance.BorderColor = m_BgColor;
+            addButton.Width = 100;
+            addButton.MouseClick += new MouseEventHandler(AddShape);
+            m_Panel.Controls.Add(addButton);
 
             return lineNum;
+        }
+
+        private void AddShape(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+            string buttonDesc = "/Shape_AddButton";
+            string elementName = button.Name.Substring(0, button.Name.Length - buttonDesc.Length);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+            xmlDoc.AppendChild(xmlEntity);
+
+            XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+            xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+            xmlEntity.Attributes.Append(xmlEntityId);
+
+            XmlNode node = FindEntityElementFromXPath(elementName);
+            var elemLevel = 3;
+
+            XmlNode componentNode = null;
+
+            XmlNode tmpNode = node.ParentNode;
+            var subLevels = elementName.Split('/').Length - 1;
+
+            for (var i = elemLevel; i < subLevels; i++)
+            {
+                tmpNode = tmpNode.ParentNode;
+            }
+
+            componentNode = tmpNode;
+
+            var shapeType = "";
+            using (var form = new AddCollisionShapeForm())
+            {
+                var result = form.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    shapeType = form.GetShapeType();
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            XmlElement newShape = node.OwnerDocument.CreateElement(shapeType);
+            newShape.SetAttribute("anchorX", "0");
+            newShape.SetAttribute("anchorY", "0");
+            newShape.SetAttribute("isBullet", "False");
+            newShape.SetAttribute("material", m_EditorApp.EditorLogic.PhysicsMaterials[0]);
+
+            switch (shapeType)
+            {
+                case "Box":
+                    newShape.SetAttribute("dimensionsX", "1");
+                    newShape.SetAttribute("dimensionsY", "1");
+                    break;
+                case "Trigger":
+                    newShape.SetAttribute("dimensions", "1");
+                    break;
+                case "Circle":
+                    newShape.SetAttribute("radius", "1");
+                    break;
+            }
+            
+
+            node.AppendChild(newShape);
+
+            XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
+            xmlEntity.AppendChild(xmlComponent);
+            
+            SaveToFile();
+
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+            }
+            else
+            {
+                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            }
+
+            ShowEntityComponents(m_EntityXml);
         }
 
         public int AddCollisionCategories(XmlNode entityValues, string elementName, int lineNum, int loc)
@@ -1080,7 +1571,9 @@ namespace CaravelEditor
                 comboBox.Name = elementName + "/CollisionCategory[" + (i+1) + "]/@id";
                 comboBox.Location = location;
                 comboBox.Width = comboBoxWidth;
-                //comboBox.SelectedIndexChanged += some handler
+                comboBox.BackColor = m_BgColor;
+                comboBox.ForeColor = System.Drawing.SystemColors.Window;
+                comboBox.FlatStyle = FlatStyle.Flat;
 
                 for (var j = 0; j < 32; j++)
                 {
@@ -1088,6 +1581,7 @@ namespace CaravelEditor
                 }
 
                 comboBox.SelectedIndex = comboBox.FindStringExact(collisionCategories[i].Attributes["id"].Value);
+                comboBox.SelectedIndexChanged += new EventHandler(ComboBoxElementChanged);
 
                 m_Panel.Controls.Add(comboBox);
 
@@ -1096,8 +1590,10 @@ namespace CaravelEditor
                 removeButton.Name = elementName + "/CollisionCategory[" + (i+1) + "]Button";
                 removeButton.Text = "Remove";
                 removeButton.Location = location;
+                removeButton.FlatStyle = FlatStyle.Flat;
+                removeButton.FlatAppearance.BorderColor = m_BgColor;
                 removeButton.Width = smallLabelWidth;
-                //button.MouseClick += new MouseEventHandler(SelectRGBA);
+                removeButton.MouseClick += new MouseEventHandler(DeleteElement);
                 m_Panel.Controls.Add(removeButton);
             }
 
@@ -1108,11 +1604,64 @@ namespace CaravelEditor
             addButton.Name = elementName + "/CollisionCategory_AddButton";
             addButton.Text = "Add Category";
             addButton.Location = buttonLocation;
+            addButton.FlatStyle = FlatStyle.Flat;
+            addButton.FlatAppearance.BorderColor = m_BgColor;
             addButton.Width = labelWidth;
-            //button.MouseClick += new MouseEventHandler(SelectRGBA);
+            addButton.MouseClick += new MouseEventHandler(AddCollisionCategory);
             m_Panel.Controls.Add(addButton);
 
             return lineNum;
+        }
+
+        private void AddCollisionCategory(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+            string buttonDesc = "/CollisionCategory_AddButton";
+            string elementName = button.Name.Substring(0, button.Name.Length - buttonDesc.Length);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+            xmlDoc.AppendChild(xmlEntity);
+
+            XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+            xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+            xmlEntity.Attributes.Append(xmlEntityId);
+
+            XmlNode node = FindEntityElementFromXPath(elementName);
+            var elemLevel = 3;
+
+            XmlNode componentNode = null;
+
+            XmlNode tmpNode = node.ParentNode;
+            var subLevels = elementName.Split('/').Length - 1;
+
+            for (var i = elemLevel; i < subLevels; i++)
+            {
+                tmpNode = tmpNode.ParentNode;
+            }
+
+            componentNode = tmpNode;
+
+            XmlElement newCategory = node.OwnerDocument.CreateElement("CollisionCategory");
+            newCategory.SetAttribute("id", "0");
+
+            node.AppendChild(newCategory);
+
+            XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
+            xmlEntity.AppendChild(xmlComponent);
+            
+            SaveToFile();
+
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+            }
+            else
+            {
+                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            }
+
+            ShowEntityComponents(m_EntityXml);
         }
 
         public int AddCollidesWith(XmlNode entityValues, string elementName, int lineNum, int loc)
@@ -1136,6 +1685,9 @@ namespace CaravelEditor
                 comboBox.Name = elementName + "/CollidesWith[" + (i + 1) + "]/@id";
                 comboBox.Location = location;
                 comboBox.Width = comboBoxWidth;
+                comboBox.BackColor = m_BgColor;
+                comboBox.ForeColor = System.Drawing.SystemColors.Window;
+                comboBox.FlatStyle = FlatStyle.Flat;
 
                 for (var j = 0; j < 32; j++)
                 {
@@ -1155,6 +1707,9 @@ namespace CaravelEditor
                 comboBox.Name = elementName + "/CollidesWith[" + (i + 1) + "]/@directions";
                 comboBox.Location = location;
                 comboBox.Width = largeComboBoxWidth;
+                comboBox.BackColor = m_BgColor;
+                comboBox.ForeColor = System.Drawing.SystemColors.Window;
+                comboBox.FlatStyle = FlatStyle.Flat;
 
                 var options = new string[] { "All",
                                             "Left",
@@ -1188,8 +1743,9 @@ namespace CaravelEditor
                 removeButton.Name = elementName + "/CollidesWith[" + (i + 1) + "]Button";
                 removeButton.Text = "Remove";
                 removeButton.Location = location;
+                removeButton.FlatStyle = FlatStyle.Flat;
                 removeButton.Width = smallLabelWidth;
-                //button.MouseClick += new MouseEventHandler(SelectRGBA);
+                removeButton.MouseClick += new MouseEventHandler(DeleteElement);
                 m_Panel.Controls.Add(removeButton);
             }
 
@@ -1200,11 +1756,65 @@ namespace CaravelEditor
             addButton.Name = elementName + "/CollidesWith_AddButton";
             addButton.Text = "Add Category";
             addButton.Location = buttonLocation;
+            addButton.FlatStyle = FlatStyle.Flat;
+            addButton.FlatAppearance.BorderColor = m_BgColor;
             addButton.Width = labelWidth;
-            //button.MouseClick += new MouseEventHandler(SelectRGBA);
+            addButton.MouseClick += new MouseEventHandler(AddCollidesWith);
             m_Panel.Controls.Add(addButton);
 
             return lineNum;
+        }
+
+        private void AddCollidesWith(object sender, MouseEventArgs e)
+        {
+            Button button = (Button)sender;
+            string buttonDesc = "/CollidesWith_AddButton";
+            string elementName = button.Name.Substring(0, button.Name.Length - buttonDesc.Length);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+            xmlDoc.AppendChild(xmlEntity);
+
+            XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+            xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+            xmlEntity.Attributes.Append(xmlEntityId);
+
+            XmlNode node = FindEntityElementFromXPath(elementName);
+            var elemLevel = 3;
+
+            XmlNode componentNode = null;
+
+            XmlNode tmpNode = node.ParentNode;
+            var subLevels = elementName.Split('/').Length - 1;
+
+            for (var i = elemLevel; i < subLevels; i++)
+            {
+                tmpNode = tmpNode.ParentNode;
+            }
+
+            componentNode = tmpNode;
+
+            XmlElement newCategory = node.OwnerDocument.CreateElement("CollidesWith");
+            newCategory.SetAttribute("id", "0");
+            newCategory.SetAttribute("directions", "All");
+
+            node.AppendChild(newCategory);
+
+            XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
+            xmlEntity.AppendChild(xmlComponent);
+            
+            SaveToFile();
+
+            if (m_EntityXml.Attributes["resource"] != null)
+            {
+                m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+            }
+            else
+            {
+                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+            }
+
+            ShowEntityComponents(m_EntityXml);
         }
 
         public int AddBoxShape(XmlNode entityValues, string elementName, int lineNum)
@@ -1237,7 +1847,10 @@ namespace CaravelEditor
             var entityValue = Convert.ToInt32(entityValues.Attributes["dimensionsX"].Value);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1254,7 +1867,10 @@ namespace CaravelEditor
             entityValue = Convert.ToInt32(entityValues.Attributes["dimensionsY"].Value);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1305,7 +1921,10 @@ namespace CaravelEditor
             var entityValue = Convert.ToInt32(entityValues.Attributes["radius"].Value);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1365,7 +1984,10 @@ namespace CaravelEditor
                 var entityValue = Convert.ToInt32(points[i].Attributes["x"].Value);
                 textBox.Text = entityValue.ToString();
                 textBox.Location = location;
-                textBox.TextAlign = HorizontalAlignment.Right;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
                 textBox.Leave += new EventHandler(NumElementChanged);
                 textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1382,7 +2004,10 @@ namespace CaravelEditor
                 entityValue = Convert.ToInt32(points[i].Attributes["y"].Value);
                 textBox.Text = entityValue.ToString();
                 textBox.Location = location;
-                textBox.TextAlign = HorizontalAlignment.Right;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
                 textBox.Leave += new EventHandler(NumElementChanged);
                 textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1399,8 +2024,10 @@ namespace CaravelEditor
                 removeButton.Name = elementName + "/Point[" + (i + 1) + "]Button";
                 removeButton.Text = "Remove";
                 removeButton.Location = location;
+                removeButton.FlatStyle = FlatStyle.Flat;
+                removeButton.FlatAppearance.BorderColor = m_BgColor;
                 removeButton.Width = 60;
-                //button.MouseClick += new MouseEventHandler(SelectRGBA);
+                removeButton.MouseClick += new MouseEventHandler(DeleteElement);
                 m_Panel.Controls.Add(removeButton);
             }
 
@@ -1414,6 +2041,8 @@ namespace CaravelEditor
             addButton.Name = elementName + "/Point_AddButton";
             addButton.Text = "Add Point";
             addButton.Location = buttonLocation;
+            addButton.FlatStyle = FlatStyle.Flat;
+            addButton.FlatAppearance.BorderColor = m_BgColor;
             addButton.Width = 100;
             //button.MouseClick += new MouseEventHandler(SelectRGBA);
             m_Panel.Controls.Add(addButton);
@@ -1462,7 +2091,10 @@ namespace CaravelEditor
             var entityValue = Convert.ToInt32(entityValues.Attributes["dimensions"].Value);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1498,7 +2130,9 @@ namespace CaravelEditor
             button.Name = elementName + "Button";
             button.Text = "Remove";
             button.Location = location;
-            //button.MouseClick += new MouseEventHandler(SelectRGBA);
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderColor = m_BgColor;
+            button.MouseClick += new MouseEventHandler(DeleteElement);
             m_Panel.Controls.Add(button);
 
             // ------------------ New Line -----------------------------
@@ -1520,7 +2154,10 @@ namespace CaravelEditor
             var entityValue = Convert.ToInt32(entityValues.Attributes["anchorX"].Value);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1537,7 +2174,10 @@ namespace CaravelEditor
             entityValue = Convert.ToInt32(entityValues.Attributes["anchorY"].Value);
             textBox.Text = entityValue.ToString();
             textBox.Location = location;
-            textBox.TextAlign = HorizontalAlignment.Right;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
             textBox.Leave += new EventHandler(NumElementChanged);
             textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
 
@@ -1552,13 +2192,16 @@ namespace CaravelEditor
             AddElementLabel("IsBullet", lineNum, currLoc, labelWidth);
             currLoc += labelWidth;
 
-            List<string> options = new List<string> { "false", "true" };
+            List<string> options = new List<string> { "False", "True" };
 
             ComboBox comboBox = new ComboBox();
             location = new Point(currLoc, lineNum * m_iLineSpacing);
             comboBox.Name = elementName + "/@isBullet";
             comboBox.Location = location;
             comboBox.Width = 60;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in options)
             {
@@ -1584,6 +2227,9 @@ namespace CaravelEditor
             comboBox.Name = elementName + "/@material";
             comboBox.Location = location;
             comboBox.Width = 80;
+            comboBox.BackColor = m_BgColor;
+            comboBox.ForeColor = System.Drawing.SystemColors.Window;
+            comboBox.FlatStyle = FlatStyle.Flat;
 
             foreach (string s in physMaterials)
             {
@@ -1597,5 +2243,6 @@ namespace CaravelEditor
 
             return lineNum;
         }
+        #endregion
     };
 }

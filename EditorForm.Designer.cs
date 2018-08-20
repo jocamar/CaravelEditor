@@ -34,8 +34,13 @@ namespace CaravelEditor
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.projectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.newSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportAssetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewCollisionShapesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewBoundingBoxesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,23 +50,33 @@ namespace CaravelEditor
             this.addEntityTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.entitiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.materialsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addNewToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.addNewMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.entityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createEntityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createEntityAsChildToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeEntityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makeEntityIntoTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameEntityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editorTabs = new Dotnetrix.Controls.TabControlEX();
             this.sceneTab = new System.Windows.Forms.TabPage();
             this.sceneSplitContainer = new System.Windows.Forms.SplitContainer();
             this.sceneEntitiesTreeView = new System.Windows.Forms.TreeView();
             this.entityTypesTab = new System.Windows.Forms.TabPage();
+            this.entityTypesSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.entityTypesListBox = new System.Windows.Forms.ListBox();
             this.materialsTab = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.assetsTreeView = new System.Windows.Forms.TreeView();
             this.AssetsLabelPanel = new System.Windows.Forms.Panel();
             this.AssetsLabel = new System.Windows.Forms.Label();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.editorWindow = new CaravelEditor.EditorWindow();
+            this.controlsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newBundleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeBundleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.editorTabs.SuspendLayout();
@@ -69,6 +84,10 @@ namespace CaravelEditor
             ((System.ComponentModel.ISupportInitialize)(this.sceneSplitContainer)).BeginInit();
             this.sceneSplitContainer.Panel1.SuspendLayout();
             this.sceneSplitContainer.SuspendLayout();
+            this.entityTypesTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.entityTypesSplitContainer)).BeginInit();
+            this.entityTypesSplitContainer.Panel1.SuspendLayout();
+            this.entityTypesSplitContainer.SuspendLayout();
             this.panel1.SuspendLayout();
             this.AssetsLabelPanel.SuspendLayout();
             this.SuspendLayout();
@@ -97,7 +116,9 @@ namespace CaravelEditor
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.projectToolStripMenuItem,
             this.viewToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.entityToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1280, 24);
@@ -108,21 +129,54 @@ namespace CaravelEditor
             // 
             this.projectToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.projectToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newProjectToolStripMenuItem,
             this.openToolStripMenuItem,
-            this.loadSceneToolStripMenuItem});
+            this.toolStripSeparator1,
+            this.newSceneToolStripMenuItem,
+            this.loadSceneToolStripMenuItem,
+            this.saveSceneToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.exportAssetsToolStripMenuItem,
+            this.newBundleToolStripMenuItem,
+            this.removeBundleToolStripMenuItem});
             this.projectToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.projectToolStripMenuItem.Name = "projectToolStripMenuItem";
             this.projectToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
             this.projectToolStripMenuItem.Text = "Project";
+            // 
+            // newProjectToolStripMenuItem
+            // 
+            this.newProjectToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.newProjectToolStripMenuItem.Enabled = false;
+            this.newProjectToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
+            this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.newProjectToolStripMenuItem.Text = "New Project";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.openToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.openToolStripMenuItem.Text = "Open Project";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openProjectToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.toolStripSeparator1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(154, 6);
+            // 
+            // newSceneToolStripMenuItem
+            // 
+            this.newSceneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.newSceneToolStripMenuItem.Enabled = false;
+            this.newSceneToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.newSceneToolStripMenuItem.Name = "newSceneToolStripMenuItem";
+            this.newSceneToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.newSceneToolStripMenuItem.Text = "New Scene";
             // 
             // loadSceneToolStripMenuItem
             // 
@@ -130,9 +184,27 @@ namespace CaravelEditor
             this.loadSceneToolStripMenuItem.Enabled = false;
             this.loadSceneToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.loadSceneToolStripMenuItem.Name = "loadSceneToolStripMenuItem";
-            this.loadSceneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.loadSceneToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.loadSceneToolStripMenuItem.Text = "Load Scene";
             this.loadSceneToolStripMenuItem.Click += new System.EventHandler(this.loadSceneToolStripMenuItem_Click);
+            // 
+            // saveSceneToolStripMenuItem
+            // 
+            this.saveSceneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.saveSceneToolStripMenuItem.Enabled = false;
+            this.saveSceneToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.saveSceneToolStripMenuItem.Name = "saveSceneToolStripMenuItem";
+            this.saveSceneToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.saveSceneToolStripMenuItem.Text = "Save Scene";
+            // 
+            // exportAssetsToolStripMenuItem
+            // 
+            this.exportAssetsToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.exportAssetsToolStripMenuItem.Enabled = false;
+            this.exportAssetsToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.exportAssetsToolStripMenuItem.Name = "exportAssetsToolStripMenuItem";
+            this.exportAssetsToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.exportAssetsToolStripMenuItem.Text = "Export Assets";
             // 
             // viewToolStripMenuItem
             // 
@@ -188,8 +260,8 @@ namespace CaravelEditor
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addEntityTypeToolStripMenuItem,
-            this.entitiesToolStripMenuItem,
-            this.materialsToolStripMenuItem});
+            this.materialsToolStripMenuItem,
+            this.controlsToolStripMenuItem});
             this.editToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -209,10 +281,11 @@ namespace CaravelEditor
             // createTypeToolStripMenuItem
             // 
             this.createTypeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.createTypeToolStripMenuItem.Enabled = false;
             this.createTypeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.createTypeToolStripMenuItem.Name = "createTypeToolStripMenuItem";
             this.createTypeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.createTypeToolStripMenuItem.Text = "Create Type";
+            this.createTypeToolStripMenuItem.Text = "Create New";
             // 
             // removeTypeToolStripMenuItem
             // 
@@ -220,61 +293,103 @@ namespace CaravelEditor
             this.removeTypeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.removeTypeToolStripMenuItem.Name = "removeTypeToolStripMenuItem";
             this.removeTypeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.removeTypeToolStripMenuItem.Text = "Remove Type";
-            // 
-            // entitiesToolStripMenuItem
-            // 
-            this.entitiesToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.entitiesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addNewToolStripMenuItem,
-            this.removeToolStripMenuItem});
-            this.entitiesToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.entitiesToolStripMenuItem.Name = "entitiesToolStripMenuItem";
-            this.entitiesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.entitiesToolStripMenuItem.Text = "Entities";
-            // 
-            // addNewToolStripMenuItem
-            // 
-            this.addNewToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.addNewToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.addNewToolStripMenuItem.Name = "addNewToolStripMenuItem";
-            this.addNewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.addNewToolStripMenuItem.Text = "Add New";
-            // 
-            // removeToolStripMenuItem
-            // 
-            this.removeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.removeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeTypeToolStripMenuItem.Text = "Remove";
+            this.removeTypeToolStripMenuItem.Click += new System.EventHandler(this.removeTypeToolStripMenuItem_Click);
             // 
             // materialsToolStripMenuItem
             // 
             this.materialsToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.materialsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addNewToolStripMenuItem1,
-            this.removeToolStripMenuItem1});
+            this.addNewMaterialToolStripMenuItem,
+            this.removeMaterialToolStripMenuItem});
             this.materialsToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.materialsToolStripMenuItem.Name = "materialsToolStripMenuItem";
             this.materialsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.materialsToolStripMenuItem.Text = "Materials";
             // 
-            // addNewToolStripMenuItem1
+            // addNewMaterialToolStripMenuItem
             // 
-            this.addNewToolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.addNewToolStripMenuItem1.ForeColor = System.Drawing.SystemColors.Control;
-            this.addNewToolStripMenuItem1.Name = "addNewToolStripMenuItem1";
-            this.addNewToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.addNewToolStripMenuItem1.Text = "Add New";
+            this.addNewMaterialToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.addNewMaterialToolStripMenuItem.Enabled = false;
+            this.addNewMaterialToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.addNewMaterialToolStripMenuItem.Name = "addNewMaterialToolStripMenuItem";
+            this.addNewMaterialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.addNewMaterialToolStripMenuItem.Text = "Add New";
             // 
-            // removeToolStripMenuItem1
+            // removeMaterialToolStripMenuItem
             // 
-            this.removeToolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.removeToolStripMenuItem1.ForeColor = System.Drawing.SystemColors.Control;
-            this.removeToolStripMenuItem1.Name = "removeToolStripMenuItem1";
-            this.removeToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.removeToolStripMenuItem1.Text = "Remove";
+            this.removeMaterialToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.removeMaterialToolStripMenuItem.Enabled = false;
+            this.removeMaterialToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.removeMaterialToolStripMenuItem.Name = "removeMaterialToolStripMenuItem";
+            this.removeMaterialToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeMaterialToolStripMenuItem.Text = "Remove";
+            // 
+            // entityToolStripMenuItem
+            // 
+            this.entityToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createEntityToolStripMenuItem,
+            this.createEntityAsChildToolStripMenuItem,
+            this.removeEntityToolStripMenuItem,
+            this.makeEntityIntoTypeToolStripMenuItem,
+            this.renameEntityToolStripMenuItem});
+            this.entityToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.entityToolStripMenuItem.Name = "entityToolStripMenuItem";
+            this.entityToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            this.entityToolStripMenuItem.Text = "Entity";
+            // 
+            // createEntityToolStripMenuItem
+            // 
+            this.createEntityToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.createEntityToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.createEntityToolStripMenuItem.Name = "createEntityToolStripMenuItem";
+            this.createEntityToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.createEntityToolStripMenuItem.Text = "Create";
+            this.createEntityToolStripMenuItem.Click += new System.EventHandler(this.createEntityToolStripMenuItem_Click);
+            // 
+            // createEntityAsChildToolStripMenuItem
+            // 
+            this.createEntityAsChildToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.createEntityAsChildToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.createEntityAsChildToolStripMenuItem.Name = "createEntityAsChildToolStripMenuItem";
+            this.createEntityAsChildToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.createEntityAsChildToolStripMenuItem.Text = "Create As Child";
+            this.createEntityAsChildToolStripMenuItem.Click += new System.EventHandler(this.createEntityAsChildToolStripMenuItem_Click);
+            // 
+            // removeEntityToolStripMenuItem
+            // 
+            this.removeEntityToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.removeEntityToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.removeEntityToolStripMenuItem.Name = "removeEntityToolStripMenuItem";
+            this.removeEntityToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.removeEntityToolStripMenuItem.Text = "Remove";
+            this.removeEntityToolStripMenuItem.Click += new System.EventHandler(this.removeEntityToolStripMenuItem_Click);
+            // 
+            // makeEntityIntoTypeToolStripMenuItem
+            // 
+            this.makeEntityIntoTypeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.makeEntityIntoTypeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.makeEntityIntoTypeToolStripMenuItem.Name = "makeEntityIntoTypeToolStripMenuItem";
+            this.makeEntityIntoTypeToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.makeEntityIntoTypeToolStripMenuItem.Text = "Make Into Type";
+            this.makeEntityIntoTypeToolStripMenuItem.Click += new System.EventHandler(this.makeEntityIntoTypeToolStripMenuItem_Click);
+            // 
+            // renameEntityToolStripMenuItem
+            // 
+            this.renameEntityToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.renameEntityToolStripMenuItem.Enabled = false;
+            this.renameEntityToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.renameEntityToolStripMenuItem.Name = "renameEntityToolStripMenuItem";
+            this.renameEntityToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.renameEntityToolStripMenuItem.Text = "Rename";
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.Enabled = false;
+            this.helpToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "Help";
             // 
             // editorTabs
             // 
@@ -297,6 +412,8 @@ namespace CaravelEditor
             this.editorTabs.TabColor = System.Drawing.SystemColors.ControlDarkDark;
             this.editorTabs.TabIndex = 6;
             this.editorTabs.UseVisualStyles = false;
+            this.editorTabs.Deselecting += new TabControlCancelEventHandler(editorTabs_Deselecting);
+            this.editorTabs.Selected += new TabControlEventHandler(editorTabs_Selected);
             // 
             // sceneTab
             // 
@@ -327,7 +444,7 @@ namespace CaravelEditor
             this.sceneSplitContainer.Panel2.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.sceneSplitContainer.Panel2.ForeColor = System.Drawing.SystemColors.Control;
             this.sceneSplitContainer.Size = new System.Drawing.Size(371, 639);
-            this.sceneSplitContainer.SplitterDistance = 304;
+            this.sceneSplitContainer.SplitterDistance = 206;
             this.sceneSplitContainer.TabIndex = 1;
             // 
             // sceneEntitiesTreeView
@@ -337,13 +454,14 @@ namespace CaravelEditor
             this.sceneEntitiesTreeView.ForeColor = System.Drawing.SystemColors.Control;
             this.sceneEntitiesTreeView.Location = new System.Drawing.Point(0, 0);
             this.sceneEntitiesTreeView.Name = "sceneEntitiesTreeView";
-            this.sceneEntitiesTreeView.Size = new System.Drawing.Size(371, 304);
+            this.sceneEntitiesTreeView.Size = new System.Drawing.Size(371, 206);
             this.sceneEntitiesTreeView.TabIndex = 0;
             this.sceneEntitiesTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.entityTreeView_AfterSelect);
             // 
             // entityTypesTab
             // 
             this.entityTypesTab.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.entityTypesTab.Controls.Add(this.entityTypesSplitContainer);
             this.entityTypesTab.ForeColor = System.Drawing.SystemColors.Control;
             this.entityTypesTab.Location = new System.Drawing.Point(4, 25);
             this.entityTypesTab.Name = "entityTypesTab";
@@ -351,6 +469,37 @@ namespace CaravelEditor
             this.entityTypesTab.Size = new System.Drawing.Size(377, 645);
             this.entityTypesTab.TabIndex = 1;
             this.entityTypesTab.Text = "Entity Types";
+            // 
+            // entityTypesSplitContainer
+            // 
+            this.entityTypesSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityTypesSplitContainer.Location = new System.Drawing.Point(3, 3);
+            this.entityTypesSplitContainer.Name = "entityTypesSplitContainer";
+            this.entityTypesSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // entityTypesSplitContainer.Panel1
+            // 
+            this.entityTypesSplitContainer.Panel1.Controls.Add(this.entityTypesListBox);
+            // 
+            // entityTypesSplitContainer.Panel2
+            // 
+            this.entityTypesSplitContainer.Panel2.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.entityTypesSplitContainer.Size = new System.Drawing.Size(371, 639);
+            this.entityTypesSplitContainer.SplitterDistance = 207;
+            this.entityTypesSplitContainer.TabIndex = 0;
+            // 
+            // entityTypesListBox
+            // 
+            this.entityTypesListBox.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.entityTypesListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.entityTypesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.entityTypesListBox.ForeColor = System.Drawing.SystemColors.Control;
+            this.entityTypesListBox.FormattingEnabled = true;
+            this.entityTypesListBox.Location = new System.Drawing.Point(0, 0);
+            this.entityTypesListBox.Name = "entityTypesListBox";
+            this.entityTypesListBox.Size = new System.Drawing.Size(371, 207);
+            this.entityTypesListBox.TabIndex = 0;
+            this.entityTypesListBox.SelectedIndexChanged += new System.EventHandler(this.entityTypeListBox_AfterSelect);
             // 
             // materialsTab
             // 
@@ -406,8 +555,16 @@ namespace CaravelEditor
             this.AssetsLabel.Text = "Assets";
             this.AssetsLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.toolStripMenuItem1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(154, 6);
+            // 
             // editorWindow
             // 
+            this.editorWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.editorWindow.Dock = System.Windows.Forms.DockStyle.Fill;
             this.editorWindow.EditorForm = null;
             this.editorWindow.Location = new System.Drawing.Point(178, 24);
@@ -415,6 +572,33 @@ namespace CaravelEditor
             this.editorWindow.Size = new System.Drawing.Size(717, 674);
             this.editorWindow.TabIndex = 8;
             this.editorWindow.Text = "editorWindow";
+            // 
+            // controlsToolStripMenuItem
+            // 
+            this.controlsToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.controlsToolStripMenuItem.Enabled = false;
+            this.controlsToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.controlsToolStripMenuItem.Name = "controlsToolStripMenuItem";
+            this.controlsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.controlsToolStripMenuItem.Text = "Controls";
+            // 
+            // newBundleToolStripMenuItem
+            // 
+            this.newBundleToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.newBundleToolStripMenuItem.Enabled = false;
+            this.newBundleToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.newBundleToolStripMenuItem.Name = "newBundleToolStripMenuItem";
+            this.newBundleToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.newBundleToolStripMenuItem.Text = "New Bundle";
+            // 
+            // removeBundleToolStripMenuItem
+            // 
+            this.removeBundleToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.removeBundleToolStripMenuItem.Enabled = false;
+            this.removeBundleToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.removeBundleToolStripMenuItem.Name = "removeBundleToolStripMenuItem";
+            this.removeBundleToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.removeBundleToolStripMenuItem.Text = "Remove Bundle";
             // 
             // EditorForm
             // 
@@ -427,6 +611,7 @@ namespace CaravelEditor
             this.Controls.Add(this.editorTabs);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.DoubleBuffered = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "EditorForm";
             this.Text = "Caravel Editor";
@@ -439,6 +624,10 @@ namespace CaravelEditor
             this.sceneSplitContainer.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.sceneSplitContainer)).EndInit();
             this.sceneSplitContainer.ResumeLayout(false);
+            this.entityTypesTab.ResumeLayout(false);
+            this.entityTypesSplitContainer.Panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.entityTypesSplitContainer)).EndInit();
+            this.entityTypesSplitContainer.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.AssetsLabelPanel.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -474,12 +663,27 @@ namespace CaravelEditor
         private System.Windows.Forms.ToolStripMenuItem addEntityTypeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem createTypeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeTypeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem entitiesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addNewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem materialsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addNewToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem addNewMaterialToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeMaterialToolStripMenuItem;
+        private ToolStripMenuItem entityToolStripMenuItem;
+        private SplitContainer entityTypesSplitContainer;
+        private ListBox entityTypesListBox;
+        private ToolStripMenuItem saveSceneToolStripMenuItem;
+        private ToolStripMenuItem exportAssetsToolStripMenuItem;
+        private ToolStripMenuItem createEntityToolStripMenuItem;
+        private ToolStripMenuItem createEntityAsChildToolStripMenuItem;
+        private ToolStripMenuItem removeEntityToolStripMenuItem;
+        private ToolStripMenuItem makeEntityIntoTypeToolStripMenuItem;
+        private ToolStripMenuItem renameEntityToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem newProjectToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem newSceneToolStripMenuItem;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripMenuItem newBundleToolStripMenuItem;
+        private ToolStripMenuItem removeBundleToolStripMenuItem;
+        private ToolStripMenuItem controlsToolStripMenuItem;
     }
 }
 

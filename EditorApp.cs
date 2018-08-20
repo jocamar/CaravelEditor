@@ -91,6 +91,7 @@ namespace Caravel.Editor
             GameLogic.LoadScene(CurrentScene, CurrentResourceBundle);
             EForm.InitializeSceneEntitiess();
             EForm.InitializeAssets();
+            EForm.InitializeEntityTypes();
             return true;
         }
     }

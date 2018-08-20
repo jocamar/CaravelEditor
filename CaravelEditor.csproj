@@ -120,6 +120,30 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddAnimationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddAnimationForm.Designer.cs">
+      <DependentUpon>AddAnimationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddCollisionShapeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddCollisionShapeForm.Designer.cs">
+      <DependentUpon>AddCollisionShapeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddComponentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddComponentForm.Designer.cs">
+      <DependentUpon>AddComponentForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddEntityForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddEntityForm.Designer.cs">
+      <DependentUpon>AddEntityForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AlphaColorDialog.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -141,6 +165,12 @@
       <DependentUpon>EditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EntityComponentEditor.cs" />
+    <Compile Include="MakeIntoTypeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MakeIntoTypeForm.Designer.cs">
+      <DependentUpon>MakeIntoTypeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="Logs\logTags.xml">
@@ -149,8 +179,23 @@
     <Content Include="SDL2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="AddAnimationForm.resx">
+      <DependentUpon>AddAnimationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddCollisionShapeForm.resx">
+      <DependentUpon>AddCollisionShapeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddComponentForm.resx">
+      <DependentUpon>AddComponentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddEntityForm.resx">
+      <DependentUpon>AddEntityForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MakeIntoTypeForm.resx">
+      <DependentUpon>MakeIntoTypeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

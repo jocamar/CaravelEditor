@@ -95,7 +95,7 @@ namespace Caravel.Editor
         protected override bool VGameOnLoadScene(XmlElement sceneData)
         {
             EditorView.Init();
-            ChangeState(Cv_GameState.Running);
+            //ChangeState(Cv_GameState.Running);
             var editorCam = GetEntity(EditorView.EditorCamera);
             var camComponent = editorCam.GetComponent<Cv_CameraComponent>();
 
@@ -141,7 +141,9 @@ namespace Caravel.Editor
 
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
-                if (!m_bMouseButtonWasPressed)
+                if (!m_bMouseButtonWasPressed
+                    && ((EditorApp) CaravelApp.Instance).EWindow != null
+                    && ((EditorApp)CaravelApp.Instance).EWindow.Focused)
                 {
                     var mousePos = Mouse.GetState().Position;
                     Cv_EntityID[] entities;
