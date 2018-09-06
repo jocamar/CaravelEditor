@@ -144,11 +144,29 @@
     <Compile Include="AddEntityForm.Designer.cs">
       <DependentUpon>AddEntityForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="AddMaterialForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddMaterialForm.Designer.cs">
+      <DependentUpon>AddMaterialForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddSceneForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddSceneForm.Designer.cs">
+      <DependentUpon>AddSceneForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AlphaColorDialog.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="AlphaColorPanel.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CameraToolOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CameraToolOptions.Designer.cs">
+      <DependentUpon>CameraToolOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="CaravelMenuColorTable.cs" />
     <Compile Include="EditorUtils.cs" />
@@ -171,8 +189,41 @@
     <Compile Include="MakeIntoTypeForm.Designer.cs">
       <DependentUpon>MakeIntoTypeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MaterialEditorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MaterialEditorControl.Designer.cs">
+      <DependentUpon>MaterialEditorControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RenameEntityForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RenameEntityForm.Designer.cs">
+      <DependentUpon>RenameEntityForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TransformToolOptions.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TransformToolOptions.Designer.cs">
+      <DependentUpon>TransformToolOptions.cs</DependentUpon>
+    </Compile>
+    <Content Include="EditorAssets\camera.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EditorAssets\components.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EditorAssets\grab.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EditorAssets\icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="EditorAssets\zoom.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Logs\logTags.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -191,11 +242,23 @@
     <EmbeddedResource Include="AddEntityForm.resx">
       <DependentUpon>AddEntityForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="AddMaterialForm.resx">
+      <DependentUpon>AddMaterialForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddSceneForm.resx">
+      <DependentUpon>AddSceneForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CameraToolOptions.resx">
+      <DependentUpon>CameraToolOptions.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MakeIntoTypeForm.resx">
       <DependentUpon>MakeIntoTypeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MaterialEditorControl.resx">
+      <DependentUpon>MaterialEditorControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -208,7 +271,14 @@
     </Compile>
     <Content Include="EditorAssets\camera.cve">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
+    <EmbeddedResource Include="RenameEntityForm.resx">
+      <DependentUpon>RenameEntityForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TransformToolOptions.resx">
+      <DependentUpon>TransformToolOptions.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="CaravelEditor_TemporaryKey.pfx" />
     <None Include="Logs\error.log" />
     <None Include="packages.config" />

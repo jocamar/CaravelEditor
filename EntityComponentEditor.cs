@@ -55,15 +55,29 @@ namespace CaravelEditor
         public void Initialize()
         {
             m_ComponentsByName.Clear();
-            XmlDocument componentsXML = new XmlDocument();
-            var fullPath = Path.Combine(m_EditorForm.CurrentProjectDirectory, "Editor/components.xml");
-            componentsXML.Load(fullPath);
+            XmlDocument engineComponentsXML = new XmlDocument();
+            engineComponentsXML.Load("EditorAssets/components.xml");
 
-            XmlElement root = componentsXML.DocumentElement;
+            XmlElement root = engineComponentsXML.DocumentElement;
             XmlNodeList components = root.SelectNodes("child::*");
             foreach (XmlNode component in components)
             {
                 m_ComponentsByName[component.Attributes["name"].Value] = component;
+            }
+
+            XmlDocument gameComponentsXML = new XmlDocument();
+            var fullPath = Path.Combine(m_EditorForm.CurrentProjectDirectory, "Editor/components.xml");
+
+            if (File.Exists(fullPath))
+            {
+                gameComponentsXML.Load(fullPath);
+
+                root = gameComponentsXML.DocumentElement;
+                components = root.SelectNodes("child::*");
+                foreach (XmlNode component in components)
+                {
+                    m_ComponentsByName[component.Attributes["name"].Value] = component;
+                }
             }
         }
 
@@ -136,7 +150,7 @@ namespace CaravelEditor
                 if (result == DialogResult.OK)
                 {
                     var compName = form.GetSelectedComponent();
-                    var comp = m_EditorApp.EditorLogic.CreateComponent(compName);
+                    var comp = m_EditorApp.Logic.CreateComponent(compName);
 
                     if (m_EntityXml.Attributes["resource"] != null)
                     {
@@ -373,7 +387,7 @@ namespace CaravelEditor
             }
             else
             {
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
 
             ShowEntityComponents(m_EntityXml);
@@ -487,7 +501,7 @@ namespace CaravelEditor
             }
             else
             {
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
         }
         
@@ -640,7 +654,7 @@ namespace CaravelEditor
                 }
                 else
                 {
-                    m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                    m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
                 }
             }
             catch (Exception ex)
@@ -748,7 +762,7 @@ namespace CaravelEditor
                 }
                 else
                 {
-                    m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                    m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
                 }
             }
             catch (Exception ex)
@@ -880,7 +894,7 @@ namespace CaravelEditor
                 }
                 else
                 {
-                    m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                    m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
                 }
             }
         }
@@ -1214,7 +1228,7 @@ namespace CaravelEditor
             }
             else
             {
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
 
             ShowEntityComponents(m_EntityXml);
@@ -1544,7 +1558,7 @@ namespace CaravelEditor
             }
             else
             {
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
 
             ShowEntityComponents(m_EntityXml);
@@ -1658,7 +1672,7 @@ namespace CaravelEditor
             }
             else
             {
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
 
             ShowEntityComponents(m_EntityXml);
@@ -1811,7 +1825,7 @@ namespace CaravelEditor
             }
             else
             {
-                m_EditorApp.EditorLogic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
 
             ShowEntityComponents(m_EntityXml);

@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static CaravelEditor.EditorForm;
 
@@ -14,23 +9,41 @@ namespace CaravelEditor
     public partial class AddEntityForm : Form
     {
         private string[] m_Names;
+        private static int lastIdUsed = 0;
+        private static string lastEntityTypeResourceUsed = "";
 
         public AddEntityForm(List<EntityTypeItem> types, string[] names)
         {
             InitializeComponent();
-
-            /*this.typeComboBox.DisplayMember = "Type";
-            this.typeComboBox.ValueMember = "Resource";
-            this.typeComboBox.DataSource = types;*/
-
-            foreach(var type in types)
+            
+            int lastUsedIdx = -1;
+            for(var i = 0; i < types.Count; i++)
             {
+                var type = types[i];
+                if (type.Resource == lastEntityTypeResourceUsed)
+                {
+                    lastUsedIdx = i;
+                }
+
                 this.typeComboBox.Items.Add(type);
             }
 
-            this.m_Names = names;
+            if (lastUsedIdx >= 0)
+            {
+                typeComboBox.SelectedIndex = lastUsedIdx;
+            }
 
+            this.m_Names = names;
             this.addButton.Enabled = false;
+
+            var placeHolderName = "";
+            do
+            {
+                placeHolderName = "Entity_" + lastIdUsed;
+                lastIdUsed++;
+            }
+            while (m_Names.Contains(placeHolderName));
+            textBox.Text = placeHolderName;
         }
 
         public string GetEntityName()
@@ -40,6 +53,7 @@ namespace CaravelEditor
 
         public string GetEntityType()
         {
+            lastEntityTypeResourceUsed = ((EntityTypeItem)typeComboBox.SelectedItem).Resource;
             return ((EntityTypeItem) typeComboBox.SelectedItem).Resource;
         }
 

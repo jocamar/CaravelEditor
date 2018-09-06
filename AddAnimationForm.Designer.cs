@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddAnimationForm));
             this.textBox = new System.Windows.Forms.TextBox();
             this.label = new System.Windows.Forms.Label();
             this.addButton = new System.Windows.Forms.Button();
@@ -95,6 +96,7 @@
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.label);
             this.Controls.Add(this.textBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddAnimationForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Add Animation";

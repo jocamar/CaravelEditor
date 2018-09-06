@@ -33,8 +33,20 @@ namespace Caravel.Editor
         {
             get
             {
-                return (EditorLogic) GameLogic;
+                return (EditorLogic) Logic;
             }
+        }
+
+        public enum EditorMode
+        {
+            TRANSFORM,
+            CAMERA,
+            ZOOM
+        }
+
+        public EditorMode Mode
+        {
+            get; set;
         }
 
         private UpdateService _updateService;
@@ -60,7 +72,7 @@ namespace Caravel.Editor
 
         protected override Cv_GamePhysics VCreateGamePhysics()
         {
-            return Cv_GamePhysics.CreateNullPhysics();
+            return Cv_GamePhysics.CreateNullPhysics(this);
         }
 
         protected override Cv_GameView[] VCreateGameViews()
@@ -88,8 +100,9 @@ namespace Caravel.Editor
 
         protected override bool VLoadGame()
         {
-            GameLogic.LoadScene(CurrentScene, CurrentResourceBundle);
+            Logic.LoadScene(CurrentScene, CurrentResourceBundle);
             EForm.InitializeSceneEntitiess();
+            EForm.InitializeTools();
             EForm.InitializeAssets();
             EForm.InitializeEntityTypes();
             return true;

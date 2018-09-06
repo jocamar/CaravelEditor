@@ -31,6 +31,8 @@ namespace CaravelEditor
             Resize += new EventHandler(CaravelEditor_Resize);
 
             EditorForm.InitializeComponentEditor();
+            EditorForm.InitializeMaterialsEditor();
+            EditorForm.InitializeTools();
 
             _lastGameTime = new GameTime();
         }
@@ -58,6 +60,7 @@ namespace CaravelEditor
             eventArgs.Height = control.Size.Height;
 
             EditorApp.OnResize(this, eventArgs);
+            EditorForm.RepositionToolBox();
         }
     }
 }

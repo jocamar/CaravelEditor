@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddComponentForm));
             this.comboBox = new System.Windows.Forms.ComboBox();
             this.label = new System.Windows.Forms.Label();
             this.addButton = new System.Windows.Forms.Button();
@@ -94,6 +95,7 @@
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.label);
             this.Controls.Add(this.comboBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddComponentForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Add Component";

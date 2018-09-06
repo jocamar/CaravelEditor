@@ -97,7 +97,7 @@ namespace CaravelEditor
         {
             get
             {
-                return Color.FromArgb(80,80,80);
+                return Color.FromArgb(80, 80, 80);
             }
         }
 
@@ -106,6 +106,206 @@ namespace CaravelEditor
             get
             {
                 return Color.FromArgb(80, 80, 80);
+            }
+        }
+
+        public override Color ToolStripGradientBegin
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color ToolStripGradientMiddle
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color ToolStripGradientEnd
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color ToolStripBorder
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color ButtonSelectedHighlight
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ButtonSelectedGradientBegin
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ButtonSelectedGradientMiddle
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ButtonSelectedGradientEnd
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ButtonSelectedBorder
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ToolStripPanelGradientBegin
+        {
+            get
+            {
+                return Color.FromArgb(255, 0, 0);
+            }
+        }
+
+        public override Color ToolStripPanelGradientEnd
+        {
+            get
+            {
+                return Color.FromArgb(255, 0, 0);
+            }
+        }
+
+        public override Color ToolStripContentPanelGradientBegin
+        {
+            get
+            {
+                return Color.BlueViolet;
+            }
+        }
+
+        public override Color ToolStripContentPanelGradientEnd
+        {
+            get
+            {
+                return Color.Blue;
+            }
+        }
+
+        public override Color SeparatorDark
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color SeparatorLight
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color CheckBackground
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color GripDark
+        {
+            get
+            {
+                return Color.Red;
+            }
+        }
+
+        public override Color GripLight
+        {
+            get
+            {
+                return Color.Red;
+            }
+        }
+
+        public override Color ImageMarginRevealedGradientBegin
+        {
+            get
+            {
+                return Color.Red;
+            }
+        }
+
+        public override Color OverflowButtonGradientBegin
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color OverflowButtonGradientEnd
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color OverflowButtonGradientMiddle
+        {
+            get
+            {
+                return Color.FromArgb(64, 64, 64);
+            }
+        }
+
+        public override Color ButtonCheckedGradientBegin
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ButtonCheckedGradientMiddle
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
+            }
+        }
+
+        public override Color ButtonCheckedGradientEnd
+        {
+            get
+            {
+                return Color.FromArgb(100, 100, 100);
             }
         }
     }
