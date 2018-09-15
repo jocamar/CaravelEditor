@@ -126,7 +126,7 @@ namespace CaravelEditor
                 m_Panel.Controls.Add(button);
                 button.BringToFront();
 
-                m_Panel.VerticalScroll.Value = scrollValue;
+                m_Panel.VerticalScroll.Value = Math.Min(Math.Max(scrollValue, m_Panel.VerticalScroll.Minimum), m_Panel.VerticalScroll.Maximum);
                 m_Panel.PerformLayout();
             }
         }

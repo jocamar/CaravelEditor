@@ -134,6 +134,7 @@ namespace CaravelEditor
             removeTypeToolStripMenuItem.Enabled = false;
             addNewMaterialToolStripMenuItem.Enabled = false;
             removeMaterialToolStripMenuItem.Enabled = false;
+            editSceneToolStripMenuItem.Enabled = false;
 
             /**
              * Create asset view right click context menu
@@ -315,6 +316,7 @@ namespace CaravelEditor
 
             saveSceneToolStripMenuItem.Enabled = true;
             createEntityToolStripMenuItem.Enabled = true;
+            editSceneToolStripMenuItem.Enabled = true;
             //createTypeToolStripMenuItem.Enabled = true;
         }
 
@@ -966,6 +968,21 @@ namespace CaravelEditor
             }
         }
 
+
+        private void viewClickAreasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            editorWindow.EditorApp.EditorLogic.EditorView.DebugDrawClickableAreas = !editorWindow.EditorApp.EditorLogic.EditorView.DebugDrawClickableAreas;
+
+            if (editorWindow.EditorApp.EditorLogic.EditorView.DebugDrawClickableAreas)
+            {
+                viewClickAreasToolStripMenuItem.Checked = true;
+            }
+            else
+            {
+                viewClickAreasToolStripMenuItem.Checked = false;
+            }
+        }
+
         private void createEntityToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<EntityTypeItem> typeList = new List<EntityTypeItem>();
@@ -1299,7 +1316,12 @@ namespace CaravelEditor
                     sceneNode.SetAttribute("vWidth", form.GetWidth());
                     sceneNode.SetAttribute("vHeight", form.GetHeight());
 
+                    var scriptNode = doc.CreateElement("Script");
+                    scriptNode.SetAttribute("preLoad", form.GetPreLoadScript());
+                    scriptNode.SetAttribute("postLoad", form.GetPostLoadScript());
+
                     doc.AppendChild(sceneNode);
+                    sceneNode.AppendChild(scriptNode);
 
                     XmlWriterSettings oSettings = new XmlWriterSettings();
                     oSettings.Indent = true;
@@ -1433,7 +1455,11 @@ namespace CaravelEditor
                 entitiesNode.AppendChild(xmlDiff);
             }
 
-            
+            var scriptNode = doc.CreateElement("Script");
+            scriptNode.SetAttribute("preLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript);
+            scriptNode.SetAttribute("postLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript);
+            sceneNode.AppendChild(scriptNode);
+
             XmlWriterSettings oSettings = new XmlWriterSettings();
             oSettings.Indent = true;
             oSettings.OmitXmlDeclaration = true;
@@ -1446,6 +1472,32 @@ namespace CaravelEditor
             using (XmlWriter writer = XmlWriter.Create(sceneLocation, oSettings))
             {
                 doc.WriteContentTo(writer);
+            }
+        }
+
+
+        private void editSceneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var form = new EditSceneSettingsForm(CurrentProjectDirectory,
+                                                            CurrentResourceBundle,
+                                                            editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualWidth,
+                                                            editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualHeight,
+                                                            editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript,
+                                                            editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript))
+            {
+                var result = form.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualWidth = form.GetWidth();
+                    editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualHeight = form.GetHeight();
+                    editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript = form.GetPreLoadScript();
+                    editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript = form.GetPostLoadScript();
+                }
+                else
+                {
+                    return;
+                }
             }
         }
 

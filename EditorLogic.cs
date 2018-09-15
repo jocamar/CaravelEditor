@@ -8,8 +8,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using Caravel.Core.Physics;
 using static Caravel.Core.Physics.Cv_FarseerPhysics;
-using System.Linq;
-using System;
 
 namespace Caravel.Editor
 {
@@ -82,6 +80,16 @@ namespace Caravel.Editor
             get; set;
         }
 
+        public string CurrentScenePreLoadScript
+        {
+            get; set;
+        }
+
+        public string CurrentScenePostLoadScript
+        {
+            get; set;
+        }
+
         private Vector2 m_PrevMousePos;
         private bool m_bMouseButtonWasPressed = false;
         private int m_iPreviousScrollValue;
@@ -96,6 +104,8 @@ namespace Caravel.Editor
             m_iPreviousScrollValue = 0;
             m_PrevMousePos = new Vector2(-1, -1);
             ProjectDirectory = Directory.GetCurrentDirectory();
+            CurrentScenePostLoadScript = "";
+            CurrentScenePreLoadScript = "";
         }
 
         public Cv_PhysicsMaterial GetMaterial(string materialId)
@@ -127,6 +137,14 @@ namespace Caravel.Editor
             var editorCam = GetEntity(EditorView.EditorCamera);
             var camComponent = editorCam.GetComponent<Cv_CameraComponent>();
 
+            var scriptElement = sceneData.SelectNodes("Script").Item(0);
+
+            if (scriptElement != null)
+            {
+                CurrentScenePreLoadScript = scriptElement.Attributes["preLoad"].Value;
+                CurrentScenePostLoadScript = scriptElement.Attributes["postLoad"].Value;
+            }
+
             EditorView.Camera = camComponent.CameraNode;
             return true;
         }
@@ -138,6 +156,7 @@ namespace Caravel.Editor
             var camSettings = cam.GetComponent<Cv_CameraComponent>();
 
             var mouseState = Mouse.GetState();
+            var keyboardState = Keyboard.GetState();
             var editorApp = ((EditorApp)Caravel);
             var mousePos = new Vector2(mouseState.X, mouseState.Y);
             var mouseScroll = mouseState.ScrollWheelValue;
@@ -153,16 +172,28 @@ namespace Caravel.Editor
                         Cv_EntityID[] entities;
                         EditorView.Pick(mousePos, out entities);
 
-                        if (entities.Length > 0)
+                        if (!m_bMouseButtonWasPressed)
                         {
-                            if (!m_bMouseButtonWasPressed)
+                            if (!keyboardState.IsKeyDown(Keys.LeftControl))
                             {
-                                editorApp.EForm.SetSelectedEntity(entities[0]);
+                                if (entities.Length > 0)
+                                {
+                                    editorApp.EForm.SetSelectedEntity(entities[0]);
 
+                                    if (!m_bMovingEntity)
+                                    {
+                                        m_bMovingEntity = true;
+                                        m_EntityBeingMoved = GetEntity(entities[0]);
+                                    }
+
+                                }
+                            }
+                            else if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
+                            {
                                 if (!m_bMovingEntity)
                                 {
                                     m_bMovingEntity = true;
-                                    m_EntityBeingMoved = GetEntity(entities[0]);
+                                    m_EntityBeingMoved = GetEntity(editorApp.EForm.CurrentEntity);
                                 }
                             }
                         }
@@ -207,7 +238,9 @@ namespace Caravel.Editor
                         }
                     }
                 }
-                else if (editorApp.Mode == EditorApp.EditorMode.CAMERA && m_PrevMousePos.X != -1)
+                else if (editorApp.Mode == EditorApp.EditorMode.CAMERA
+                            && editorApp.EWindow != null
+                            && editorApp.EWindow.Focused && m_PrevMousePos.X != -1)
                 {
                     var delta = m_PrevMousePos - mousePos;
 
@@ -238,7 +271,7 @@ namespace Caravel.Editor
 
                 if (editorApp.Mode == EditorApp.EditorMode.CAMERA)
                 {
-                    camSettings.Zoom += delta / 100f;
+                    camSettings.Zoom += delta / 3000f;
                     editorApp.EForm.UpdateTools();
                 }
                 else if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)

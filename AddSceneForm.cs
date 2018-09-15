@@ -36,6 +36,16 @@ namespace CaravelEditor
             return fileTextBox.Text;
         }
 
+        public string GetPreLoadScript()
+        {
+            return preLoadScriptTextBox.Text;
+        }
+
+        public string GetPostLoadScript()
+        {
+            return postLoadScriptTextBox.Text;
+        }
+
         public string GetSceneResourceBundle()
         {
             return m_sSceneResourceBundle;
@@ -101,7 +111,7 @@ namespace CaravelEditor
             return false;
         }
 
-        private void browseButton_Click(object sender, EventArgs e)
+        private void sceneFileButton_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFile = new SaveFileDialog();
 
@@ -127,6 +137,86 @@ namespace CaravelEditor
                 else
                 {
                     MessageBox.Show("Error - The file must be inside one of the existing resource bundles for this project.", "Error");
+                }
+            }
+        }
+
+        private void browsePreLoadButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+
+            openFile.InitialDirectory = m_sCurrentProject;
+            openFile.Filter = "Lua Script | *.lua";
+            openFile.ShowDialog();
+            if (openFile.FileNames.Length > 0)
+            {
+                string fileName = openFile.FileNames[0];
+
+                if (m_sSceneResourceBundle != null && m_sSceneResourceBundle != "")
+                {
+                    string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(m_sSceneResourceBundle));
+
+                    if (fileName.StartsWith(resourceBundleFullPath))
+                    {
+                        preLoadScriptTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\","/");
+
+                        if (CanCreateScene())
+                        {
+                            saveButton.Enabled = true;
+                        }
+                        else
+                        {
+                            saveButton.Enabled = false;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error - The script file must be inside the same resource bundle as the scene file.", "Error");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Error - You must first choose the location of the scene file.", "Error");
+                }
+            }
+        }
+
+        private void browsePostLoadButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+
+            openFile.InitialDirectory = m_sCurrentProject;
+            openFile.Filter = "Lua Script | *.lua";
+            openFile.ShowDialog();
+            if (openFile.FileNames.Length > 0)
+            {
+                string fileName = openFile.FileNames[0];
+
+                if (m_sSceneResourceBundle != null && m_sSceneResourceBundle != "")
+                {
+                    string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(m_sSceneResourceBundle));
+
+                    if (fileName.StartsWith(resourceBundleFullPath))
+                    {
+                        postLoadScriptTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/");
+
+                        if (CanCreateScene())
+                        {
+                            saveButton.Enabled = true;
+                        }
+                        else
+                        {
+                            saveButton.Enabled = false;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error - The script file must be inside the same resource bundle as the scene file.", "Error");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Error - You must first choose the location of the scene file.", "Error");
                 }
             }
         }

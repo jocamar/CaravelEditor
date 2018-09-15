@@ -25,5 +25,33 @@
 	<Component name="Cv_CameraComponent">
 		<Element name="Properties" type="cameraProperties" />
 	</Component>
+  
+  <Component name="Cv_SoundEmitterComponent">
+    <Element name="SoundEffect" type="file" fieldNames="resource" extensions="Sound Files(*.WAV;)|*.WAV;|All files (*.*)|*.*"/>
+		<Element name="Volume" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="Pan" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="Pitch" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="Looping" type="boolean" fieldNames="value"/>
+    <Element name="IsPositional" type="boolean" fieldNames="value"/>
+    <Element name="AutoPlay" type="boolean" fieldNames="value"/>
+	</Component>
+
+  <Component name="Cv_SoundListenerComponent"/>
+  
+  <Component name="Cv_ScriptComponent">
+    <Element name="InitScript" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
+    <Element name="Script" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
+    <Element name="Interval" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="ExecuteOnce" type="boolean" fieldNames="value"/>
+    <Element name="Paused" type="boolean" fieldNames="value"/>
+	</Component>
+  
+  <Component name="Cv_ClickableComponent">
+    <Element name="OnMouseUp" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
+    <Element name="OnMouseDown" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
+    <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Anchor" type="int" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="Active" type="boolean" fieldNames="value"/>
+	</Component>
 	
 </Components>

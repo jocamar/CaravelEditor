@@ -182,6 +182,12 @@
     <Compile Include="EditorForm.Designer.cs">
       <DependentUpon>EditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EditSceneSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditSceneSettingsForm.Designer.cs">
+      <DependentUpon>EditSceneSettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="EntityComponentEditor.cs" />
     <Compile Include="MakeIntoTypeForm.cs">
       <SubType>Form</SubType>
@@ -214,6 +220,7 @@
     </Content>
     <Content Include="EditorAssets\components.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="EditorAssets\grab.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -253,6 +260,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditorForm.resx">
       <DependentUpon>EditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditSceneSettingsForm.resx">
+      <DependentUpon>EditSceneSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MakeIntoTypeForm.resx">
       <DependentUpon>MakeIntoTypeForm.cs</DependentUpon>

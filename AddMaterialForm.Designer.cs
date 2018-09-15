@@ -51,7 +51,7 @@
             this.nameTextBox.Size = new System.Drawing.Size(138, 20);
             this.nameTextBox.TabIndex = 1;
             this.nameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.nameTextBox.TextChanged += new System.EventHandler(textBox_OnTextChanged);
+            this.nameTextBox.TextChanged += new System.EventHandler(this.textBox_OnTextChanged);
             // 
             // nameLabel
             // 
@@ -72,7 +72,7 @@
             this.densityTextBox.Size = new System.Drawing.Size(138, 20);
             this.densityTextBox.TabIndex = 4;
             this.densityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.densityTextBox.TextChanged += new System.EventHandler(textBox_OnTextChanged);
+            this.densityTextBox.TextChanged += new System.EventHandler(this.textBox_OnTextChanged);
             // 
             // densityLabel
             // 
@@ -93,7 +93,7 @@
             this.frictionTextBox.Size = new System.Drawing.Size(138, 20);
             this.frictionTextBox.TabIndex = 6;
             this.frictionTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.frictionTextBox.TextChanged += new System.EventHandler(textBox_OnTextChanged);
+            this.frictionTextBox.TextChanged += new System.EventHandler(this.textBox_OnTextChanged);
             // 
             // frictionLabel
             // 
@@ -114,7 +114,7 @@
             this.restitutionTextBox.Size = new System.Drawing.Size(138, 20);
             this.restitutionTextBox.TabIndex = 8;
             this.restitutionTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.restitutionTextBox.TextChanged += new System.EventHandler(textBox_OnTextChanged);
+            this.restitutionTextBox.TextChanged += new System.EventHandler(this.textBox_OnTextChanged);
             // 
             // restitutionLabel
             // 
@@ -170,6 +170,7 @@
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.nameTextBox);
             this.ForeColor = System.Drawing.SystemColors.Control;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddMaterialForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

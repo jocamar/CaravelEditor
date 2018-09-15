@@ -95,6 +95,7 @@
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.label);
             this.Controls.Add(this.comboBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddComponentForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

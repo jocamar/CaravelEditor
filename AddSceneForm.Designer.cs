@@ -31,13 +31,19 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddSceneForm));
             this.fileLabel = new System.Windows.Forms.Label();
             this.fileTextBox = new System.Windows.Forms.TextBox();
-            this.browseButton = new System.Windows.Forms.Button();
+            this.browseFileButton = new System.Windows.Forms.Button();
             this.widthLabel = new System.Windows.Forms.Label();
             this.widthTextBox = new System.Windows.Forms.TextBox();
             this.heigthLabel = new System.Windows.Forms.Label();
             this.heightTextBox = new System.Windows.Forms.TextBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.preLoadLabel = new System.Windows.Forms.Label();
+            this.preLoadScriptTextBox = new System.Windows.Forms.TextBox();
+            this.browsePreLoadButton = new System.Windows.Forms.Button();
+            this.postLoadLabel = new System.Windows.Forms.Label();
+            this.postLoadScriptTextBox = new System.Windows.Forms.TextBox();
+            this.browsePostLoadButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // fileLabel
@@ -54,23 +60,24 @@
             this.fileTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(140)))), ((int)(((byte)(140)))), ((int)(((byte)(140)))));
             this.fileTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.fileTextBox.ForeColor = System.Drawing.SystemColors.Control;
-            this.fileTextBox.Location = new System.Drawing.Point(110, 26);
+            this.fileTextBox.Location = new System.Drawing.Point(123, 26);
             this.fileTextBox.Name = "fileTextBox";
-            this.fileTextBox.Size = new System.Drawing.Size(258, 20);
+            this.fileTextBox.ReadOnly = true;
+            this.fileTextBox.Size = new System.Drawing.Size(245, 20);
             this.fileTextBox.TabIndex = 3;
             // 
-            // browseButton
+            // browseFileButton
             // 
-            this.browseButton.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.browseButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
-            this.browseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.browseButton.Location = new System.Drawing.Point(390, 23);
-            this.browseButton.Name = "browseButton";
-            this.browseButton.Size = new System.Drawing.Size(75, 23);
-            this.browseButton.TabIndex = 4;
-            this.browseButton.Text = "Choose File";
-            this.browseButton.UseVisualStyleBackColor = false;
-            this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
+            this.browseFileButton.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.browseFileButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
+            this.browseFileButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.browseFileButton.Location = new System.Drawing.Point(390, 23);
+            this.browseFileButton.Name = "browseFileButton";
+            this.browseFileButton.Size = new System.Drawing.Size(75, 23);
+            this.browseFileButton.TabIndex = 4;
+            this.browseFileButton.Text = "Choose File";
+            this.browseFileButton.UseVisualStyleBackColor = false;
+            this.browseFileButton.Click += new System.EventHandler(this.sceneFileButton_Click);
             // 
             // widthLabel
             // 
@@ -118,7 +125,7 @@
             this.saveButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.saveButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.saveButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.saveButton.Location = new System.Drawing.Point(59, 148);
+            this.saveButton.Location = new System.Drawing.Point(55, 231);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(173, 23);
             this.saveButton.TabIndex = 9;
@@ -131,29 +138,100 @@
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cancelButton.Location = new System.Drawing.Point(274, 148);
+            this.cancelButton.Location = new System.Drawing.Point(275, 231);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(173, 23);
             this.cancelButton.TabIndex = 10;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = false;
             // 
+            // preLoadLabel
+            // 
+            this.preLoadLabel.AutoSize = true;
+            this.preLoadLabel.Location = new System.Drawing.Point(35, 153);
+            this.preLoadLabel.Name = "preLoadLabel";
+            this.preLoadLabel.Size = new System.Drawing.Size(80, 13);
+            this.preLoadLabel.TabIndex = 11;
+            this.preLoadLabel.Text = "PreLoad Script:";
+            // 
+            // preLoadScriptTextBox
+            // 
+            this.preLoadScriptTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(140)))), ((int)(((byte)(140)))), ((int)(((byte)(140)))));
+            this.preLoadScriptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.preLoadScriptTextBox.ForeColor = System.Drawing.SystemColors.Control;
+            this.preLoadScriptTextBox.Location = new System.Drawing.Point(123, 151);
+            this.preLoadScriptTextBox.Name = "preLoadScriptTextBox";
+            this.preLoadScriptTextBox.Size = new System.Drawing.Size(245, 20);
+            this.preLoadScriptTextBox.TabIndex = 12;
+            // 
+            // browsePreLoadButton
+            // 
+            this.browsePreLoadButton.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.browsePreLoadButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
+            this.browsePreLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.browsePreLoadButton.Location = new System.Drawing.Point(390, 148);
+            this.browsePreLoadButton.Name = "browsePreLoadButton";
+            this.browsePreLoadButton.Size = new System.Drawing.Size(75, 23);
+            this.browsePreLoadButton.TabIndex = 13;
+            this.browsePreLoadButton.Text = "Choose File";
+            this.browsePreLoadButton.UseVisualStyleBackColor = false;
+            this.browsePreLoadButton.Click += new System.EventHandler(this.browsePreLoadButton_Click);
+            // 
+            // postLoadLabel
+            // 
+            this.postLoadLabel.AutoSize = true;
+            this.postLoadLabel.Location = new System.Drawing.Point(35, 190);
+            this.postLoadLabel.Name = "postLoadLabel";
+            this.postLoadLabel.Size = new System.Drawing.Size(85, 13);
+            this.postLoadLabel.TabIndex = 14;
+            this.postLoadLabel.Text = "PostLoad Script:";
+            // 
+            // postLoadScriptTextBox
+            // 
+            this.postLoadScriptTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(140)))), ((int)(((byte)(140)))), ((int)(((byte)(140)))));
+            this.postLoadScriptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.postLoadScriptTextBox.ForeColor = System.Drawing.SystemColors.Control;
+            this.postLoadScriptTextBox.Location = new System.Drawing.Point(123, 188);
+            this.postLoadScriptTextBox.Name = "postLoadScriptTextBox";
+            this.postLoadScriptTextBox.Size = new System.Drawing.Size(245, 20);
+            this.postLoadScriptTextBox.TabIndex = 15;
+            // 
+            // browsePostLoadButton
+            // 
+            this.browsePostLoadButton.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.browsePostLoadButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
+            this.browsePostLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.browsePostLoadButton.Location = new System.Drawing.Point(390, 185);
+            this.browsePostLoadButton.Name = "browsePostLoadButton";
+            this.browsePostLoadButton.Size = new System.Drawing.Size(75, 23);
+            this.browsePostLoadButton.TabIndex = 16;
+            this.browsePostLoadButton.Text = "Choose File";
+            this.browsePostLoadButton.UseVisualStyleBackColor = false;
+            this.browsePostLoadButton.Click += new System.EventHandler(this.browsePostLoadButton_Click);
+            // 
             // AddSceneForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(506, 193);
+            this.ClientSize = new System.Drawing.Size(506, 279);
+            this.Controls.Add(this.browsePostLoadButton);
+            this.Controls.Add(this.postLoadScriptTextBox);
+            this.Controls.Add(this.postLoadLabel);
+            this.Controls.Add(this.browsePreLoadButton);
+            this.Controls.Add(this.preLoadScriptTextBox);
+            this.Controls.Add(this.preLoadLabel);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.heightTextBox);
             this.Controls.Add(this.heigthLabel);
             this.Controls.Add(this.widthTextBox);
             this.Controls.Add(this.widthLabel);
-            this.Controls.Add(this.browseButton);
+            this.Controls.Add(this.browseFileButton);
             this.Controls.Add(this.fileTextBox);
             this.Controls.Add(this.fileLabel);
             this.ForeColor = System.Drawing.SystemColors.Control;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddSceneForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
@@ -167,12 +245,18 @@
 
         private System.Windows.Forms.Label fileLabel;
         private System.Windows.Forms.TextBox fileTextBox;
-        private System.Windows.Forms.Button browseButton;
+        private System.Windows.Forms.Button browseFileButton;
         private System.Windows.Forms.Label widthLabel;
         private System.Windows.Forms.TextBox widthTextBox;
         private System.Windows.Forms.Label heigthLabel;
         private System.Windows.Forms.TextBox heightTextBox;
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.Label preLoadLabel;
+        private System.Windows.Forms.TextBox preLoadScriptTextBox;
+        private System.Windows.Forms.Button browsePreLoadButton;
+        private System.Windows.Forms.Label postLoadLabel;
+        private System.Windows.Forms.TextBox postLoadScriptTextBox;
+        private System.Windows.Forms.Button browsePostLoadButton;
     }
 }

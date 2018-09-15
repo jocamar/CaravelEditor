@@ -1,4 +1,3 @@
-using System.Xml;
 using Caravel.Core;
 using Microsoft.Xna.Framework;
 using static Caravel.Core.Entity.Cv_Entity;
@@ -29,6 +28,11 @@ namespace Caravel.Editor
             {
                 return Renderer.VirtualWidth;
             }
+
+            set
+            {
+                Renderer.VirtualWidth = value;
+            }
         }
 
         public int SceneVirtualHeight
@@ -37,11 +41,18 @@ namespace Caravel.Editor
             {
                 return Renderer.VirtualHeight;
             }
+
+            set
+            {
+                Renderer.VirtualHeight = value;
+            }
         }
 
         public EditorView(PlayerIndex player, SpriteBatch sb) : base(player, new Vector2(1,1), Vector2.Zero, sb)
         {
             DebugDrawPhysicsShapes = true;
+            DebugDrawCameras = true;
+            DebugDrawClickableAreas = true;
         }
 
         public void Init()

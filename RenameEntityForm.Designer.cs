@@ -92,6 +92,7 @@
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.nameTextBox);
             this.ForeColor = System.Drawing.SystemColors.Control;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "RenameEntityForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

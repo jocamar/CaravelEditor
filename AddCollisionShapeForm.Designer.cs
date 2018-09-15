@@ -94,6 +94,7 @@
             this.Controls.Add(this.label);
             this.Controls.Add(this.comboBox);
             this.ForeColor = System.Drawing.SystemColors.Control;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddCollisionShapeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

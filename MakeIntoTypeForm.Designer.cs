@@ -45,6 +45,7 @@
             this.fileTextBox.ForeColor = System.Drawing.SystemColors.Control;
             this.fileTextBox.Location = new System.Drawing.Point(102, 29);
             this.fileTextBox.Name = "fileTextBox";
+            this.fileTextBox.ReadOnly = true;
             this.fileTextBox.Size = new System.Drawing.Size(258, 20);
             this.fileTextBox.TabIndex = 0;
             this.fileTextBox.TextChanged += new System.EventHandler(this.textBox_OnTextChanged);
@@ -131,6 +132,7 @@
             this.Controls.Add(this.fileLabel);
             this.Controls.Add(this.fileTextBox);
             this.ForeColor = System.Drawing.SystemColors.Control;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MakeIntoTypeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
