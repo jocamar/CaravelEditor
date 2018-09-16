@@ -56,7 +56,7 @@ namespace CaravelEditor
         {
             m_ComponentsByName.Clear();
             XmlDocument engineComponentsXML = new XmlDocument();
-            engineComponentsXML.Load("EditorAssets/components.xml");
+            engineComponentsXML.Load(Path.Combine(m_EditorForm.EditorDirectory,"EditorAssets/components.xml"));
 
             XmlElement root = engineComponentsXML.DocumentElement;
             XmlNodeList components = root.SelectNodes("child::*");
@@ -249,6 +249,11 @@ namespace CaravelEditor
                         case "float":
                             string format = (elementType == "int") ? "0" : "0.000";
                             lineNum = AddNum(entityValues, xpath, format, lineNum);
+                            ++lineNum;
+                            break;
+
+                        case "string":
+                            lineNum = AddString(entityValues, xpath, lineNum);
                             ++lineNum;
                             break;
 
@@ -598,6 +603,128 @@ namespace CaravelEditor
         }
 
         private void NumElementChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                TextBox textBox = (TextBox)sender;
+                string xPath = textBox.Name;
+                string newValue = textBox.Text;
+
+                XmlDocument xmlDoc = new XmlDocument();
+                XmlElement xmlEntity = xmlDoc.CreateElement("Entity");
+                xmlDoc.AppendChild(xmlEntity);
+
+                XmlAttribute xmlEntityId = xmlDoc.CreateAttribute("id");
+                xmlEntityId.InnerText = m_EditorForm.CurrentEntity.ToString();
+                xmlEntity.Attributes.Append(xmlEntityId);
+
+                XmlNode elementNode;
+                XmlNode node = FindEntityElementFromXPath(xPath);
+                var elemLevel = 3;
+                if (node.ParentNode == null)
+                {
+                    XmlAttribute attribute = (XmlAttribute)node;
+                    elementNode = attribute.OwnerElement;
+                    elemLevel = 4;
+
+                    attribute.Value = newValue;
+                }
+                else
+                {
+                    elementNode = node;
+                    elementNode.InnerText = newValue;
+                }
+
+
+                XmlNode componentNode = null;
+
+                XmlNode tmpNode = elementNode.ParentNode;
+                var subLevels = xPath.Split('/').Length - 1;
+
+                for (var i = elemLevel; i < subLevels; i++)
+                {
+                    tmpNode = tmpNode.ParentNode;
+                }
+
+                componentNode = tmpNode;
+
+                XmlNode xmlComponent = xmlDoc.ImportNode(componentNode, true);
+                xmlEntity.AppendChild(xmlComponent);
+
+                SaveToFile();
+
+                if (m_EntityXml.Attributes["resource"] != null)
+                {
+                    m_EditorForm.SyncEntitiesWithType(m_EntityXml.Attributes["resource"].Value);
+                }
+                else
+                {
+                    m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
+        }
+        #endregion
+
+        #region String Element
+        protected int AddString(XmlNode entityValues, string xpath, int lineNum)
+        {
+            const int boxWidth = 100;
+            const int charWidth = 7;
+            const int horizSpacing = 10;
+
+            XmlNode fieldsElement = FindEditorElementFromXPath(xpath);
+            string fieldNames = fieldsElement.Attributes["fieldNames"].Value;
+            string[] fields = fieldNames.Split(',');
+
+            string[] editorFields = fieldsElement.Attributes["editorNames"].Value.Split(',');
+
+            var currLoc = m_iElementLabelWidth + m_iLeftPaddingElements;
+
+            for (var i = 0; i < fields.Length; i++)
+            {
+                var field = fields[i];
+                var editorName = editorFields[i] + ":";
+
+                AddElementLabel(editorName, lineNum, currLoc, charWidth * (editorName.Length + 1));
+                currLoc += charWidth * editorName.Length;
+
+                TextBox textBox = new TextBox();
+                Point location = new Point(currLoc, lineNum * m_iLineSpacing);
+                currLoc += horizSpacing + boxWidth;
+                textBox.Name = xpath + "/@" + field;
+
+                string entityValue = entityValues.Attributes[field].Value;
+                textBox.Text = entityValue;
+                textBox.Location = location;
+                textBox.ForeColor = System.Drawing.SystemColors.Window;
+                textBox.TextAlign = HorizontalAlignment.Center;
+                textBox.BackColor = m_BgColor;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+                textBox.Leave += new EventHandler(StringElementChanged);
+                textBox.KeyDown += new KeyEventHandler(StringTextBoxOnKeyDown);
+
+                textBox.Width = boxWidth;
+                m_Panel.Controls.Add(textBox);
+            }
+
+            return lineNum;
+        }
+
+        private void StringTextBoxOnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                StringElementChanged(sender, e);
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
+        }
+
+        private void StringElementChanged(object sender, EventArgs e)
         {
             try
             {

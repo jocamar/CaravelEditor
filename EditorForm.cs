@@ -58,6 +58,11 @@ namespace CaravelEditor
             }
         }
 
+        public string EditorDirectory
+        {
+            get; private set;
+        }
+
         private Dictionary<string, string> m_ResourceBundles;
         private Dictionary<Cv_EntityID, XmlElement> m_EntityXmlNodes;
         private Dictionary<Cv_EntityID, TreeNode> m_EntityTreeNodes;
@@ -200,6 +205,8 @@ namespace CaravelEditor
             var removeMaterialItem = m_MaterialsContextMenu.Items.Add("Remove");
             removeMaterialItem.ForeColor = System.Drawing.SystemColors.Control;
             removeMaterialItem.Click += new EventHandler(removeMaterialToolStripMenuItem_Click);
+
+            EditorDirectory = Directory.GetCurrentDirectory();
         }
 
         public bool TypeHasComponent(string type, string component)
@@ -706,6 +713,13 @@ namespace CaravelEditor
                 {
                     editorWindow.EditorApp.EditorReadMaterials(CurrentProjectDirectory);
                     addNewMaterialToolStripMenuItem.Enabled = true;
+                }
+
+                var strings = root.SelectSingleNode("//Strings");
+
+                if (strings != null)
+                {
+                    editorWindow.EditorApp.EditorReadStrings(CurrentProjectDirectory);
                 }
 
                 editorWindow.EditorApp.EForm = this;

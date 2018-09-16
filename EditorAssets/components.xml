@@ -19,7 +19,7 @@
 		<Element name="Visible" type="boolean" fieldNames="status"/>
 		<Element name="Texture" type="file" fieldNames="resource" extensions="Image Files(*.PNG;*.JPG;)|*.PNG;*.JPG;|All files (*.*)|*.*"  />
 		<Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
-        <Element name="Animation" type="animationProperties" />
+    <Element name="Animation" type="animationProperties" />
 	</Component>
 	
 	<Component name="Cv_CameraComponent">
@@ -53,5 +53,15 @@
     <Element name="Anchor" type="int" fieldNames="x,y" editorNames="X,Y"/>
     <Element name="Active" type="boolean" fieldNames="value"/>
 	</Component>
+
+  <Component name="Cv_TextComponent">
+    <Element name="Color" type="rgba" />
+    <Element name="Visible" type="boolean" fieldNames="status"/>
+    <Element name="Font" type="file" fieldNames="resource" extensions="SpriteFont Files(*.XNB;)|*.XNB;|All files (*.*)|*.*"  />
+    <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Text" type="string" fieldNames="text" editorNames="String ID"/>
+    <Element name="HorizontalAlignment" type="comboBox" fieldNames="value" options="Left,Center,Right"/>
+    <Element name="VerticalAlignment" type="comboBox" fieldNames="value" options="Top,Center,Bottom"/>
+  </Component>
 	
 </Components>
