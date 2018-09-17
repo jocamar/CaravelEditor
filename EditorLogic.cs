@@ -178,7 +178,10 @@ namespace Caravel.Editor
                             {
                                 if (entities.Length > 0)
                                 {
-                                    editorApp.EForm.SetSelectedEntity(entities[0]);
+                                    if (entities[0] != editorApp.EForm.CurrentEntity)
+                                    {
+                                        editorApp.EForm.SetSelectedEntity(entities[0]);
+                                    }
 
                                     if (!m_bMovingEntity)
                                     {
@@ -267,6 +270,7 @@ namespace Caravel.Editor
 
             if (mouseScroll != m_iPreviousScrollValue)
             {
+                m_iIdleTime = 0;
                 var delta = mouseScroll - m_iPreviousScrollValue;
 
                 if (editorApp.Mode == EditorApp.EditorMode.CAMERA)

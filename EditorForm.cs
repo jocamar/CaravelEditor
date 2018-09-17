@@ -703,7 +703,7 @@ namespace CaravelEditor
                 {
                     var bundleId = element.Attributes["name"].Value;
                     var bundleFile = element.Attributes["file"].Value;
-                    editorWindow.EditorApp.EditorLoadResourceBundle(bundleId, CurrentProjectDirectory, bundleFile);
+                    editorWindow.EditorApp.EditorLoadResourceBundle(bundleId, CurrentProjectDirectory, bundleFile, editorWindow.Editor.services);
                     m_ResourceBundles.Add(bundleFile, bundleId);
                 }
 
