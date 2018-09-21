@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using static Caravel.Core.Physics.Cv_FarseerPhysics;
+using static Caravel.Core.Physics.Cv_GamePhysics;
 
 namespace CaravelEditor
 {

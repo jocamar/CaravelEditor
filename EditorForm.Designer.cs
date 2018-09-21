@@ -60,6 +60,7 @@ namespace CaravelEditor
             this.addNewMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeMaterialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.controlsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.entityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createEntityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createEntityAsChildToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,7 +78,6 @@ namespace CaravelEditor
             this.materialsTab = new System.Windows.Forms.TabPage();
             this.materialsSplitContainer = new System.Windows.Forms.SplitContainer();
             this.materialsListBox = new System.Windows.Forms.ListBox();
-            this.materialEditorControl = new CaravelEditor.MaterialEditorControl();
             this.panel1 = new System.Windows.Forms.Panel();
             this.assetsTreeView = new System.Windows.Forms.TreeView();
             this.AssetsLabelPanel = new System.Windows.Forms.Panel();
@@ -86,10 +86,11 @@ namespace CaravelEditor
             this.editorToolsGrabButton = new System.Windows.Forms.ToolStripButton();
             this.editorToolsCameraButton = new System.Windows.Forms.ToolStripButton();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.editorToolsPaintbrushButton = new System.Windows.Forms.ToolStripButton();
+            this.editorWindow = new CaravelEditor.EditorWindow();
             this.cameraToolOptions = new CaravelEditor.CameraToolOptions();
             this.transformToolOptions1 = new CaravelEditor.TransformToolOptions();
-            this.editorWindow = new CaravelEditor.EditorWindow();
-            this.editSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.materialEditorControl = new CaravelEditor.MaterialEditorControl();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.editorTabs.SuspendLayout();
@@ -349,7 +350,7 @@ namespace CaravelEditor
             this.removeTypeToolStripMenuItem});
             this.entityTypeToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.entityTypeToolStripMenuItem.Name = "entityTypeToolStripMenuItem";
-            this.entityTypeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.entityTypeToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.entityTypeToolStripMenuItem.Text = "Entity Types";
             // 
             // createTypeToolStripMenuItem
@@ -378,7 +379,7 @@ namespace CaravelEditor
             this.removeMaterialToolStripMenuItem});
             this.materialsToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.materialsToolStripMenuItem.Name = "materialsToolStripMenuItem";
-            this.materialsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.materialsToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.materialsToolStripMenuItem.Text = "Materials";
             // 
             // addNewMaterialToolStripMenuItem
@@ -407,8 +408,18 @@ namespace CaravelEditor
             this.controlsToolStripMenuItem.Enabled = false;
             this.controlsToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
             this.controlsToolStripMenuItem.Name = "controlsToolStripMenuItem";
-            this.controlsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.controlsToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
             this.controlsToolStripMenuItem.Text = "Controls";
+            // 
+            // editSceneToolStripMenuItem
+            // 
+            this.editSceneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.editSceneToolStripMenuItem.Enabled = false;
+            this.editSceneToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
+            this.editSceneToolStripMenuItem.Name = "editSceneToolStripMenuItem";
+            this.editSceneToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.editSceneToolStripMenuItem.Text = "Scene";
+            this.editSceneToolStripMenuItem.Click += new System.EventHandler(this.editSceneToolStripMenuItem_Click);
             // 
             // entityToolStripMenuItem
             // 
@@ -636,16 +647,6 @@ namespace CaravelEditor
             this.materialsListBox.SelectedIndexChanged += new System.EventHandler(this.materialsListBox_AfterSelect);
             this.materialsListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.materialsListBox_RightClick);
             // 
-            // materialEditorControl
-            // 
-            this.materialEditorControl.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.materialEditorControl.Dock = System.Windows.Forms.DockStyle.Top;
-            this.materialEditorControl.ForeColor = System.Drawing.SystemColors.Control;
-            this.materialEditorControl.Location = new System.Drawing.Point(0, 0);
-            this.materialEditorControl.Name = "materialEditorControl";
-            this.materialEditorControl.Size = new System.Drawing.Size(371, 131);
-            this.materialEditorControl.TabIndex = 0;
-            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.assetsTreeView);
@@ -699,13 +700,14 @@ namespace CaravelEditor
             this.editorToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.editorToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.editorToolsGrabButton,
-            this.editorToolsCameraButton});
+            this.editorToolsCameraButton,
+            this.editorToolsPaintbrushButton});
             this.editorToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.VerticalStackWithOverflow;
             this.editorToolStrip.Location = new System.Drawing.Point(188, 63);
             this.editorToolStrip.Name = "editorToolStrip";
             this.editorToolStrip.Padding = new System.Windows.Forms.Padding(0);
             this.editorToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.editorToolStrip.Size = new System.Drawing.Size(23, 48);
+            this.editorToolStrip.Size = new System.Drawing.Size(31, 90);
             this.editorToolStrip.TabIndex = 9;
             this.editorToolStrip.Text = "Editor Tools";
             // 
@@ -718,8 +720,9 @@ namespace CaravelEditor
             this.editorToolsGrabButton.Image = ((System.Drawing.Image)(resources.GetObject("editorToolsGrabButton.Image")));
             this.editorToolsGrabButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.editorToolsGrabButton.Name = "editorToolsGrabButton";
-            this.editorToolsGrabButton.Size = new System.Drawing.Size(22, 20);
-            this.editorToolsGrabButton.Text = "Transform Tool";
+            this.editorToolsGrabButton.Size = new System.Drawing.Size(30, 20);
+            this.editorToolsGrabButton.Text = "Manipulate Tool";
+            this.editorToolsGrabButton.ToolTipText = "Manipulate Tool";
             this.editorToolsGrabButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.toolStripButton_Clicked);
             // 
             // editorToolsCameraButton
@@ -729,7 +732,7 @@ namespace CaravelEditor
             this.editorToolsCameraButton.Image = ((System.Drawing.Image)(resources.GetObject("editorToolsCameraButton.Image")));
             this.editorToolsCameraButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.editorToolsCameraButton.Name = "editorToolsCameraButton";
-            this.editorToolsCameraButton.Size = new System.Drawing.Size(22, 20);
+            this.editorToolsCameraButton.Size = new System.Drawing.Size(30, 20);
             this.editorToolsCameraButton.Text = "Camera Tool";
             this.editorToolsCameraButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.toolStripButton_Clicked);
             // 
@@ -742,6 +745,29 @@ namespace CaravelEditor
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(717, 29);
             this.flowLayoutPanel1.TabIndex = 10;
+            // 
+            // editorToolsPaintbrushButton
+            // 
+            this.editorToolsPaintbrushButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.editorToolsPaintbrushButton.Image = ((System.Drawing.Image)(resources.GetObject("editorToolsPaintbrushButton.Image")));
+            this.editorToolsPaintbrushButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.editorToolsPaintbrushButton.Name = "editorToolsPaintbrushButton";
+            this.editorToolsPaintbrushButton.Size = new System.Drawing.Size(30, 20);
+            this.editorToolsPaintbrushButton.Text = "Create Tool";
+            this.editorToolsPaintbrushButton.ToolTipText = "Create Tool";
+            this.editorToolsPaintbrushButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.toolStripButton_Clicked);
+            // 
+            // editorWindow
+            // 
+            this.editorWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.editorWindow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editorWindow.EditorForm = null;
+            this.editorWindow.Location = new System.Drawing.Point(178, 53);
+            this.editorWindow.Name = "editorWindow";
+            this.editorWindow.Size = new System.Drawing.Size(717, 645);
+            this.editorWindow.TabIndex = 8;
+            this.editorWindow.Text = "editorWindow";
+            this.editorWindow.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorWindow_RightClick);
             // 
             // cameraToolOptions
             // 
@@ -760,27 +786,15 @@ namespace CaravelEditor
             this.transformToolOptions1.Size = new System.Drawing.Size(243, 19);
             this.transformToolOptions1.TabIndex = 1;
             // 
-            // editorWindow
+            // materialEditorControl
             // 
-            this.editorWindow.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.editorWindow.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editorWindow.EditorForm = null;
-            this.editorWindow.Location = new System.Drawing.Point(178, 53);
-            this.editorWindow.Name = "editorWindow";
-            this.editorWindow.Size = new System.Drawing.Size(717, 645);
-            this.editorWindow.TabIndex = 8;
-            this.editorWindow.Text = "editorWindow";
-            this.editorWindow.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorWindow_RightClick);
-            // 
-            // editSceneToolStripMenuItem
-            // 
-            this.editSceneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.editSceneToolStripMenuItem.Enabled = false;
-            this.editSceneToolStripMenuItem.ForeColor = System.Drawing.SystemColors.Control;
-            this.editSceneToolStripMenuItem.Name = "editSceneToolStripMenuItem";
-            this.editSceneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.editSceneToolStripMenuItem.Text = "Scene";
-            this.editSceneToolStripMenuItem.Click += new System.EventHandler(this.editSceneToolStripMenuItem_Click);
+            this.materialEditorControl.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.materialEditorControl.Dock = System.Windows.Forms.DockStyle.Top;
+            this.materialEditorControl.ForeColor = System.Drawing.SystemColors.Control;
+            this.materialEditorControl.Location = new System.Drawing.Point(0, 0);
+            this.materialEditorControl.Name = "materialEditorControl";
+            this.materialEditorControl.Size = new System.Drawing.Size(371, 131);
+            this.materialEditorControl.TabIndex = 0;
             // 
             // EditorForm
             // 
@@ -894,6 +908,7 @@ namespace CaravelEditor
         private TransformToolOptions transformToolOptions1;
         private ToolStripMenuItem viewClickAreasToolStripMenuItem;
         private ToolStripMenuItem editSceneToolStripMenuItem;
+        private ToolStripButton editorToolsPaintbrushButton;
     }
 }
 

@@ -7,7 +7,10 @@ using static Caravel.Core.Entity.Cv_Entity;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using Caravel.Core.Physics;
-using static Caravel.Core.Physics.Cv_FarseerPhysics;
+using static Caravel.Core.Physics.Cv_GamePhysics;
+using Caravel.Core.Input;
+using System.Windows.Forms;
+using System;
 
 namespace Caravel.Editor
 {
@@ -91,13 +94,13 @@ namespace Caravel.Editor
         }
 
         private Vector2 m_PrevMousePos;
-        private bool m_bMouseButtonWasPressed = false;
         private int m_iPreviousScrollValue;
         private bool m_bMovingEntity = false;
         private bool m_bRotatingEntity = false;
         private Cv_Entity m_EntityBeingMoved;
         private Vector2 m_DeltaBuffer;
         private int m_iIdleTime = 0;
+        private int m_iLastIdUsed = 0;
 
         public EditorLogic(CaravelApp app) : base(app)
         {
@@ -158,10 +161,10 @@ namespace Caravel.Editor
             var mouseState = Mouse.GetState();
             var keyboardState = Keyboard.GetState();
             var editorApp = ((EditorApp)Caravel);
-            var mousePos = new Vector2(mouseState.X, mouseState.Y);
-            var mouseScroll = mouseState.ScrollWheelValue;
+            var mousePos = Cv_InputManager.Instance.GetMouseValues().MousePos;
+            var mouseScroll = Cv_InputManager.Instance.GetMouseValues().MouseWheelVal;
 
-            if (mouseState.LeftButton == ButtonState.Pressed)
+            if (Cv_InputManager.Instance.CommandActive("mouseLeftClick", PlayerIndex.One))
             {
                 if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
                 {
@@ -172,9 +175,9 @@ namespace Caravel.Editor
                         Cv_EntityID[] entities;
                         EditorView.Pick(mousePos, out entities);
 
-                        if (!m_bMouseButtonWasPressed)
+                        if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", PlayerIndex.One))
                         {
-                            if (!keyboardState.IsKeyDown(Keys.LeftControl))
+                            if (!Cv_InputManager.Instance.CommandActive("alternateMode", PlayerIndex.One))
                             {
                                 if (entities.Length > 0)
                                 {
@@ -201,7 +204,7 @@ namespace Caravel.Editor
                             }
                         }
 
-                        if (mousePos != m_PrevMousePos && m_EntityBeingMoved != null)
+                        if (Cv_InputManager.Instance.CommandActive("mouseMove", PlayerIndex.One) && m_EntityBeingMoved != null)
                         {
                             var trasnfComp = m_EntityBeingMoved.GetComponent<Cv_TransformComponent>();
 
@@ -249,13 +252,73 @@ namespace Caravel.Editor
 
                     camTransf.SetPosition(camTransf.Position + new Vector3(delta, 0) / (camSettings.Zoom * (float)EditorView.EditorRenderer.Scale));
                 }
+                else if (editorApp.Mode == EditorApp.EditorMode.CREATE
+                            && editorApp.EWindow != null
+                            && editorApp.EWindow.Focused
+                            && editorApp.EWindow.EditorForm.CanSelectEntities
+                            && editorApp.CurrentResourceBundle != null && editorApp.CurrentResourceBundle != "")
+                {
+                    if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", PlayerIndex.One))
+                    {
+                        if (editorApp.EForm.CurrentEntityType != null && editorApp.EForm.CurrentEntityType != "")
+                        {
+                            Cv_EntityID[] entities;
+                            EditorView.Pick(mousePos, out entities);
 
-                m_bMouseButtonWasPressed = true;
+                            bool entityExists = false;
+
+                            foreach (var e in entities)
+                            {
+                                var entity = GetEntity(e);
+                                if (entity != null && entity.EntityTypeResource == editorApp.EForm.CurrentEntityType)
+                                {
+                                    entityExists = true;
+                                    break;
+                                }
+                            }
+
+                            if (!entityExists)
+                            {
+                                var transform = Cv_Transform.Identity;
+
+                                var worldPos = EditorView.GetWorldCoords(mousePos);
+                                if (worldPos != null)
+                                {
+                                    int numStepsX = (int)(worldPos.Value.X) / EntityDragStepX;
+                                    int numStepsY = (int)(worldPos.Value.Y) / EntityDragStepY;
+
+                                    int signX = worldPos.Value.X < 0 ? -1 : 1;
+                                    int signY = worldPos.Value.Y < 0 ? -1 : 1;
+                                    transform = new Cv_Transform(new Vector3((numStepsX + signX*0.5f) * EntityDragStepX, (numStepsY + signY*0.5f) * EntityDragStepY, 0), Vector2.One, 0);
+                                    Console.WriteLine("creating at " + transform.Position.X + "," + transform.Position.Y + "( original: " + worldPos.Value.X + "," + worldPos.Value.Y + ")");
+                                }
+
+                                var entityName = "";
+                                do
+                                {
+                                    entityName = "Entity_" + m_iLastIdUsed;
+                                    m_iLastIdUsed++;
+                                }
+                                while (EntityNamesMap.ContainsKey(entityName));
+
+                                var entity = CreateEntity(editorApp.EForm.CurrentEntityType, entityName, editorApp.CurrentResourceBundle, true, editorApp.EForm.CurrentEntity, null, transform);
+
+                                if (entity != null)
+                                {
+                                    editorApp.EForm.AddNewEntityToEditor(entity, true);
+                                    //editorApp.EForm.SetSelectedEntity(entity.ID);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("You must select an entity type before using the 'Create' tool.");
+                        }
+                    }
+                }
             }
             else
             {
-                m_bMouseButtonWasPressed = false;
-
                 if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
                 {
                     if (m_bMovingEntity)
@@ -268,7 +331,7 @@ namespace Caravel.Editor
                 }
             }
 
-            if (mouseScroll != m_iPreviousScrollValue)
+            if (Cv_InputManager.Instance.CommandActive("mouseWheelUp", PlayerIndex.One) || Cv_InputManager.Instance.CommandActive("mouseWheelDown", PlayerIndex.One))
             {
                 m_iIdleTime = 0;
                 var delta = mouseScroll - m_iPreviousScrollValue;

@@ -1,0 +1,10 @@
+﻿<Controls>
+  <Bindings player="1">
+    <Command id="mouseMove" inputType="mouse" bindedTo="MouseMove" />
+    <Command id="mouseLeftClick" inputType="mouse" bindedTo="Left" />
+    <Command id="mouseRightClick" inputType="mouse" bindedTo="Right" />
+    <Command id="mouseWheelUp" inputType="mouse" bindedTo="MouseWheelUp" />
+    <Command id="mouseWheelDown" inputType="mouse" bindedTo="MouseWheelDown" />
+    <Command id="alternateMode" inputType="keyboard" bindedTo="LeftControl" />
+  </Bindings>
+</Controls>

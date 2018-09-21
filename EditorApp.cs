@@ -41,7 +41,7 @@ namespace Caravel.Editor
         {
             TRANSFORM,
             CAMERA,
-            ZOOM
+            CREATE
         }
 
         public EditorMode Mode

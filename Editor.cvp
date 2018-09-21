@@ -2,4 +2,5 @@
   <ResourceBundles>
     <Bundle name="_EditorDefault" file="EditorAssets.zip" />
   </ResourceBundles>
+  <Controls bindingsFile="EditorAssets/controls.xml"/>
 </CaravelProject>

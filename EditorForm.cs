@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using System.Xml;
 using static Caravel.Core.Cv_GameLogic;
 using static Caravel.Core.Entity.Cv_Entity;
-using static Caravel.Core.Physics.Cv_FarseerPhysics;
+using static Caravel.Core.Physics.Cv_GamePhysics;
 
 namespace CaravelEditor
 {
@@ -1104,7 +1104,7 @@ namespace CaravelEditor
             }
         }
 
-        private void AddNewEntityToEditor(Cv_Entity e, bool addParented)
+        public void AddNewEntityToEditor(Cv_Entity e, bool addParented)
         {
             TreeNode node = new TreeNode();
             node.Name = e.EntityName;
@@ -1602,6 +1602,10 @@ namespace CaravelEditor
             else if (button == editorToolsCameraButton)
             {
                 editorWindow.EditorApp.Mode = Caravel.Editor.EditorApp.EditorMode.CAMERA;
+            }
+            else
+            {
+                editorWindow.EditorApp.Mode = Caravel.Editor.EditorApp.EditorMode.CREATE;
             }
         }
     }
