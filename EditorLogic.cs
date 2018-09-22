@@ -11,6 +11,7 @@ using static Caravel.Core.Physics.Cv_GamePhysics;
 using Caravel.Core.Input;
 using System.Windows.Forms;
 using System;
+using Caravel.Core.Process;
 
 namespace Caravel.Editor
 {
@@ -188,7 +189,7 @@ namespace Caravel.Editor
 
                                     if (!m_bMovingEntity)
                                     {
-                                        m_bMovingEntity = true;
+                                        //m_bMovingEntity = true;
                                         m_EntityBeingMoved = GetEntity(entities[0]);
                                     }
 
@@ -198,7 +199,7 @@ namespace Caravel.Editor
                             {
                                 if (!m_bMovingEntity)
                                 {
-                                    m_bMovingEntity = true;
+                                    //m_bMovingEntity = true;
                                     m_EntityBeingMoved = GetEntity(editorApp.EForm.CurrentEntity);
                                 }
                             }
@@ -206,6 +207,7 @@ namespace Caravel.Editor
 
                         if (Cv_InputManager.Instance.CommandActive("mouseMove", PlayerIndex.One) && m_EntityBeingMoved != null)
                         {
+                            m_bMovingEntity = true;
                             var trasnfComp = m_EntityBeingMoved.GetComponent<Cv_TransformComponent>();
 
                             if (trasnfComp == null)
@@ -252,68 +254,12 @@ namespace Caravel.Editor
 
                     camTransf.SetPosition(camTransf.Position + new Vector3(delta, 0) / (camSettings.Zoom * (float)EditorView.EditorRenderer.Scale));
                 }
-                else if (editorApp.Mode == EditorApp.EditorMode.CREATE
-                            && editorApp.EWindow != null
-                            && editorApp.EWindow.Focused
-                            && editorApp.EWindow.EditorForm.CanSelectEntities
-                            && editorApp.CurrentResourceBundle != null && editorApp.CurrentResourceBundle != "")
+                else if (editorApp.Mode == EditorApp.EditorMode.CREATE)
                 {
                     if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", PlayerIndex.One))
                     {
-                        if (editorApp.EForm.CurrentEntityType != null && editorApp.EForm.CurrentEntityType != "")
-                        {
-                            Cv_EntityID[] entities;
-                            EditorView.Pick(mousePos, out entities);
-
-                            bool entityExists = false;
-
-                            foreach (var e in entities)
-                            {
-                                var entity = GetEntity(e);
-                                if (entity != null && entity.EntityTypeResource == editorApp.EForm.CurrentEntityType)
-                                {
-                                    entityExists = true;
-                                    break;
-                                }
-                            }
-
-                            if (!entityExists)
-                            {
-                                var transform = Cv_Transform.Identity;
-
-                                var worldPos = EditorView.GetWorldCoords(mousePos);
-                                if (worldPos != null)
-                                {
-                                    int numStepsX = (int)(worldPos.Value.X) / EntityDragStepX;
-                                    int numStepsY = (int)(worldPos.Value.Y) / EntityDragStepY;
-
-                                    int signX = worldPos.Value.X < 0 ? -1 : 1;
-                                    int signY = worldPos.Value.Y < 0 ? -1 : 1;
-                                    transform = new Cv_Transform(new Vector3((numStepsX + signX*0.5f) * EntityDragStepX, (numStepsY + signY*0.5f) * EntityDragStepY, 0), Vector2.One, 0);
-                                    Console.WriteLine("creating at " + transform.Position.X + "," + transform.Position.Y + "( original: " + worldPos.Value.X + "," + worldPos.Value.Y + ")");
-                                }
-
-                                var entityName = "";
-                                do
-                                {
-                                    entityName = "Entity_" + m_iLastIdUsed;
-                                    m_iLastIdUsed++;
-                                }
-                                while (EntityNamesMap.ContainsKey(entityName));
-
-                                var entity = CreateEntity(editorApp.EForm.CurrentEntityType, entityName, editorApp.CurrentResourceBundle, true, editorApp.EForm.CurrentEntity, null, transform);
-
-                                if (entity != null)
-                                {
-                                    editorApp.EForm.AddNewEntityToEditor(entity, true);
-                                    //editorApp.EForm.SetSelectedEntity(entity.ID);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("You must select an entity type before using the 'Create' tool.");
-                        }
+                        var timer = new Cv_TimerProcess(100, PaintEntity);
+                        Caravel.ProcessManager.AttachProcess(timer);
                     }
                 }
             }
@@ -383,6 +329,88 @@ namespace Caravel.Editor
         protected override void VGameOnAddView(Cv_GameView view, Cv_EntityID entityId)
         {
             EditorView = (EditorView) view;
+        }
+
+        private void PaintEntity()
+        {
+            var editorApp = ((EditorApp)Caravel);
+            var mousePos = Cv_InputManager.Instance.GetMouseValues().MousePos;
+
+            if (editorApp.EWindow == null
+                            || editorApp.Mode != EditorApp.EditorMode.CREATE
+                            || !editorApp.EWindow.Focused
+                            || !editorApp.EWindow.EditorForm.CanSelectEntities
+                            || editorApp.CurrentResourceBundle == null || editorApp.CurrentResourceBundle == "")
+            {
+                return;
+            }
+            
+            if (editorApp.EForm.CurrentEntityType != null && editorApp.EForm.CurrentEntityType != "")
+            {
+                Cv_EntityID[] entities;
+                EditorView.Pick(mousePos, out entities);
+
+                bool entityExists = false;
+
+                foreach (var e in entities)
+                {
+                    var entity = GetEntity(e);
+                    if (entity != null && entity.EntityTypeResource == editorApp.EForm.CurrentEntityType)
+                    {
+                        entityExists = true;
+                        break;
+                    }
+                }
+
+                if (!entityExists)
+                {
+                    var transform = Cv_Transform.Identity;
+
+                    var parentPosition = Vector3.Zero;
+
+                    var parentEntity = GetEntity(editorApp.EForm.CurrentEntity);
+                    if (parentEntity != null && parentEntity.GetComponent<Cv_TransformComponent>() != null)
+                    {
+                        parentPosition = parentEntity.GetComponent<Cv_TransformComponent>().WorldPosition;
+                    }
+
+                    var worldPos = EditorView.GetWorldCoords(mousePos);
+                    if (worldPos != null)
+                    {
+                        int numStepsX = (int)(worldPos.Value.X) / EntityDragStepX;
+                        int numStepsY = (int)(worldPos.Value.Y) / EntityDragStepY;
+
+                        int signX = worldPos.Value.X < 0 ? -1 : 1;
+                        int signY = worldPos.Value.Y < 0 ? -1 : 1;
+
+                        var pos = new Vector3((numStepsX + signX * 0.5f) * EntityDragStepX, (numStepsY + signY * 0.5f) * EntityDragStepY, 0);
+                        pos -= parentPosition;
+
+                        transform = new Cv_Transform(pos, Vector2.One, 0);
+                    }
+
+                    var entityName = "";
+                    do
+                    {
+                        entityName = "Entity_" + m_iLastIdUsed;
+                        m_iLastIdUsed++;
+                    }
+                    while (EntityNamesMap.ContainsKey(entityName));
+
+                    var entity = CreateEntity(editorApp.EForm.CurrentEntityType, entityName, editorApp.CurrentResourceBundle, true, editorApp.EForm.CurrentEntity, null, transform);
+
+                    if (entity != null)
+                    {
+                        editorApp.EForm.AddNewEntityToEditor(entity, true);
+                        //editorApp.EForm.SetSelectedEntity(entity.ID);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("You must select an entity type before using the 'Create' tool.");
+            }
+            
         }
     }
 }
