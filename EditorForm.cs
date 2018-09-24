@@ -1518,7 +1518,19 @@ namespace CaravelEditor
         private XmlElement GetEntityXmlDiff(string entityName, XmlDocument doc)
         {
             var entity = editorWindow.EditorApp.Logic.GetEntity(entityName);
-            var diffBetweenType = EditorUtils.GetDifference(m_EntityTypeXmlNodes[entity.EntityTypeResource], m_EntityXmlNodes[entity.ID]);
+
+            XmlElement typeXml;
+
+            if (entity.EntityTypeResource == "")
+            {
+                typeXml = doc.CreateElement("EntityType");
+            }
+            else
+            {
+                typeXml = m_EntityTypeXmlNodes[entity.EntityTypeResource];
+            }
+
+            var diffBetweenType = EditorUtils.GetDifference(typeXml, m_EntityXmlNodes[entity.ID]);
 
             var entityXml = doc.CreateElement("Entity");
             entityXml.SetAttribute("name", entity.EntityName);

@@ -20,6 +20,8 @@
 		<Element name="Texture" type="file" fieldNames="resource" extensions="Image Files(*.PNG;*.JPG;)|*.PNG;*.JPG;|All files (*.*)|*.*"  />
 		<Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
     <Element name="Animation" type="animationProperties" />
+    <Element name="Mirrored" type="boolean" fieldNames="status" />
+    <Element name="OnEndScript" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*" />
 	</Component>
 	
 	<Component name="Cv_CameraComponent">
@@ -31,9 +33,9 @@
 		<Element name="Volume" type="float" fieldNames="value" editorNames="Value"/>
     <Element name="Pan" type="float" fieldNames="value" editorNames="Value"/>
     <Element name="Pitch" type="float" fieldNames="value" editorNames="Value"/>
-    <Element name="Looping" type="boolean" fieldNames="value"/>
-    <Element name="IsPositional" type="boolean" fieldNames="value"/>
-    <Element name="AutoPlay" type="boolean" fieldNames="value"/>
+    <Element name="Looping" type="boolean" fieldNames="status"/>
+    <Element name="IsPositional" type="boolean" fieldNames="status"/>
+    <Element name="AutoPlay" type="boolean" fieldNames="status"/>
 	</Component>
 
   <Component name="Cv_SoundListenerComponent"/>
@@ -42,8 +44,8 @@
     <Element name="InitScript" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
     <Element name="Script" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
     <Element name="Interval" type="float" fieldNames="value" editorNames="Value"/>
-    <Element name="ExecuteOnce" type="boolean" fieldNames="value"/>
-    <Element name="Paused" type="boolean" fieldNames="value"/>
+    <Element name="ExecuteOnce" type="boolean" fieldNames="status"/>
+    <Element name="Paused" type="boolean" fieldNames="status"/>
 	</Component>
   
   <Component name="Cv_ClickableComponent">
@@ -51,7 +53,7 @@
     <Element name="OnMouseDown" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
     <Element name="Anchor" type="int" fieldNames="x,y" editorNames="X,Y"/>
-    <Element name="Active" type="boolean" fieldNames="value"/>
+    <Element name="Active" type="boolean" fieldNames="status"/>
 	</Component>
 
   <Component name="Cv_TextComponent">
@@ -62,6 +64,14 @@
     <Element name="Text" type="string" fieldNames="text" editorNames="String ID"/>
     <Element name="HorizontalAlignment" type="comboBox" fieldNames="value" options="Left,Center,Right"/>
     <Element name="VerticalAlignment" type="comboBox" fieldNames="value" options="Top,Center,Bottom"/>
+  </Component>
+  
+  <Component name="Cv_TransformAnimationComponent">
+    <Element name="TransformAnimation" type="file" fieldNames="resource" extensions="XML Files(*.XML;)|*.XML;|All files (*.*)|*.*"  />
+    <Element name="OnEndScript" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*" />
+    <Element name="Paused" type="boolean" fieldNames="status"/>
+    <Element name="Looping" type="boolean" fieldNames="status"/>
+    <Element name="ResetOnEnd" type="boolean" fieldNames="status"/>
   </Component>
 	
 </Components>
