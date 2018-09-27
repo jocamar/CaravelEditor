@@ -17,8 +17,8 @@
 	<Component name="Cv_SpriteComponent">
 		<Element name="Color" type="rgba" />
 		<Element name="Visible" type="boolean" fieldNames="status"/>
+    <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
 		<Element name="Texture" type="file" fieldNames="resource" extensions="Image Files(*.PNG;*.JPG;)|*.PNG;*.JPG;|All files (*.*)|*.*"  />
-		<Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
     <Element name="Animation" type="animationProperties" />
     <Element name="Mirrored" type="boolean" fieldNames="status" />
     <Element name="OnEndScript" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*" />
@@ -59,8 +59,8 @@
   <Component name="Cv_TextComponent">
     <Element name="Color" type="rgba" />
     <Element name="Visible" type="boolean" fieldNames="status"/>
-    <Element name="Font" type="file" fieldNames="resource" extensions="SpriteFont Files(*.XNB;)|*.XNB;|All files (*.*)|*.*"  />
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Font" type="file" fieldNames="resource" extensions="SpriteFont Files(*.XNB;)|*.XNB;|All files (*.*)|*.*"  />
     <Element name="Text" type="string" fieldNames="text" editorNames="String ID"/>
     <Element name="HorizontalAlignment" type="comboBox" fieldNames="value" options="Left,Center,Right"/>
     <Element name="VerticalAlignment" type="comboBox" fieldNames="value" options="Top,Center,Bottom"/>
@@ -72,6 +72,27 @@
     <Element name="Paused" type="boolean" fieldNames="status"/>
     <Element name="Looping" type="boolean" fieldNames="status"/>
     <Element name="ResetOnEnd" type="boolean" fieldNames="status"/>
+  </Component>
+
+  <Component name="Cv_ParticleEmitterComponent">
+    <Element name="Color" type="rgba" />
+    <Element name="Visible" type="boolean" fieldNames="status"/>
+    <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Texture" type="file" fieldNames="resource" extensions="Image Files(*.PNG;*.JPG;)|*.PNG;*.JPG;|All files (*.*)|*.*"  />
+    <Element name="EmitterVelocity" type="int" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="EmitterVariation" type="int" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="Gravity" type="int" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="ParticlesPerSecond" type="int" fieldNames="value" editorNames="Value"/>
+    <Element name="ParticleLifetime" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="MaxParticles" type="int" fieldNames="value" editorNames="Value"/>
+    <Element name="FinalColor" type="rgba" />
+    <Element name="ColorEaseBias" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="InitialParticleScale" type="float" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="FinalParticleScale" type="float" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="ScaleEaseBias" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="InitialParticleRotation" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="FinalParticleRotation" type="float" fieldNames="value" editorNames="Value"/>
+    <Element name="RotationEaseBias" type="float" fieldNames="value" editorNames="Value"/>
   </Component>
 	
 </Components>
