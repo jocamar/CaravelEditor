@@ -1,3 +1,4 @@
+using Caravel;
 using Caravel.Core;
 using Caravel.Core.Physics;
 using CaravelEditor;
@@ -5,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Forms.Services;
 
-namespace Caravel.Editor
+namespace CaravelEditor
 {
     public class EditorApp : CaravelApp
     {

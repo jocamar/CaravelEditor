@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using Caravel.Core.Entity;
-using Caravel.Editor;
 
 namespace CaravelEditor
 {

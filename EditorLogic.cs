@@ -12,8 +12,9 @@ using Caravel.Core.Input;
 using System.Windows.Forms;
 using System;
 using Caravel.Core.Process;
+using Caravel;
 
-namespace Caravel.Editor
+namespace CaravelEditor
 {
     public class EditorLogic : Cv_GameLogic
     {
@@ -329,6 +330,11 @@ namespace Caravel.Editor
         protected override void VGameOnAddView(Cv_GameView view, Cv_EntityID entityId)
         {
             EditorView = (EditorView) view;
+        }
+
+        protected override Cv_EntityFactory VCreateEntityFactory()
+        {
+            return new EditorEntityFactory();
         }
 
         private void PaintEntity()

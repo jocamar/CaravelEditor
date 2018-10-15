@@ -3,8 +3,8 @@
 	<Component name="Cv_TransformComponent">
 		<Element name="Position" type="int" fieldNames="x,y,z" editorNames="X,Y,Z"/>
 		<Element name="Rotation" type="float" fieldNames="radians" editorNames="Angle"/>
-        <Element name="Scale" type="float" fieldNames="x,y" editorNames="X,Y"/>
-        <Element name="Origin" type="float" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="Scale" type="float" fieldNames="x,y" editorNames="X,Y"/>
+    <Element name="Origin" type="float" fieldNames="x,y" editorNames="X,Y"/>
 	</Component>
 	
 	<Component name="Cv_RigidBodyComponent">

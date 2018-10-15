@@ -169,6 +169,7 @@
       <DependentUpon>CameraToolOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="CaravelMenuColorTable.cs" />
+    <Compile Include="EditorEntityFactory.cs" />
     <Compile Include="EditorUtils.cs" />
     <Compile Include="EditorWindow.cs">
       <SubType>Component</SubType>
@@ -189,6 +190,7 @@
       <DependentUpon>EditSceneSettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EntityComponentEditor.cs" />
+    <Compile Include="GameComponent.cs" />
     <Compile Include="MakeIntoTypeForm.cs">
       <SubType>Form</SubType>
     </Compile>

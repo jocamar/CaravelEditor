@@ -1,5 +1,4 @@
-﻿using Caravel.Editor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -13,7 +12,7 @@ namespace CaravelEditor
 {
     public class EntityComponentEditor
     {
-        private Dictionary<string, XmlNode> m_ComponentsByName;
+        public static Dictionary<string, XmlNode> ComponentsByName;
         private XmlDocument m_SelectedEntityComponents;
         private XmlNode m_EntityXml;
 
@@ -29,7 +28,7 @@ namespace CaravelEditor
 
         public EntityComponentEditor(Panel panel, EditorForm eForm, EditorApp editorApp)
         {
-            m_ComponentsByName = new Dictionary<string, XmlNode>();
+            ComponentsByName = new Dictionary<string, XmlNode>();
 
             m_EditorForm = eForm;
             m_EditorApp = editorApp;
@@ -54,7 +53,7 @@ namespace CaravelEditor
 
         public void Initialize()
         {
-            m_ComponentsByName.Clear();
+            ComponentsByName.Clear();
             XmlDocument engineComponentsXML = new XmlDocument();
             engineComponentsXML.Load(Path.Combine(m_EditorForm.EditorDirectory,"EditorAssets/components.xml"));
 
@@ -62,7 +61,7 @@ namespace CaravelEditor
             XmlNodeList components = root.SelectNodes("child::*");
             foreach (XmlNode component in components)
             {
-                m_ComponentsByName[component.Attributes["name"].Value] = component;
+                ComponentsByName[component.Attributes["name"].Value] = component;
             }
 
             XmlDocument gameComponentsXML = new XmlDocument();
@@ -76,7 +75,7 @@ namespace CaravelEditor
                 components = root.SelectNodes("child::*");
                 foreach (XmlNode component in components)
                 {
-                    m_ComponentsByName[component.Attributes["name"].Value] = component;
+                    ComponentsByName[component.Attributes["name"].Value] = component;
                 }
             }
         }
@@ -105,7 +104,7 @@ namespace CaravelEditor
                 foreach (XmlNode entityValueComponent in entityValueComponents)
                 {
                     // [mrmike] - if you crash right here you have a component that you've never defined in Editor\components.xml
-                    XmlNode sourceEditorComponent = m_ComponentsByName[entityValueComponent.Name];
+                    XmlNode sourceEditorComponent = ComponentsByName[entityValueComponent.Name];
                     XmlDocument ownerDoc = editorComponents.OwnerDocument;
                     XmlNode editorComponent = ownerDoc.ImportNode(sourceEditorComponent, true);
                     editorComponents.AppendChild(editorComponent);
@@ -133,7 +132,7 @@ namespace CaravelEditor
 
         public void AddNewComponent(object sender, MouseEventArgs e)
         {
-            var components = new List<string>(m_ComponentsByName.Keys);
+            var components = new List<string>(ComponentsByName.Keys);
 
             XmlNodeList entityValueComponents = m_EntityXml.SelectNodes("child::*");
 

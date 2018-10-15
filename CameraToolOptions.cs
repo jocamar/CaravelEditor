@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using Caravel.Editor;
 using Caravel.Core.Entity;
 
 namespace CaravelEditor

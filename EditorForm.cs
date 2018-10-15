@@ -1609,15 +1609,15 @@ namespace CaravelEditor
 
             if (button == editorToolsGrabButton)
             {
-                editorWindow.EditorApp.Mode = Caravel.Editor.EditorApp.EditorMode.TRANSFORM;
+                editorWindow.EditorApp.Mode = EditorApp.EditorMode.TRANSFORM;
             }
             else if (button == editorToolsCameraButton)
             {
-                editorWindow.EditorApp.Mode = Caravel.Editor.EditorApp.EditorMode.CAMERA;
+                editorWindow.EditorApp.Mode = EditorApp.EditorMode.CAMERA;
             }
             else
             {
-                editorWindow.EditorApp.Mode = Caravel.Editor.EditorApp.EditorMode.CREATE;
+                editorWindow.EditorApp.Mode = EditorApp.EditorMode.CREATE;
             }
         }
     }

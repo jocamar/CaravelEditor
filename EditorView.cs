@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Caravel.Core.Events;
 using Caravel.Core.Draw;
 
-namespace Caravel.Editor
+namespace CaravelEditor
 {
     public class EditorView : Cv_PlayerView
     {
