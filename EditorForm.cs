@@ -279,6 +279,12 @@ namespace CaravelEditor
             materialEditorControl.EditorApp = editorWindow.EditorApp;
         }
 
+        public void LoadComponentDefinitions()
+        {
+            m_EntityComponentEditor.Initialize();
+            m_TypeComponentEditor.Initialize();
+        }
+
         public void InitializeSceneEntitiess()
         {
             sceneEntitiesTreeView.Nodes.Clear();
@@ -294,7 +300,7 @@ namespace CaravelEditor
                 var e = editorWindow.EditorApp.Logic.GetEntity(n);
                 listEntities.Add(e);
             }
-            
+
             var parentedEntities = new List<Cv_Entity>();
 
             // Add each entity as its own node in the treeview.
@@ -317,9 +323,6 @@ namespace CaravelEditor
             {
                 m_EntityTreeNodes[parentedEntity.Parent].Nodes.Add(m_EntityTreeNodes[parentedEntity.ID]);
             }
-
-            m_EntityComponentEditor.Initialize();
-            m_TypeComponentEditor.Initialize();
 
             saveSceneToolStripMenuItem.Enabled = true;
             createEntityToolStripMenuItem.Enabled = true;

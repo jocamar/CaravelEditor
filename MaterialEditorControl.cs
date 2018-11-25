@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -67,7 +68,7 @@ namespace CaravelEditor
             oSettings.Encoding = Encoding.UTF8;
             oSettings.ConformanceLevel = ConformanceLevel.Auto;
 
-            using (XmlWriter writer = XmlWriter.Create(EditorApp.MaterialsLocation, oSettings))
+            using (XmlWriter writer = XmlWriter.Create(Path.Combine(EditorApp.EForm.CurrentProjectDirectory, EditorApp.MaterialsLocation), oSettings))
             {
                 root.WriteTo(writer);
             }

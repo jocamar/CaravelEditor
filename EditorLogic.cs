@@ -113,11 +113,6 @@ namespace CaravelEditor
             CurrentScenePreLoadScript = "";
         }
 
-        public Cv_PhysicsMaterial GetMaterial(string materialId)
-        {
-            return ((Cv_NullPhysics)GamePhysics).GetMaterial(materialId);
-        }
-
         protected override bool VGameOnPreLoadScene(XmlElement sceneData)
         {
             var entityList = new List<Cv_EntityID>();

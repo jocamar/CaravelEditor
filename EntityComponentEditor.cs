@@ -1156,7 +1156,7 @@ namespace CaravelEditor
             m_Panel.Controls.Add(comboBox);
 
             // -------------------- SubAnimations ---------------------
-            var subAnimations = entityValues.SelectNodes("//SubAnimation");
+            var subAnimations = entityValues.SelectNodes("SubAnimation");
 
             if (subAnimations.Count > 0)
             {
@@ -1556,7 +1556,7 @@ namespace CaravelEditor
 
         public int AddPhysicsShapes(XmlNode entityValues, string elementName, int lineNum)
         {
-            var boxShapes = entityValues.SelectNodes("//Box");
+            var boxShapes = entityValues.SelectNodes("Box");
 
             for (var i = 0; i < boxShapes.Count; i++)
             {
@@ -1565,7 +1565,7 @@ namespace CaravelEditor
                 lineNum++;
             }
 
-            var circleShapes = entityValues.SelectNodes("//Circle");
+            var circleShapes = entityValues.SelectNodes("Circle");
 
             for (var i = 0; i < circleShapes.Count; i++)
             {
@@ -1574,7 +1574,7 @@ namespace CaravelEditor
                 lineNum++;
             }
 
-            var triggerShapes = entityValues.SelectNodes("//Trigger");
+            var triggerShapes = entityValues.SelectNodes("Trigger");
 
             for (var i = 0; i < triggerShapes.Count; i++)
             {
@@ -1583,7 +1583,7 @@ namespace CaravelEditor
                 lineNum++;
             }
 
-            var polygonShapes = entityValues.SelectNodes("//Polygon");
+            var polygonShapes = entityValues.SelectNodes("Polygon");
 
             for (var i = 0; i < polygonShapes.Count; i++)
             {
@@ -1698,7 +1698,7 @@ namespace CaravelEditor
             const int comboBoxWidth = 40;
 
             AddElementLabel("Collision Categories", lineNum, loc, labelWidth);
-            var collisionCategories = entityValues.SelectNodes("//CollisionCategory");
+            var collisionCategories = entityValues.SelectNodes("CollisionCategory");
 
             loc += (int)(m_iLeftPaddingElements * 0.5);
             for (var i = 0; i < collisionCategories.Count; i++)
@@ -1812,7 +1812,7 @@ namespace CaravelEditor
             const int largeComboBoxWidth = 80;
 
             AddElementLabel("Collides With", lineNum, loc, labelWidth);
-            var collisionCategories = entityValues.SelectNodes("//CollidesWith");
+            var collisionCategories = entityValues.SelectNodes("CollidesWith");
 
             loc += (int)(m_iLeftPaddingElements * 0.5);
             for (var i = 0; i < collisionCategories.Count; i++)
@@ -2099,7 +2099,7 @@ namespace CaravelEditor
 
             lineNum = AddCommonShapeElements(entityValues, elementName, lineNum);
 
-            var points = entityValues.SelectNodes("//Point");
+            var points = entityValues.SelectNodes("Point");
 
             var currLoc = 0;
 
@@ -2280,13 +2280,38 @@ namespace CaravelEditor
             var currLoc = m_iElementLabelWidth + (int)(m_iLeftPaddingElements * 1.5f);
             // ----------------------------------------------------------
 
+            AddElementLabel("ID", lineNum, currLoc, labelWidth);
+            currLoc += labelWidth;
+
+            TextBox textBox = new TextBox();
+            location = new Point(currLoc, lineNum * m_iLineSpacing);
+            currLoc += boxWidth + horizSpacing;
+            textBox.Name = elementName + "/@id";
+            
+            textBox.Text = entityValues.Attributes["id"].Value;
+            textBox.Location = location;
+            textBox.ForeColor = System.Drawing.SystemColors.Window;
+            textBox.TextAlign = HorizontalAlignment.Center;
+            textBox.BackColor = m_BgColor;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.Leave += new EventHandler(StringElementChanged);
+            textBox.KeyDown += new KeyEventHandler(TextBoxOnKeyDown);
+
+            textBox.Width = boxWidth;
+            m_Panel.Controls.Add(textBox);
+
+            // ------------------ New Line -----------------------------
+            lineNum++;
+            currLoc = m_iElementLabelWidth + (int)(m_iLeftPaddingElements * 1.5f);
+            // ----------------------------------------------------------
+
             AddElementLabel("Origin", lineNum, currLoc, labelWidth);
             currLoc += labelWidth;
 
             AddElementLabel("X:", lineNum, currLoc, charWidth * 3);
             currLoc += charWidth * 3;
 
-            TextBox textBox = new TextBox();
+            textBox = new TextBox();
             location = new Point(currLoc, lineNum * m_iLineSpacing);
             currLoc += boxWidth + horizSpacing;
             textBox.Name = elementName + "/@anchorX";
