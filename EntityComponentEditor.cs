@@ -1651,6 +1651,7 @@ namespace CaravelEditor
             }
 
             XmlElement newShape = node.OwnerDocument.CreateElement(shapeType);
+            newShape.SetAttribute("id", "");
             newShape.SetAttribute("anchorX", "0");
             newShape.SetAttribute("anchorY", "0");
             newShape.SetAttribute("isBullet", "False");

@@ -369,6 +369,8 @@ namespace CaravelEditor
 
                     var parentPosition = Vector3.Zero;
 
+                    var typePos = editorApp.EForm.GetTypePos(editorApp.EForm.CurrentEntityType);
+
                     var parentEntity = GetEntity(editorApp.EForm.CurrentEntity);
                     if (parentEntity != null && parentEntity.GetComponent<Cv_TransformComponent>() != null)
                     {
@@ -384,7 +386,7 @@ namespace CaravelEditor
                         int signX = worldPos.Value.X < 0 ? -1 : 1;
                         int signY = worldPos.Value.Y < 0 ? -1 : 1;
 
-                        var pos = new Vector3((numStepsX + signX * 0.5f) * EntityDragStepX, (numStepsY + signY * 0.5f) * EntityDragStepY, 0);
+                        var pos = new Vector3((numStepsX + signX * 0.5f) * EntityDragStepX, (numStepsY + signY * 0.5f) * EntityDragStepY, typePos.Z);
                         pos -= parentPosition;
 
                         transform = new Cv_Transform(pos, Vector2.One, 0);

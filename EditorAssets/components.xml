@@ -62,6 +62,7 @@
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
     <Element name="Font" type="file" fieldNames="resource" extensions="SpriteFont Files(*.XNB;)|*.XNB;|All files (*.*)|*.*"  />
     <Element name="Text" type="string" fieldNames="text" editorNames="String ID"/>
+    <Element name="LiteralText" type="boolean" fieldNames="status" editorNames="Use Literal Text"/>
     <Element name="HorizontalAlignment" type="comboBox" fieldNames="value" options="Left,Center,Right"/>
     <Element name="VerticalAlignment" type="comboBox" fieldNames="value" options="Top,Center,Bottom"/>
   </Component>

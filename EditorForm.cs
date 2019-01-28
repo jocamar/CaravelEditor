@@ -1,4 +1,5 @@
 ﻿using Caravel.Core.Entity;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -209,6 +210,24 @@ namespace CaravelEditor
             EditorDirectory = Directory.GetCurrentDirectory();
         }
 
+        public Vector3 GetTypePos(string type)
+        {
+            if (m_EntityTypeXmlNodes.ContainsKey(type))
+            {
+                var typeXmlNode = m_EntityTypeXmlNodes[type];
+
+                var posNode = typeXmlNode.SelectNodes("Cv_TransformComponent/Position")[0];
+
+                var x = int.Parse(posNode.Attributes["x"].Value);
+                var y = int.Parse(posNode.Attributes["y"].Value);
+                var z = int.Parse(posNode.Attributes["z"].Value);
+
+                return new Vector3(x, y, z);
+            }
+
+            return Vector3.Zero;
+        }
+
         public bool TypeHasComponent(string type, string component)
         {
             if (m_EntityTypeXmlNodes.ContainsKey(type))
@@ -343,7 +362,7 @@ namespace CaravelEditor
                 CurrentEntity = entityId; // Game starts Entity Ids at 1
 
                 m_EntityTreeNodes[CurrentEntity].BackColor = System.Drawing.SystemColors.ControlDark;
-                m_EntityTreeNodes[CurrentEntity].ForeColor = Color.White;
+                m_EntityTreeNodes[CurrentEntity].ForeColor = System.Drawing.Color.White;
                 sceneEntitiesTreeView.SelectedNode = m_EntityTreeNodes[CurrentEntity];
 
                 editorWindow.EditorApp.EditorLogic.EditorView.EditorSelectedEntity = entityId;
@@ -640,7 +659,7 @@ namespace CaravelEditor
 
         public void RepositionToolBox()
         {
-            editorToolStrip.Location = new Point(editorWindow.Location.X + 10,
+            editorToolStrip.Location = new System.Drawing.Point(editorWindow.Location.X + 10,
                                                     editorWindow.Location.Y + 10);
         }
 
