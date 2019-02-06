@@ -7,9 +7,15 @@ namespace CaravelEditor
 {
     public class EditorEntityFactory : Cv_EntityFactory
     {
-        protected override Cv_Entity CreateEntity(string entityTypeResource, Cv_Entity.Cv_EntityID parent, XmlElement overrides, Cv_Transform? initialTransform, Cv_Entity.Cv_EntityID serverEntityID, string resourceBundle)
+        protected override Cv_Entity CreateEntity(string entityTypeResource,
+                                                    Cv_Entity.Cv_EntityID parent,
+                                                    XmlElement overrides,
+                                                    Cv_Transform? initialTransform,
+                                                    Cv_Entity.Cv_EntityID serverEntityID,
+                                                    string resourceBundle,
+                                                    string sceneID)
         {
-            return base.CreateEntity(entityTypeResource, parent, overrides, initialTransform, serverEntityID, resourceBundle);
+            return base.CreateEntity(entityTypeResource, parent, overrides, initialTransform, serverEntityID, resourceBundle, sceneID);
         }
 
         protected override Cv_EntityComponent CreateComponent(string componentName)

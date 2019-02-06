@@ -4,6 +4,7 @@ using static Caravel.Core.Entity.Cv_Entity;
 using Microsoft.Xna.Framework.Graphics;
 using Caravel.Core.Events;
 using Caravel.Core.Draw;
+using Caravel.Core.Entity;
 
 namespace CaravelEditor
 {
@@ -57,8 +58,15 @@ namespace CaravelEditor
 
         public void Init()
         {
-            EditorCamera = Caravel.Logic.CreateEntity("camera.cve", "_editorCamera", "_EditorDefault").ID;
+            Cv_EventManager.Instance.AddListener<Cv_Event_SceneLoaded>(OnSceneLoaded);
             Cv_EventManager.Instance.RemoveListener<Cv_Event_NewCameraComponent>(OnNewCameraComponent);
+        }
+
+        public void OnSceneLoaded(Cv_Event evt)
+        {
+            var cam = Caravel.Logic.CreateEntity("camera.cve", "_editorCamera", "_EditorDefault");
+            EditorCamera = cam.ID;
+            Camera = cam.GetComponent<Cv_CameraComponent>().CameraNode;
         }
     }
 }

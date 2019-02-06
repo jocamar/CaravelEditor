@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System;
 using Caravel.Core.Process;
 using Caravel;
+using System.Linq;
 
 namespace CaravelEditor
 {
@@ -57,6 +58,20 @@ namespace CaravelEditor
             get
             {
                 return EntitiesByName;
+            }
+        }
+
+        public string[]EntityNames
+        {
+            get
+            {
+                List<string> entityNames = new List<string>();
+                foreach (var e in EntitiesByName.Values)
+                {
+                    entityNames.Add(e.EntityName);
+                }
+
+                return entityNames.ToArray();
             }
         }
 
@@ -115,7 +130,7 @@ namespace CaravelEditor
 
         protected override bool VGameOnPreLoadScene(XmlElement sceneData)
         {
-            var entityList = new List<Cv_EntityID>();
+            /*var entityList = new List<Cv_EntityID>();
             
             foreach(var e in Entities.Keys)
             {
@@ -125,17 +140,17 @@ namespace CaravelEditor
             foreach(var e in entityList)
             {
                 DestroyEntity(e);
-            }
+            }*/
  
             return true;
         }
 
 
-        protected override bool VGameOnLoadScene(XmlElement sceneData)
+        protected override bool VGameOnLoadScene(XmlElement sceneData, string sceneID)
         {
-            EditorView.Init();
-            var editorCam = GetEntity(EditorView.EditorCamera);
-            var camComponent = editorCam.GetComponent<Cv_CameraComponent>();
+            //EditorView.Init();
+            //var editorCam = GetEntity(EditorView.EditorCamera);
+            //var camComponent = editorCam.GetComponent<Cv_CameraComponent>();
 
             var scriptElement = sceneData.SelectNodes("Script").Item(0);
 
@@ -145,13 +160,19 @@ namespace CaravelEditor
                 CurrentScenePostLoadScript = scriptElement.Attributes["postLoad"].Value;
             }
 
-            EditorView.Camera = camComponent.CameraNode;
+            //EditorView.Camera = camComponent.CameraNode;
             return true;
         }
 
         protected override void VGameOnUpdate(float time, float timeElapsed)
         {
             var cam = GetEntity(EditorView.EditorCamera);
+
+            if (cam == null)
+            {
+                return;
+            }
+
             var camTransf = cam.GetComponent<Cv_TransformComponent>();
             var camSettings = cam.GetComponent<Cv_CameraComponent>();
 
@@ -392,13 +413,14 @@ namespace CaravelEditor
                         transform = new Cv_Transform(pos, Vector2.One, 0);
                     }
 
+                    var entityNames = EntityNames;
                     var entityName = "";
                     do
                     {
                         entityName = "Entity_" + m_iLastIdUsed;
                         m_iLastIdUsed++;
                     }
-                    while (EntityNamesMap.ContainsKey(entityName));
+                    while (entityNames.Contains(entityName));
 
                     var entity = CreateEntity(editorApp.EForm.CurrentEntityType, entityName, editorApp.CurrentResourceBundle, true, editorApp.EForm.CurrentEntity, null, transform);
 

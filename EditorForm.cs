@@ -311,7 +311,7 @@ namespace CaravelEditor
             m_EntityXmlNodes.Clear();
             CurrentEntity = Cv_EntityID.INVALID_ENTITY;
 
-            var entityNames = editorWindow.EditorApp.EditorLogic.EntityNamesMap.Keys;
+            var entityNames = editorWindow.EditorApp.EditorLogic.EntityNames;
 
             var listEntities = new List<Cv_Entity>();
             foreach (var n in entityNames)
@@ -1024,7 +1024,7 @@ namespace CaravelEditor
             List<EntityTypeItem> typeList = new List<EntityTypeItem>();
             typeList.AddRange(m_EntityTypeItems.Values);
 
-            var namesList = editorWindow.EditorApp.EditorLogic.EntityNamesMap.Keys;
+            var namesList = editorWindow.EditorApp.EditorLogic.EntityNames;
 
             var namesArray = new List<string>(namesList).ToArray();
 
@@ -1063,7 +1063,7 @@ namespace CaravelEditor
             List<EntityTypeItem> typeList = new List<EntityTypeItem>();
             typeList.AddRange(m_EntityTypeItems.Values);
 
-            var namesList = editorWindow.EditorApp.EditorLogic.EntityNamesMap.Keys;
+            var namesList = editorWindow.EditorApp.EditorLogic.EntityNames;
 
             var namesArray = new List<string>(namesList).ToArray();
 
@@ -1162,7 +1162,7 @@ namespace CaravelEditor
 
             m_EntityXmlNodes.Remove(eId);
 
-            var entityNames = editorWindow.EditorApp.EditorLogic.EntityNamesMap.Keys;
+            var entityNames = editorWindow.EditorApp.EditorLogic.EntityNames;
             var listEntities = new List<Cv_Entity>();
             foreach (var n in entityNames)
             {
@@ -1391,7 +1391,7 @@ namespace CaravelEditor
         {
             List<string> entityNamesList = new List<string>();
 
-            foreach (var name in editorWindow.EditorApp.EditorLogic.EntityNamesMap.Keys)
+            foreach (var name in editorWindow.EditorApp.EditorLogic.EntityNames)
             {
                 entityNamesList.Add(name);
             }
