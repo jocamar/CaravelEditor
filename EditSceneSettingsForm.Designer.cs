@@ -41,6 +41,9 @@
             this.browsePostLoadButton = new System.Windows.Forms.Button();
             this.saveButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.browseUnLoadButton = new System.Windows.Forms.Button();
+            this.unLoadScriptTextBox = new System.Windows.Forms.TextBox();
+            this.unLoadLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // widthLabel
@@ -153,7 +156,7 @@
             this.saveButton.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.saveButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.saveButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.saveButton.Location = new System.Drawing.Point(55, 191);
+            this.saveButton.Location = new System.Drawing.Point(53, 228);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(173, 23);
             this.saveButton.TabIndex = 19;
@@ -166,19 +169,54 @@
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cancelButton.Location = new System.Drawing.Point(265, 191);
+            this.cancelButton.Location = new System.Drawing.Point(263, 228);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(173, 23);
             this.cancelButton.TabIndex = 20;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = false;
             // 
+            // browseUnLoadButton
+            // 
+            this.browseUnLoadButton.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.browseUnLoadButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
+            this.browseUnLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.browseUnLoadButton.Location = new System.Drawing.Point(386, 182);
+            this.browseUnLoadButton.Name = "browseUnLoadButton";
+            this.browseUnLoadButton.Size = new System.Drawing.Size(75, 23);
+            this.browseUnLoadButton.TabIndex = 23;
+            this.browseUnLoadButton.Text = "Choose File";
+            this.browseUnLoadButton.UseVisualStyleBackColor = false;
+            this.browsePostLoadButton.Click += new System.EventHandler(this.browseUnLoadButton_Click);
+            // 
+            // unLoadScriptTextBox
+            // 
+            this.unLoadScriptTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(140)))), ((int)(((byte)(140)))), ((int)(((byte)(140)))));
+            this.unLoadScriptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.unLoadScriptTextBox.ForeColor = System.Drawing.SystemColors.Control;
+            this.unLoadScriptTextBox.Location = new System.Drawing.Point(119, 185);
+            this.unLoadScriptTextBox.Name = "unLoadScriptTextBox";
+            this.unLoadScriptTextBox.Size = new System.Drawing.Size(245, 20);
+            this.unLoadScriptTextBox.TabIndex = 22;
+            // 
+            // unLoadLabel
+            // 
+            this.unLoadLabel.AutoSize = true;
+            this.unLoadLabel.Location = new System.Drawing.Point(31, 187);
+            this.unLoadLabel.Name = "unLoadLabel";
+            this.unLoadLabel.Size = new System.Drawing.Size(78, 13);
+            this.unLoadLabel.TabIndex = 21;
+            this.unLoadLabel.Text = "UnLoad Script:";
+            // 
             // EditSceneSettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(491, 239);
+            this.ClientSize = new System.Drawing.Size(491, 277);
+            this.Controls.Add(this.browseUnLoadButton);
+            this.Controls.Add(this.unLoadScriptTextBox);
+            this.Controls.Add(this.unLoadLabel);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.browsePostLoadButton);
@@ -215,5 +253,8 @@
         private System.Windows.Forms.Button browsePostLoadButton;
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.Button browseUnLoadButton;
+        private System.Windows.Forms.TextBox unLoadScriptTextBox;
+        private System.Windows.Forms.Label unLoadLabel;
     }
 }

@@ -1494,6 +1494,7 @@ namespace CaravelEditor
             var scriptNode = doc.CreateElement("Script");
             scriptNode.SetAttribute("preLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript);
             scriptNode.SetAttribute("postLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript);
+            scriptNode.SetAttribute("unLoad", editorWindow.EditorApp.EditorLogic.CurrentSceneUnLoadScript);
             sceneNode.AppendChild(scriptNode);
 
             XmlWriterSettings oSettings = new XmlWriterSettings();
@@ -1519,7 +1520,8 @@ namespace CaravelEditor
                                                             editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualWidth,
                                                             editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualHeight,
                                                             editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript,
-                                                            editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript))
+                                                            editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript,
+                                                            editorWindow.EditorApp.EditorLogic.CurrentSceneUnLoadScript))
             {
                 var result = form.ShowDialog();
 
@@ -1529,6 +1531,7 @@ namespace CaravelEditor
                     editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualHeight = form.GetHeight();
                     editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript = form.GetPreLoadScript();
                     editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript = form.GetPostLoadScript();
+                    editorWindow.EditorApp.EditorLogic.CurrentSceneUnLoadScript = form.GetUnLoadScript();
                 }
                 else
                 {

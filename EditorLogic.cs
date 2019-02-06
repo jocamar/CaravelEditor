@@ -110,6 +110,11 @@ namespace CaravelEditor
             get; set;
         }
 
+        public string CurrentSceneUnLoadScript
+        {
+            get; set;
+        }
+
         private Vector2 m_PrevMousePos;
         private int m_iPreviousScrollValue;
         private bool m_bMovingEntity = false;
@@ -126,6 +131,7 @@ namespace CaravelEditor
             ProjectDirectory = Directory.GetCurrentDirectory();
             CurrentScenePostLoadScript = "";
             CurrentScenePreLoadScript = "";
+            CurrentSceneUnLoadScript = "";
         }
 
         protected override bool VGameOnPreLoadScene(XmlElement sceneData)
@@ -158,6 +164,7 @@ namespace CaravelEditor
             {
                 CurrentScenePreLoadScript = scriptElement.Attributes["preLoad"].Value;
                 CurrentScenePostLoadScript = scriptElement.Attributes["postLoad"].Value;
+                CurrentSceneUnLoadScript = scriptElement.Attributes["unLoad"].Value;
             }
 
             //EditorView.Camera = camComponent.CameraNode;
