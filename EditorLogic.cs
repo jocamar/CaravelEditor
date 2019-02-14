@@ -136,28 +136,12 @@ namespace CaravelEditor
 
         protected override bool VGameOnPreLoadScene(XmlElement sceneData)
         {
-            /*var entityList = new List<Cv_EntityID>();
-            
-            foreach(var e in Entities.Keys)
-            {
-                entityList.Add(e);
-            }
-            
-            foreach(var e in entityList)
-            {
-                DestroyEntity(e);
-            }*/
- 
             return true;
         }
 
 
         protected override bool VGameOnLoadScene(XmlElement sceneData, string sceneID)
         {
-            //EditorView.Init();
-            //var editorCam = GetEntity(EditorView.EditorCamera);
-            //var camComponent = editorCam.GetComponent<Cv_CameraComponent>();
-
             var scriptElement = sceneData.SelectNodes("Script").Item(0);
 
             if (scriptElement != null)
@@ -167,7 +151,6 @@ namespace CaravelEditor
                 CurrentSceneUnLoadScript = scriptElement.Attributes["unLoad"].Value;
             }
 
-            //EditorView.Camera = camComponent.CameraNode;
             return true;
         }
 
@@ -213,17 +196,19 @@ namespace CaravelEditor
 
                                     if (!m_bMovingEntity)
                                     {
-                                        //m_bMovingEntity = true;
                                         m_EntityBeingMoved = GetEntity(entities[0]);
                                     }
-
+                                }
+                                else
+                                {
+                                    var timer = new Cv_TimerProcess(100, DeselectEntity);
+                                    Caravel.ProcessManager.AttachProcess(timer);
                                 }
                             }
                             else if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
                             {
                                 if (!m_bMovingEntity)
                                 {
-                                    //m_bMovingEntity = true;
                                     m_EntityBeingMoved = GetEntity(editorApp.EForm.CurrentEntity);
                                 }
                             }
@@ -358,6 +343,21 @@ namespace CaravelEditor
         protected override Cv_EntityFactory VCreateEntityFactory()
         {
             return new EditorEntityFactory();
+        }
+
+        private void DeselectEntity()
+        {
+            var editorApp = ((EditorApp)Caravel);
+            if (editorApp.EWindow == null
+                            || editorApp.Mode != EditorApp.EditorMode.TRANSFORM
+                            || !editorApp.EWindow.Focused
+                            || !editorApp.EWindow.EditorForm.CanSelectEntities
+                            || editorApp.CurrentResourceBundle == null || editorApp.CurrentResourceBundle == "")
+            {
+                return;
+            }
+
+            editorApp.EForm.SetSelectedEntity(Cv_EntityID.INVALID_ENTITY);
         }
 
         private void PaintEntity()

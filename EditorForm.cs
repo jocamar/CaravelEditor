@@ -1099,7 +1099,17 @@ namespace CaravelEditor
 
         public void AddNewComponentToEntity(Cv_EntityComponent component)
         {
-            editorWindow.EditorApp.Logic.AddComponent(CurrentEntity, component);
+            var entity = editorWindow.EditorApp.Logic.GetEntity(CurrentEntity);
+
+            if (component is GameComponent)
+            {
+                editorWindow.EditorApp.Logic.AddComponent(entity.EntityName, ((GameComponent)component).ComponentName, component, entity.Scene);
+            }
+            else
+            {
+                editorWindow.EditorApp.Logic.AddComponent(entity.EntityName, component.GetType().Name, component, entity.Scene);
+            }
+            
             var newXml = editorWindow.EditorApp.Logic.GetEntityXML(CurrentEntity);
 
             if (newXml != null)
