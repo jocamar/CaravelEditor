@@ -17,6 +17,12 @@ namespace CaravelEditor
             InitializeComponent();
             
             int lastUsedIdx = -1;
+
+            var noType = new EntityTypeItem();
+            noType.Type = "None";
+            noType.Resource = "";
+
+            this.typeComboBox.Items.Add(noType);
             for(var i = 0; i < types.Count; i++)
             {
                 var type = types[i];
@@ -30,7 +36,7 @@ namespace CaravelEditor
 
             if (lastUsedIdx >= 0)
             {
-                typeComboBox.SelectedIndex = lastUsedIdx;
+                typeComboBox.SelectedIndex = lastUsedIdx+1;
             }
 
             this.m_Names = names;
@@ -59,7 +65,7 @@ namespace CaravelEditor
 
         public bool TypeWasSelected()
         {
-            return typeComboBox.SelectedIndex != -1;
+            return typeComboBox.SelectedIndex != -1 && typeComboBox.SelectedIndex != 0;
         }
 
         public void textBox_OnTextChanged(object sender, EventArgs eventArgs)

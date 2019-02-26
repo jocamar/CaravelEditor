@@ -46,6 +46,11 @@ namespace CaravelEditor
             return postLoadScriptTextBox.Text;
         }
 
+        public string GetUnLoadScript()
+        {
+            return unLoadScriptTextBox.Text;
+        }
+
         public string GetSceneResourceBundle()
         {
             return m_sSceneResourceBundle;
@@ -199,6 +204,46 @@ namespace CaravelEditor
                     if (fileName.StartsWith(resourceBundleFullPath))
                     {
                         postLoadScriptTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/");
+
+                        if (CanCreateScene())
+                        {
+                            saveButton.Enabled = true;
+                        }
+                        else
+                        {
+                            saveButton.Enabled = false;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error - The script file must be inside the same resource bundle as the scene file.", "Error");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Error - You must first choose the location of the scene file.", "Error");
+                }
+            }
+        }
+
+        private void browseUnLoadButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+
+            openFile.InitialDirectory = m_sCurrentProject;
+            openFile.Filter = "Lua Script | *.lua";
+            openFile.ShowDialog();
+            if (openFile.FileNames.Length > 0)
+            {
+                string fileName = openFile.FileNames[0];
+
+                if (m_sSceneResourceBundle != null && m_sSceneResourceBundle != "")
+                {
+                    string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(m_sSceneResourceBundle));
+
+                    if (fileName.StartsWith(resourceBundleFullPath))
+                    {
+                        unLoadScriptTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/");
 
                         if (CanCreateScene())
                         {

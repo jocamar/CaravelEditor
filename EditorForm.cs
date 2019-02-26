@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
@@ -721,6 +722,13 @@ namespace CaravelEditor
                 var bundles = root.SelectSingleNode("//ResourceBundles");
                 CurrentProjectDirectory = Path.GetDirectoryName(dialog.FileName);
 
+                var loadedBundles = m_ResourceBundles.Keys.ToArray();
+                foreach (var bundle in loadedBundles)
+                {
+                    editorWindow.EditorApp.EditorUnloadResourceBundle(m_ResourceBundles[bundle]);
+                    m_ResourceBundles.Remove(bundle);
+                }
+
                 foreach (XmlElement element in bundles.ChildNodes)
                 {
                     var bundleId = element.Attributes["name"].Value;
@@ -1365,6 +1373,7 @@ namespace CaravelEditor
                     var scriptNode = doc.CreateElement("Script");
                     scriptNode.SetAttribute("preLoad", form.GetPreLoadScript());
                     scriptNode.SetAttribute("postLoad", form.GetPostLoadScript());
+                    scriptNode.SetAttribute("unLoad", form.GetUnLoadScript());
 
                     doc.AppendChild(sceneNode);
                     sceneNode.AppendChild(scriptNode);
