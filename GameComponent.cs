@@ -7,8 +7,22 @@ namespace CaravelEditor
 {
     class GameComponent : Cv_EntityComponent
     {
+        public override Cv_ComponentID ID
+        {
+            get
+            {
+                if (m_ID == Cv_ComponentID.INVALID_COMPONENT)
+                {
+                    m_ID = GetID(ComponentName);
+                }
+
+                return m_ID;
+            }
+        }
         public string ComponentName;
+
         private Dictionary<string, Tuple<string, List<Tuple<string, string>>>> m_FieldValues;
+        private Cv_ComponentID m_ID = Cv_ComponentID.INVALID_COMPONENT;
 
         public void Init(string compName)
         {

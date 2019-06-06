@@ -368,7 +368,7 @@ namespace CaravelEditor
 
                 editorWindow.EditorApp.EditorLogic.EditorView.EditorSelectedEntity = entityId;
 
-                if (this.editorTabs.SelectedTab == this.sceneTab)
+                if (editorTabs.SelectedTab == sceneTab)
                 {
                     m_EntityComponentEditor.ShowEntityComponents(m_EntityXmlNodes[CurrentEntity]);
                 }
@@ -398,7 +398,7 @@ namespace CaravelEditor
             {
                 CurrentEntityType = typeResource;
                 
-                if (this.editorTabs.SelectedTab == this.entityTypesTab)
+                if (editorTabs.SelectedTab == entityTypesTab)
                 {
                     m_TypeComponentEditor.ShowEntityComponents(m_EntityTypeXmlNodes[typeResource]);
                 }
@@ -423,7 +423,7 @@ namespace CaravelEditor
                 CurrentMaterial = material;
                 materialEditorControl.SetMaterial(CurrentMaterial);
 
-                if (this.editorTabs.SelectedTab == this.materialsTab)
+                if (editorTabs.SelectedTab == materialsTab)
                 {
                     materialEditorControl.Visible = true;
                 }

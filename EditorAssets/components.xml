@@ -18,6 +18,7 @@
 		<Element name="Color" type="rgba" />
 		<Element name="Visible" type="boolean" fieldNames="status"/>
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Parallax" type="float" fieldNames="value" editorNames="Value" />
 		<Element name="Texture" type="file" fieldNames="resource" extensions="Image Files(*.PNG;*.JPG;)|*.PNG;*.JPG;|All files (*.*)|*.*"  />
     <Element name="Animation" type="animationProperties" />
     <Element name="Mirrored" type="boolean" fieldNames="status" />
@@ -60,6 +61,7 @@
     <Element name="Color" type="rgba" />
     <Element name="Visible" type="boolean" fieldNames="status"/>
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Parallax" type="float" fieldNames="value" editorNames="Value" />
     <Element name="Font" type="file" fieldNames="resource" extensions="SpriteFont Files(*.XNB;)|*.XNB;|All files (*.*)|*.*"  />
     <Element name="Text" type="string" fieldNames="text" editorNames="String ID"/>
     <Element name="LiteralText" type="boolean" fieldNames="status" editorNames="Use Literal Text"/>
@@ -79,6 +81,7 @@
     <Element name="Color" type="rgba" />
     <Element name="Visible" type="boolean" fieldNames="status"/>
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
+    <Element name="Parallax" type="float" fieldNames="value" editorNames="Value" />
     <Element name="Texture" type="file" fieldNames="resource" extensions="Image Files(*.PNG;*.JPG;)|*.PNG;*.JPG;|All files (*.*)|*.*"  />
     <Element name="EmitterVelocity" type="int" fieldNames="x,y" editorNames="X,Y"/>
     <Element name="EmitterVariation" type="int" fieldNames="x,y" editorNames="X,Y"/>

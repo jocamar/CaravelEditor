@@ -6,11 +6,8 @@ using Caravel.Core.Entity;
 using static Caravel.Core.Entity.Cv_Entity;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
-using Caravel.Core.Physics;
-using static Caravel.Core.Physics.Cv_GamePhysics;
 using Caravel.Core.Input;
 using System.Windows.Forms;
-using System;
 using Caravel.Core.Process;
 using Caravel;
 using System.Linq;
@@ -134,7 +131,7 @@ namespace CaravelEditor
             CurrentSceneUnLoadScript = "";
         }
 
-        protected override bool VGameOnPreLoadScene(XmlElement sceneData)
+        protected override bool VGameOnPreLoadScene(XmlElement sceneData, string sceneID)
         {
             return true;
         }

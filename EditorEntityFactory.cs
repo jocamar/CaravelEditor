@@ -1,7 +1,9 @@
 ﻿using System.Xml;
 using Caravel.Core;
 using Caravel.Core.Entity;
+using Caravel.Core.Resource;
 using Caravel.Debugging;
+using static Caravel.Core.Entity.Cv_Entity;
 
 namespace CaravelEditor
 {
