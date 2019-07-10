@@ -41,9 +41,10 @@
             this.comboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.comboBox.ForeColor = System.Drawing.SystemColors.Control;
             this.comboBox.FormattingEnabled = true;
-            this.comboBox.Location = new System.Drawing.Point(126, 28);
+            this.comboBox.Location = new System.Drawing.Point(252, 54);
+            this.comboBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.comboBox.Name = "comboBox";
-            this.comboBox.Size = new System.Drawing.Size(121, 21);
+            this.comboBox.Size = new System.Drawing.Size(238, 33);
             this.comboBox.TabIndex = 0;
             this.comboBox.SelectedIndexChanged += new System.EventHandler(this.comboBox_OnSelectedIndexChanged);
             // 
@@ -51,9 +52,10 @@
             // 
             this.label.AutoSize = true;
             this.label.ForeColor = System.Drawing.SystemColors.Control;
-            this.label.Location = new System.Drawing.Point(34, 31);
+            this.label.Location = new System.Drawing.Point(68, 60);
+            this.label.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(61, 13);
+            this.label.Size = new System.Drawing.Size(122, 25);
             this.label.TabIndex = 1;
             this.label.Text = "Component";
             // 
@@ -64,9 +66,10 @@
             this.addButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.addButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.addButton.ForeColor = System.Drawing.SystemColors.Control;
-            this.addButton.Location = new System.Drawing.Point(24, 68);
+            this.addButton.Location = new System.Drawing.Point(48, 131);
+            this.addButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.addButton.Name = "addButton";
-            this.addButton.Size = new System.Drawing.Size(103, 23);
+            this.addButton.Size = new System.Drawing.Size(206, 44);
             this.addButton.TabIndex = 3;
             this.addButton.Text = "Add";
             this.addButton.UseVisualStyleBackColor = false;
@@ -78,25 +81,27 @@
             this.cancelButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cancelButton.ForeColor = System.Drawing.SystemColors.Control;
-            this.cancelButton.Location = new System.Drawing.Point(149, 68);
+            this.cancelButton.Location = new System.Drawing.Point(298, 131);
+            this.cancelButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(113, 23);
+            this.cancelButton.Size = new System.Drawing.Size(226, 44);
             this.cancelButton.TabIndex = 4;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = false;
             // 
             // AddComponentForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(284, 106);
+            this.ClientSize = new System.Drawing.Size(568, 204);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.label);
             this.Controls.Add(this.comboBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "AddComponentForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Add Component";

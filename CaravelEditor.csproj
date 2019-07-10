@@ -87,23 +87,18 @@
     </Reference>
     <Reference Include="MonoGame.Forms, Version=1.6.7.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MonoGame.Forms.1.6.7.1\lib\net451\MonoGame.Forms.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MonoGame.Framework, Version=3.7.0.1114, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MonoGame.Forms.1.6.7.1\lib\net451\MonoGame 3.7.0.1114\MonoGame.Framework.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>packages\MonoGame.Forms.1.6.7.1\lib\net451\MonoGame 3.7.0.1114\SharpDX.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>packages\MonoGame.Forms.1.6.7.1\lib\net451\MonoGame 3.7.0.1114\SharpDX.Direct3D11.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX.DXGI, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>packages\MonoGame.Forms.1.6.7.1\lib\net451\MonoGame 3.7.0.1114\SharpDX.DXGI.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -191,6 +186,12 @@
       <DependentUpon>EditSceneSettingsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="EntityComponentEditor.cs" />
+    <Compile Include="AddSubSceneForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddSubSceneForm.Designer.cs">
+      <DependentUpon>AddSubSceneForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GameComponent.cs" />
     <Compile Include="MakeIntoTypeForm.cs">
       <SubType>Form</SubType>
@@ -263,6 +264,9 @@
     <EmbeddedResource Include="AddSceneForm.resx">
       <DependentUpon>AddSceneForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="AddSubSceneForm.resx">
+      <DependentUpon>AddSubSceneForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CameraToolOptions.resx">
       <DependentUpon>CameraToolOptions.cs</DependentUpon>
     </EmbeddedResource>
@@ -333,18 +337,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <PublishFile Include="MonoGame.Framework">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
-    </PublishFile>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -64,9 +64,15 @@ namespace CaravelEditor
 
         public void OnSceneLoaded(Cv_Event evt)
         {
-            var cam = Caravel.Logic.CreateEntity("camera.cve", "_editorCamera", "_EditorDefault");
-            EditorCamera = cam.ID;
-            Camera = cam.GetComponent<Cv_CameraComponent>().CameraNode;
+            var sceneLoadedEvt = evt as Cv_Event_SceneLoaded;
+
+            if (sceneLoadedEvt.SceneName == "Root")
+            {
+                Caravel.Logic.SetMainScene(sceneLoadedEvt.SceneID);
+                var cam = Caravel.Logic.CreateEntity("camera.cve", "_editorCamera", "_EditorDefault");
+                EditorCamera = cam.ID;
+                Camera = cam.GetComponent<Cv_CameraComponent>().CameraNode;
+            }
         }
     }
 }

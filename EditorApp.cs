@@ -102,9 +102,9 @@ namespace CaravelEditor
         protected override bool VLoadGame()
         {
             EForm.LoadComponentDefinitions();
-            Logic.UnloadScene();
-            Logic.LoadScene(CurrentScene, CurrentResourceBundle, "Main");
-            EForm.InitializeSceneEntitiess();
+            Logic.UnloadScene(null);
+            Logic.LoadScene(CurrentScene, CurrentResourceBundle, "Root");
+            EForm.InitializeSceneEntities();
             EForm.InitializeTools();
             EForm.InitializeAssets();
             EForm.InitializeEntityTypes();

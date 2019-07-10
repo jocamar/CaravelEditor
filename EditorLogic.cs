@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using Caravel.Core.Process;
 using Caravel;
 using System.Linq;
+using static Caravel.Core.Cv_SceneManager;
 
 namespace CaravelEditor
 {
@@ -50,11 +51,11 @@ namespace CaravelEditor
             }
         }
 
-        public Dictionary<string, Cv_Entity> EntityNamesMap
+        public Dictionary<string, Cv_Entity> EntityPathsMap
         {
             get
             {
-                return EntitiesByName;
+                return EntitiesByPath;
             }
         }
 
@@ -63,7 +64,7 @@ namespace CaravelEditor
             get
             {
                 List<string> entityNames = new List<string>();
-                foreach (var e in EntitiesByName.Values)
+                foreach (var e in EntitiesByPath.Values)
                 {
                     entityNames.Add(e.EntityName);
                 }
@@ -137,15 +138,18 @@ namespace CaravelEditor
         }
 
 
-        protected override bool VGameOnLoadScene(XmlElement sceneData, string sceneID)
+        protected override bool VGameOnLoadScene(XmlElement sceneData, Cv_SceneID sceneID, string sceneName)
         {
-            var scriptElement = sceneData.SelectNodes("Script").Item(0);
-
-            if (scriptElement != null)
+            if (sceneName == "Root")
             {
-                CurrentScenePreLoadScript = scriptElement.Attributes["preLoad"].Value;
-                CurrentScenePostLoadScript = scriptElement.Attributes["postLoad"].Value;
-                CurrentSceneUnLoadScript = scriptElement.Attributes["unLoad"].Value;
+                var scriptElement = sceneData.SelectNodes("Script").Item(0);
+
+                if (scriptElement != null)
+                {
+                    CurrentScenePreLoadScript = scriptElement.Attributes["preLoad"].Value;
+                    CurrentScenePostLoadScript = scriptElement.Attributes["postLoad"].Value;
+                    CurrentSceneUnLoadScript = scriptElement.Attributes["unLoad"].Value;
+                }
             }
 
             return true;

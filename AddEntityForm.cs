@@ -8,15 +8,17 @@ namespace CaravelEditor
 {
     public partial class AddEntityForm : Form
     {
-        private string[] m_Names;
+        private string[] m_Paths;
+        private string m_ParentPath;
         private static int lastIdUsed = 0;
         private static string lastEntityTypeResourceUsed = "";
 
-        public AddEntityForm(List<EntityTypeItem> types, string[] names)
+        public AddEntityForm(List<EntityTypeItem> types, string[] paths, string parentPath)
         {
             InitializeComponent();
             
             int lastUsedIdx = -1;
+            m_ParentPath = parentPath;
 
             var noType = new EntityTypeItem();
             noType.Type = "None";
@@ -39,7 +41,7 @@ namespace CaravelEditor
                 typeComboBox.SelectedIndex = lastUsedIdx+1;
             }
 
-            this.m_Names = names;
+            this.m_Paths = paths;
             this.addButton.Enabled = false;
 
             var placeHolderName = "";
@@ -48,7 +50,8 @@ namespace CaravelEditor
                 placeHolderName = "Entity_" + lastIdUsed;
                 lastIdUsed++;
             }
-            while (m_Names.Contains(placeHolderName));
+
+            while (m_Paths.Contains(parentPath + "/" + placeHolderName));
             textBox.Text = placeHolderName;
         }
 
@@ -70,7 +73,7 @@ namespace CaravelEditor
 
         public void textBox_OnTextChanged(object sender, EventArgs eventArgs)
         {
-            if (textBox.Text != "" && !m_Names.Contains(textBox.Text))
+            if (textBox.Text != "" && !m_Paths.Contains(m_ParentPath + "/" + textBox.Text))
             {
                 addButton.Enabled = true;
             }

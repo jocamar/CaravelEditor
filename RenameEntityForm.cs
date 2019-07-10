@@ -6,14 +6,17 @@ namespace CaravelEditor
 {
     public partial class RenameEntityForm : Form
     {
-        public string[] m_EntityNames;
+        public string m_ParentPath;
+        public string[] m_EntityPaths;
 
-        public RenameEntityForm(string entityName, string[] entityNames)
+        public RenameEntityForm(string entityName, string parentPath, string[] entityPaths)
         {
             InitializeComponent();
 
-            m_EntityNames = entityNames;
+            m_EntityPaths = entityPaths;
             nameTextBox.Text = entityName;
+
+            m_ParentPath = parentPath;
 
             renameButton.Enabled = false;
         }
@@ -27,7 +30,7 @@ namespace CaravelEditor
         {
             TextBox textBox = (TextBox)sender;
 
-            if (!m_EntityNames.Contains(textBox.Text) && textBox.Text != "")
+            if (!m_EntityPaths.Contains(m_ParentPath + "/" + textBox.Text) && textBox.Text != "")
             {
                 renameButton.Enabled = true;
             }

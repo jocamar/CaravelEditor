@@ -36,9 +36,10 @@
             // 
             this.zoomLabel.AutoSize = true;
             this.zoomLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.zoomLabel.Location = new System.Drawing.Point(10, 5);
+            this.zoomLabel.Location = new System.Drawing.Point(20, 10);
+            this.zoomLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.zoomLabel.Name = "zoomLabel";
-            this.zoomLabel.Size = new System.Drawing.Size(34, 13);
+            this.zoomLabel.Size = new System.Drawing.Size(66, 25);
             this.zoomLabel.TabIndex = 3;
             this.zoomLabel.Text = "Zoom";
             // 
@@ -47,22 +48,24 @@
             this.zoomTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(140)))), ((int)(((byte)(140)))), ((int)(((byte)(140)))));
             this.zoomTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.zoomTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.zoomTextBox.Location = new System.Drawing.Point(50, 3);
+            this.zoomTextBox.Location = new System.Drawing.Point(100, 6);
+            this.zoomTextBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.zoomTextBox.Name = "zoomTextBox";
             this.zoomTextBox.ReadOnly = true;
-            this.zoomTextBox.Size = new System.Drawing.Size(48, 20);
+            this.zoomTextBox.Size = new System.Drawing.Size(94, 31);
             this.zoomTextBox.TabIndex = 4;
             this.zoomTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // CameraToolOptions
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(192F, 192F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.Controls.Add(this.zoomTextBox);
             this.Controls.Add(this.zoomLabel);
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "CameraToolOptions";
-            this.Size = new System.Drawing.Size(117, 25);
+            this.Size = new System.Drawing.Size(234, 48);
             this.ResumeLayout(false);
             this.PerformLayout();
 

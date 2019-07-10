@@ -16,7 +16,7 @@ namespace CaravelEditor
         public void Initialize(EditorApp app)
         {
             m_EditorApp = app;
-            m_EditorCamera = m_EditorApp.Logic.GetEntity("_editorCamera");
+            m_EditorCamera = m_EditorApp.Logic.GetEntity("/Root/_editorCamera");
 
             if (m_EditorCamera != null)
             {

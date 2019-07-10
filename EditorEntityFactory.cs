@@ -3,6 +3,7 @@ using Caravel.Core;
 using Caravel.Core.Entity;
 using Caravel.Core.Resource;
 using Caravel.Debugging;
+using static Caravel.Core.Cv_SceneManager;
 using static Caravel.Core.Entity.Cv_Entity;
 
 namespace CaravelEditor
@@ -11,13 +12,12 @@ namespace CaravelEditor
     {
         protected override Cv_Entity CreateEntity(string entityTypeResource,
                                                     Cv_Entity.Cv_EntityID parent,
-                                                    XmlElement overrides,
-                                                    Cv_Transform? initialTransform,
                                                     Cv_Entity.Cv_EntityID serverEntityID,
                                                     string resourceBundle,
-                                                    string sceneID)
+                                                    Cv_SceneID sceneID,
+                                                    string sceneName)
         {
-            return base.CreateEntity(entityTypeResource, parent, overrides, initialTransform, serverEntityID, resourceBundle, sceneID);
+            return base.CreateEntity(entityTypeResource, parent, serverEntityID, resourceBundle, sceneID, sceneName);
         }
 
         protected override Cv_EntityComponent CreateComponent(string componentName)
