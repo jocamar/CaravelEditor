@@ -1129,11 +1129,11 @@ namespace CaravelEditor
 
             if (component is GameComponent)
             {
-                editorWindow.EditorApp.Logic.AddComponent(entity.EntityName, ((GameComponent)component).ComponentName, component);
+                editorWindow.EditorApp.Logic.AddComponent(entity.EntityPath, ((GameComponent)component).ComponentName, component);
             }
             else
             {
-                editorWindow.EditorApp.Logic.AddComponent(entity.EntityName, component.GetType().Name, component);
+                editorWindow.EditorApp.Logic.AddComponent(entity.EntityPath, component.GetType().Name, component);
             }
             
             var newXml = editorWindow.EditorApp.Logic.GetEntityXML(CurrentEntity);
