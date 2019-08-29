@@ -659,11 +659,13 @@ namespace CaravelEditor
                 else
                 {
                     m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                    m_EditorApp.EForm.UpdateEntityXml(false);
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+                m_EditorApp.EForm.UpdateEntityXml();
             }
         }
         #endregion

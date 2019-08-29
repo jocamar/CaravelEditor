@@ -1151,14 +1151,18 @@ namespace CaravelEditor
             UpdateEntityXml();
         }
 
-        public void UpdateEntityXml()
+        public void UpdateEntityXml(bool refreshView = true)
         {
             var newXml = editorWindow.EditorApp.Logic.GetEntityXML(CurrentEntity);
 
             if (newXml != null)
             {
                 m_EntityXmlNodes[CurrentEntity] = newXml;
-                m_EntityComponentEditor.ShowEntityComponents(newXml);
+
+                if (refreshView)
+                {
+                    m_EntityComponentEditor.ShowEntityComponents(newXml);
+                }
             }
         }
 
@@ -1301,7 +1305,7 @@ namespace CaravelEditor
                     var entity = editorWindow.EditorApp.Logic.GetEntity(CurrentEntity);
                     var entityTreeNode = m_EntityTreeNodes[CurrentEntity];
 
-                    entityTreeNode.Name = entity.EntityName;
+                    entityTreeNode.Name = entity.EntityPath;
                     entityTreeNode.Text = entity.EntityName + " (" + entity.EntityType + ")";
 
                     m_EntityXmlNodes[entity.ID] = entity.ToXML();
@@ -1329,7 +1333,7 @@ namespace CaravelEditor
                     m_EntityXmlNodes[entity.ID] = entity.ToXML();
 
                     var entityTreeNode = m_EntityTreeNodes[CurrentEntity];
-                    entityTreeNode.Name = entity.EntityName;
+                    entityTreeNode.Name = entity.EntityPath;
                     entityTreeNode.Text = entity.EntityName + " (" + entity.EntityType + ")";
                 }
             }
@@ -1458,7 +1462,7 @@ namespace CaravelEditor
                     editorWindow.EditorApp.Logic.ChangeName(CurrentEntity, newName);
                     var entityTreeNode = m_EntityTreeNodes[CurrentEntity];
 
-                    entityTreeNode.Name = entity.EntityName;
+                    entityTreeNode.Name = entity.EntityPath;
                     entityTreeNode.Text = entity.EntityName + " (" + entity.EntityType + ")";
 
                     XmlElement entityXml = entity.ToXML();
@@ -1703,11 +1707,11 @@ namespace CaravelEditor
                     var sceneResource = editorWindow.EditorApp.Logic.GetSceneResource(entity.SceneID);
 
                     var sceneXml = doc.CreateElement("Scene");
-                    sceneXml.SetAttribute("name", entity.EntityName);
+                    sceneXml.SetAttribute("name", childEntity.EntityName);
                     sceneXml.SetAttribute("resource", sceneResource);
                     sceneXml.SetAttribute("visible", entity.Visible.ToString());
 
-                    var transformComp = entity.GetComponent<Cv_TransformComponent>();
+                    var transformComp = childEntity.GetComponent<Cv_TransformComponent>();
 
                     if (transformComp != null)
                     {
