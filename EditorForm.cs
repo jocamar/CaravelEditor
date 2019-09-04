@@ -1704,12 +1704,12 @@ namespace CaravelEditor
                 var childEntity = editorWindow.EditorApp.Logic.GetEntity(node.Name);
                 if (childEntity.SceneRoot)
                 {
-                    var sceneResource = editorWindow.EditorApp.Logic.GetSceneResource(entity.SceneID);
+                    var sceneResource = editorWindow.EditorApp.Logic.GetSceneResource(childEntity.SceneID);
 
                     var sceneXml = doc.CreateElement("Scene");
                     sceneXml.SetAttribute("name", childEntity.EntityName);
                     sceneXml.SetAttribute("resource", sceneResource);
-                    sceneXml.SetAttribute("visible", entity.Visible.ToString());
+                    sceneXml.SetAttribute("visible", childEntity.Visible.ToString());
 
                     var transformComp = childEntity.GetComponent<Cv_TransformComponent>();
 

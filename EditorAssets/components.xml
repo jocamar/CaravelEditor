@@ -50,8 +50,8 @@
 	</Component>
   
   <Component name="Cv_ClickableComponent">
-    <Element name="OnMouseUp" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
-    <Element name="OnMouseDown" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
+    <Element name="OnUnclick" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
+    <Element name="OnClick" type="file" fieldNames="resource" extensions="Lua Script Files(*.LUA;)|*.LUA;|All files (*.*)|*.*"/>
     <Element name="Size" type="int" fieldNames="width,height" editorNames="Width,Height"/>
     <Element name="Anchor" type="int" fieldNames="x,y" editorNames="X,Y"/>
     <Element name="Active" type="boolean" fieldNames="status"/>
