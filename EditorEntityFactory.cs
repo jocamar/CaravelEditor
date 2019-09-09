@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Collections.Generic;
+using System.Xml;
 using Caravel.Core;
 using Caravel.Core.Entity;
 using Caravel.Core.Resource;
@@ -58,8 +59,9 @@ namespace CaravelEditor
             return component;
         }
 
-        protected override void ModifyEntity(Cv_Entity entity, XmlNodeList overrides)
+        protected override Cv_EntityComponent[] ModifyEntity(Cv_Entity entity, XmlNodeList overrides)
         {
+            var components = new List<Cv_EntityComponent>();
             foreach (XmlElement componentNode in overrides)
             {
                 var componentID = Cv_EntityComponent.GetID(componentNode.Name);
@@ -69,6 +71,7 @@ namespace CaravelEditor
                 {
                     component.VInitialize(componentNode);
                     component.VOnChanged();
+                    components.Add(component);
                 }
                 else
                 {
@@ -84,10 +87,13 @@ namespace CaravelEditor
                             entity.AddComponent(component.GetType().Name, component);
                         }
 
-                        component.VPostInitialize();
+                        components.Add(component);
+                        //component.VPostInitialize();
                     }
                 }
             }
+
+            return components.ToArray();
         }
     }
 }
