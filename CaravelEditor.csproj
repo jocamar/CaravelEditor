@@ -192,6 +192,12 @@
     <Compile Include="AddSubSceneForm.Designer.cs">
       <DependentUpon>AddSubSceneForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExportAsSceneForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExportAsSceneForm.Designer.cs">
+      <DependentUpon>ExportAsSceneForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GameComponent.cs" />
     <Compile Include="MakeIntoTypeForm.cs">
       <SubType>Form</SubType>
@@ -275,6 +281,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="EditSceneSettingsForm.resx">
       <DependentUpon>EditSceneSettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExportAsSceneForm.resx">
+      <DependentUpon>ExportAsSceneForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MakeIntoTypeForm.resx">
       <DependentUpon>MakeIntoTypeForm.cs</DependentUpon>

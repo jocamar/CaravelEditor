@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddSubSceneForm));
             this.nameLabel = new System.Windows.Forms.Label();
             this.textBox = new System.Windows.Forms.TextBox();
             this.browseResourceButton = new System.Windows.Forms.Button();
@@ -139,6 +140,7 @@
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.textBox);
             this.ForeColor = System.Drawing.SystemColors.Control;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "AddSubSceneForm";
             this.Text = "Add Sub Scene";
             this.ResumeLayout(false);

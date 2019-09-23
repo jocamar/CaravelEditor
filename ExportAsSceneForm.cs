@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace CaravelEditor
 {
-    public partial class AddSceneForm : Form
+    public partial class ExportAsSceneForm : Form
     {
         private string m_sCurrentProject;
         private string[] m_ResourceBundles;
@@ -12,7 +12,7 @@ namespace CaravelEditor
         private int m_iViewPortY = -1;
         private string m_sSceneResourceBundle;
 
-        public AddSceneForm(string currProject, string[] resourceBundles, int currSceneViewportWidth, int currSceneViewportHeight)
+        public ExportAsSceneForm(string currProject, string[] resourceBundles, int currSceneViewportWidth, int currSceneViewportHeight)
         {
             InitializeComponent();
             saveButton.Enabled = false;
@@ -117,7 +117,7 @@ namespace CaravelEditor
             foreach (var bundle in m_ResourceBundles)
             {
                 string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(bundle));
-               
+
                 if (filePath.StartsWith(resourceBundleFullPath))
                 {
                     m_sSceneResourceBundle = bundle;
@@ -175,7 +175,7 @@ namespace CaravelEditor
 
                     if (fileName.StartsWith(resourceBundleFullPath))
                     {
-                        preLoadScriptTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\","/");
+                        preLoadScriptTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/");
 
                         if (CanCreateScene())
                         {

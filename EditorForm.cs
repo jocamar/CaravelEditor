@@ -143,6 +143,7 @@ namespace CaravelEditor
             removeMaterialToolStripMenuItem.Enabled = false;
             editSceneToolStripMenuItem.Enabled = false;
             addSceneAsChildToolStripMenuItem.Enabled = false;
+            exportAsSceneToolStripMenuItem.Enabled = false;
 
             /**
              * Create asset view right click context menu
@@ -183,6 +184,9 @@ namespace CaravelEditor
             var renameEntityItem = m_EntityContextMenu.Items.Add("Rename");
             renameEntityItem.ForeColor = System.Drawing.SystemColors.Control;
             renameEntityItem.Click += new EventHandler(renameEntityToolStripMenuItem_Click);
+            var exportAsSceneItem = m_EntityContextMenu.Items.Add("Export as Scene");
+            exportAsSceneItem.ForeColor = System.Drawing.SystemColors.Control;
+            exportAsSceneItem.Click += new EventHandler(ExportAsSceneToolStripMenuItem_Click);
 
             /**
              * Create entity types view right click context menu
@@ -386,6 +390,11 @@ namespace CaravelEditor
                 removeEntityToolStripMenuItem.Enabled = true;
                 renameEntityToolStripMenuItem.Enabled = true;
                 addSceneAsChildToolStripMenuItem.Enabled = true;
+
+                if (!editorWindow.EditorApp.EditorLogic.GetEntity(CurrentEntity).SceneRoot)
+                {
+                    exportAsSceneToolStripMenuItem.Enabled = true;
+                }
             }
             else
             {
@@ -399,6 +408,7 @@ namespace CaravelEditor
                 removeEntityToolStripMenuItem.Enabled = false;
                 renameEntityToolStripMenuItem.Enabled = false;
                 addSceneAsChildToolStripMenuItem.Enabled = false;
+                exportAsSceneToolStripMenuItem.Enabled = false;
             }
         }
 
@@ -887,11 +897,23 @@ namespace CaravelEditor
 
                 if (newNode != null)
                 {
-                    SetSelectedEntity(editorWindow.EditorApp.Logic.GetEntity(newNode.Name).ID);
+                    var _entity = editorWindow.EditorApp.Logic.GetEntity(newNode.Name);
+                    SetSelectedEntity(_entity.ID);
 
                     foreach (ToolStripItem item in m_EntityContextMenu.Items)
                     {
                         item.Enabled = true;
+                    }
+
+                    if (_entity == null || _entity.SceneRoot)
+                    {
+                        foreach (ToolStripItem item in m_EntityContextMenu.Items)
+                        {
+                            if (item.Text == "Export As Scene")
+                            {
+                                item.Enabled = false;
+                            }
+                        }
                     }
 
                     m_EntityContextMenu.Show(sceneEntitiesTreeView, e.Location);
@@ -924,6 +946,18 @@ namespace CaravelEditor
                     foreach (ToolStripItem item in m_EntityContextMenu.Items)
                     {
                         if (item.Text != "Create")
+                        {
+                            item.Enabled = false;
+                        }
+                    }
+                }
+
+                var _entity = EditorApp.Instance.Logic.GetEntity(CurrentEntity);
+                if (_entity == null || _entity.SceneRoot)
+                {
+                    foreach (ToolStripItem item in m_EntityContextMenu.Items)
+                    {
+                        if (item.Text == "Export As Scene")
                         {
                             item.Enabled = false;
                         }
@@ -1391,7 +1425,16 @@ namespace CaravelEditor
                 bundleList.Add(bundle);
             }
 
-            using (var form = new AddSceneForm(CurrentProjectDirectory, bundleList.ToArray()))
+            int currViewportX = 0;
+            int currViewportY = 0;
+
+            if (CurrentSceneFile != null && CurrentSceneFile != "")
+            {
+                currViewportX = editorWindow.EditorApp.EditorLogic.EditorView.EditorRenderer.VirtualWidth;
+                currViewportY = editorWindow.EditorApp.EditorLogic.EditorView.EditorRenderer.VirtualHeight;
+            }
+
+            using (var form = new AddSceneForm(CurrentProjectDirectory, bundleList.ToArray(), currViewportX, currViewportY))
             {
                 var result = form.ShowDialog();
 
@@ -1470,6 +1513,90 @@ namespace CaravelEditor
                     {
                         m_EntityXmlNodes[entity.ID] = entityXml;
                     }
+                }
+            }
+        }
+
+        private void ExportAsSceneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> bundleList = new List<string>();
+
+            foreach (var bundle in m_ResourceBundles.Keys)
+            {
+                bundleList.Add(bundle);
+            }
+
+            int currViewportX = 0;
+            int currViewportY = 0;
+
+            if (CurrentSceneFile != null && CurrentSceneFile != "")
+            {
+                currViewportX = editorWindow.EditorApp.EditorLogic.EditorView.EditorRenderer.VirtualWidth;
+                currViewportY = editorWindow.EditorApp.EditorLogic.EditorView.EditorRenderer.VirtualHeight;
+            }
+
+            using (var form = new ExportAsSceneForm(CurrentProjectDirectory, bundleList.ToArray(), currViewportX, currViewportY))
+            {
+                var result = form.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    XmlDocument doc = new XmlDocument();
+
+                    var sceneNode = doc.CreateElement("Scene");
+                    sceneNode.SetAttribute("vWidth", form.GetWidth());
+                    sceneNode.SetAttribute("vHeight", form.GetHeight());
+
+                    var scriptNode = doc.CreateElement("Script");
+                    scriptNode.SetAttribute("preLoad", form.GetPreLoadScript());
+                    scriptNode.SetAttribute("postLoad", form.GetPostLoadScript());
+                    scriptNode.SetAttribute("unLoad", form.GetUnLoadScript());
+
+                    doc.AppendChild(sceneNode);
+                    sceneNode.AppendChild(scriptNode);
+
+                    doc.AppendChild(sceneNode);
+                    var entitiesNode = doc.CreateElement("StaticEntities");
+                    sceneNode.AppendChild(entitiesNode);
+
+                    TreeNode currentSceneNode = null;
+
+                    currentSceneNode = m_EntityTreeNodes[CurrentEntity];
+
+                    var xmlDiff = GetEntityXmlDiff(currentSceneNode.Name, doc);
+                    var childXmlNodes = GetChildEntitiesXmlNodeDiffs(currentSceneNode.Name, doc);
+
+                    foreach (var childNode in childXmlNodes)
+                    {
+                        xmlDiff.AppendChild(childNode);
+                    }
+
+                    entitiesNode.AppendChild(xmlDiff);
+
+                    XmlWriterSettings oSettings = new XmlWriterSettings();
+                    oSettings.Indent = true;
+                    oSettings.OmitXmlDeclaration = true;
+                    oSettings.Encoding = Encoding.UTF8;
+                    oSettings.ConformanceLevel = ConformanceLevel.Auto;
+
+                    string sceneLocation = form.GetFile();
+
+                    using (XmlWriter writer = XmlWriter.Create(sceneLocation, oSettings))
+                    {
+                        doc.WriteContentTo(writer);
+                    }
+
+                    if (CurrentResourceBundle != null && CurrentResourceBundle != "")
+                    {
+                        InitializeAssets();
+                    }
+
+                    editorWindow.EditorApp.ResourceManager.RefreshResourceBundle(m_ResourceBundles[form.GetSceneResourceBundle()]);
+
+                }
+                else
+                {
+                    return;
                 }
             }
         }

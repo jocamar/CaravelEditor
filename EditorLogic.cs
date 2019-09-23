@@ -179,7 +179,8 @@ namespace CaravelEditor
                 {
                     if (editorApp.EWindow != null
                         && editorApp.EWindow.Focused
-                        && editorApp.EWindow.EditorForm.CanSelectEntities)
+                        && editorApp.EWindow.EditorForm.CanSelectEntities
+                        && mousePos.X > 0 && mousePos.Y > 0)
                     {
                         Cv_EntityID[] entities;
                         EditorView.Pick(mousePos, out entities);
