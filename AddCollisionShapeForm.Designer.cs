@@ -42,7 +42,7 @@
             this.comboBox.ForeColor = System.Drawing.SystemColors.Control;
             this.comboBox.FormattingEnabled = true;
             this.comboBox.Location = new System.Drawing.Point(194, 42);
-            this.comboBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.comboBox.Margin = new System.Windows.Forms.Padding(6);
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size(238, 33);
             this.comboBox.TabIndex = 0;
@@ -66,7 +66,7 @@
             this.addButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.addButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.addButton.Location = new System.Drawing.Point(52, 117);
-            this.addButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.addButton.Margin = new System.Windows.Forms.Padding(6);
             this.addButton.Name = "addButton";
             this.addButton.Size = new System.Drawing.Size(194, 44);
             this.addButton.TabIndex = 2;
@@ -80,7 +80,7 @@
             this.cancelButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cancelButton.Location = new System.Drawing.Point(258, 117);
-            this.cancelButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.cancelButton.Margin = new System.Windows.Forms.Padding(6);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(178, 44);
             this.cancelButton.TabIndex = 3;
@@ -100,7 +100,7 @@
             this.ForeColor = System.Drawing.SystemColors.Control;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "AddCollisionShapeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Add Collision Shape";

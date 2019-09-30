@@ -11,7 +11,7 @@ namespace CaravelEditor
         private string[] m_Paths;
         private string m_ParentPath;
         private static int lastIdUsed = 0;
-        private static string lastEntityTypeResourceUsed = "";
+        public static string LastEntityTypeResourceUsed = "";
 
         public AddEntityForm(List<EntityTypeItem> types, string[] paths, string parentPath)
         {
@@ -24,11 +24,13 @@ namespace CaravelEditor
             noType.Type = "None";
             noType.Resource = "";
 
+            LastEntityTypeResourceUsed = LastEntityTypeResourceUsed.Replace("\\", "/");
+
             this.typeComboBox.Items.Add(noType);
             for(var i = 0; i < types.Count; i++)
             {
                 var type = types[i];
-                if (type.Resource == lastEntityTypeResourceUsed)
+                if (type.Resource == LastEntityTypeResourceUsed)
                 {
                     lastUsedIdx = i;
                 }
@@ -62,7 +64,7 @@ namespace CaravelEditor
 
         public string GetEntityType()
         {
-            lastEntityTypeResourceUsed = ((EntityTypeItem)typeComboBox.SelectedItem).Resource;
+            LastEntityTypeResourceUsed = ((EntityTypeItem)typeComboBox.SelectedItem).Resource;
             return ((EntityTypeItem) typeComboBox.SelectedItem).Resource;
         }
 

@@ -61,7 +61,7 @@
             this.browseUnLoadButton.TabIndex = 37;
             this.browseUnLoadButton.Text = "Choose File";
             this.browseUnLoadButton.UseVisualStyleBackColor = false;
-            this.browseUnLoadButton.Click += new System.EventHandler(browseUnLoadButton_Click);
+            this.browseUnLoadButton.Click += new System.EventHandler(this.browseUnLoadButton_Click);
             // 
             // unLoadScriptTextBox
             // 
@@ -96,7 +96,7 @@
             this.browsePostLoadButton.TabIndex = 34;
             this.browsePostLoadButton.Text = "Choose File";
             this.browsePostLoadButton.UseVisualStyleBackColor = false;
-            this.browsePostLoadButton.Click += new System.EventHandler(browsePostLoadButton_Click);
+            this.browsePostLoadButton.Click += new System.EventHandler(this.browsePostLoadButton_Click);
             // 
             // postLoadScriptTextBox
             // 
@@ -131,8 +131,7 @@
             this.browsePreLoadButton.TabIndex = 31;
             this.browsePreLoadButton.Text = "Choose File";
             this.browsePreLoadButton.UseVisualStyleBackColor = false;
-            this.browsePreLoadButton.Click += new System.EventHandler(browsePreLoadButton_Click);
-
+            this.browsePreLoadButton.Click += new System.EventHandler(this.browsePreLoadButton_Click);
             // 
             // preLoadScriptTextBox
             // 
@@ -239,7 +238,7 @@
             this.browseFileButton.TabIndex = 22;
             this.browseFileButton.Text = "Choose File";
             this.browseFileButton.UseVisualStyleBackColor = false;
-            this.browseFileButton.Click += new System.EventHandler(sceneFileButton_Click);
+            this.browseFileButton.Click += new System.EventHandler(this.sceneFileButton_Click);
             // 
             // fileTextBox
             // 
@@ -290,6 +289,7 @@
             this.ForeColor = System.Drawing.SystemColors.Control;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ExportAsSceneForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Export As Scene";
             this.ResumeLayout(false);
             this.PerformLayout();

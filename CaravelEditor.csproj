@@ -85,6 +85,8 @@
     <Reference Include="CaravelDotNet">
       <HintPath>Caravel\CaravelDotNet.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="MonoGame.Forms, Version=1.6.7.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MonoGame.Forms.1.6.7.1\lib\net451\MonoGame.Forms.dll</HintPath>
     </Reference>
@@ -165,6 +167,10 @@
       <DependentUpon>CameraToolOptions.cs</DependentUpon>
     </Compile>
     <Compile Include="CaravelMenuColorTable.cs" />
+    <Compile Include="ComplexButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="EditorBuildLogger.cs" />
     <Compile Include="EditorEntityFactory.cs" />
     <Compile Include="EditorUtils.cs" />
     <Compile Include="EditorWindow.cs">
@@ -212,6 +218,7 @@
       <DependentUpon>MaterialEditorControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="ProjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenameEntityForm.cs">
       <SubType>Form</SubType>
@@ -225,6 +232,18 @@
     <Compile Include="TransformToolOptions.Designer.cs">
       <DependentUpon>TransformToolOptions.cs</DependentUpon>
     </Compile>
+    <Compile Include="StartupPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="StartupPage.Designer.cs">
+      <DependentUpon>StartupPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UnsavedChangesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UnsavedChangesForm.Designer.cs">
+      <DependentUpon>UnsavedChangesForm.cs</DependentUpon>
+    </Compile>
     <Content Include="EditorAssets\camera.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -236,18 +255,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <None Include="EditorAssets\folder.png" />
     <Content Include="EditorAssets\grab.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="EditorAssets\icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="UnsavedChangesForm.resx">
+      <DependentUpon>UnsavedChangesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="EditorAssets\open.png" />
     <Content Include="EditorAssets\zoom.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Logs\logTags.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\caravel.bmp" />
     <Content Include="SDL2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -310,6 +335,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TransformToolOptions.resx">
       <DependentUpon>TransformToolOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StartupPage.resx">
+      <DependentUpon>StartupPage.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="CaravelEditor_TemporaryKey.pfx" />
     <None Include="Logs\error.log" />

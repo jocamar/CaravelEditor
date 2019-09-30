@@ -17,6 +17,35 @@ namespace CaravelEditor
 {
     public partial class EditorForm : Form
     {
+        public struct ProjectInfo
+        {
+            public string ProjectName;
+            public string ProjectScene;
+            public string FullProjectPath;
+            public string FullScenePath;
+
+            public ProjectInfo(string name, string scene, string fullProjectPath, string fullScenePath)
+            {
+                ProjectName = name;
+                ProjectScene = scene;
+                FullProjectPath = fullProjectPath;
+                FullScenePath = fullScenePath;
+            }
+        }
+
+        public bool UnsavedChanges
+        {
+            get
+            {
+                return m_UnsavedChanges;
+            }
+
+            set
+            {
+                m_UnsavedChanges = value;
+            }
+        }
+
         public string CurrentSceneFile
         {
             get; private set;
@@ -28,6 +57,16 @@ namespace CaravelEditor
         }
 
         public string ProjectName
+        {
+            get; private set;
+        }
+
+        public string ProjectBuildFile
+        {
+            get; private set;
+        }
+
+        public string ProjectOutputDirectory
         {
             get; private set;
         }
@@ -65,6 +104,11 @@ namespace CaravelEditor
             get; private set;
         }
 
+        public List<ProjectInfo> LastLoadedProjects
+        {
+            get; private set;
+        }
+
         private Dictionary<string, string> m_ResourceBundles;
         private Dictionary<Cv_EntityID, XmlElement> m_EntityXmlNodes;
         private Dictionary<Cv_EntityID, TreeNode> m_EntityTreeNodes;
@@ -80,13 +124,25 @@ namespace CaravelEditor
         private List<string> m_PhysicsMaterialList;
 
         private ContextMenuStrip m_AssetContextMenu;
+        private ContextMenuStrip m_AssetSceneContextMenu;
         private ContextMenuStrip m_EntityContextMenu;
         private ContextMenuStrip m_EntityTypesContextMenu;
         private ContextMenuStrip m_MaterialsContextMenu;
+        private ImageList m_AssetsImageList = new ImageList();
+        private EditorBuildLogger m_Logger = new EditorBuildLogger();
+        private bool m_UnsavedChanges = false;
 
         public EditorForm()
         {
+            UnsavedChanges = false;
+            ProjectOutputDirectory = "";
+            ProjectBuildFile = "";
+
             InitializeComponent();
+
+            startupPage.Eform = this;
+
+            FormClosing += EditorForm_FormClosing;
 
             ((ToolStripDropDownMenu)projectToolStripMenuItem.DropDown).ShowImageMargin = false;
             ((ToolStripDropDownMenu)projectToolStripMenuItem.DropDown).ShowCheckMargin = false;
@@ -122,6 +178,7 @@ namespace CaravelEditor
             m_EntityTypesList = new List<EntityTypeItem>();
             m_PhysicsMaterials = new Dictionary<string, Cv_PhysicsMaterial>();
             m_PhysicsMaterialList = new List<string>();
+            LastLoadedProjects = new List<ProjectInfo>();
             editorWindow.EditorForm = this;
 
             materialEditorControl.Visible = false;
@@ -156,6 +213,23 @@ namespace CaravelEditor
             openItem.ForeColor = System.Drawing.SystemColors.Control;
             openItem.Click += new EventHandler(assetsTreeView_Open);
             var deleteItem = m_AssetContextMenu.Items.Add("Delete");
+            deleteItem.ForeColor = System.Drawing.SystemColors.Control;
+            deleteItem.Click += new EventHandler(assetsTreeView_Delete);
+
+            /**
+             * Create asset view right click context menu for scenes
+             */
+            m_AssetSceneContextMenu = new ContextMenuStrip();
+            m_AssetSceneContextMenu.ShowImageMargin = false;
+            m_AssetSceneContextMenu.ShowCheckMargin = false;
+            m_AssetSceneContextMenu.Renderer = new ToolStripProfessionalRenderer(new CaravelMenuColorTable());
+            openItem = m_AssetSceneContextMenu.Items.Add("Open");
+            openItem.ForeColor = System.Drawing.SystemColors.Control;
+            openItem.Click += new EventHandler(assetsTreeView_Open);
+            var loadItem = m_AssetSceneContextMenu.Items.Add("Load Scene");
+            loadItem.ForeColor = System.Drawing.SystemColors.Control;
+            loadItem.Click += new EventHandler(assetsTreeView_LoadScene);
+            deleteItem = m_AssetSceneContextMenu.Items.Add("Delete");
             deleteItem.ForeColor = System.Drawing.SystemColors.Control;
             deleteItem.Click += new EventHandler(assetsTreeView_Delete);
 
@@ -217,6 +291,102 @@ namespace CaravelEditor
             removeMaterialItem.Click += new EventHandler(removeMaterialToolStripMenuItem_Click);
 
             EditorDirectory = Directory.GetCurrentDirectory();
+
+            startupPage.PopulateProjects();
+
+            m_AssetsImageList.Images.Add(".cvs", global::CaravelEditor.Properties.Resources.caravel);
+            m_AssetsImageList.Images.Add(".cve", global::CaravelEditor.Properties.Resources.caravel);
+            m_AssetsImageList.Images.Add(".cvp", global::CaravelEditor.Properties.Resources.caravel);
+            m_AssetsImageList.Images.Add("directory", global::CaravelEditor.Properties.Resources.folder);
+            assetsTreeView.ImageList = m_AssetsImageList;
+            assetsTreeView.DragEnter += AssetsTreeView_DragEnter;
+            assetsTreeView.DragDrop += AssetsTreeView_DragDrop;
+            assetsTreeView.ItemDrag += AssetsTreeView_ItemDrag;
+
+            editorWindow.DragEnter += EditorWindow_DragEnter;
+            editorWindow.DragDrop += EditorWindow_DragDrop;
+
+            m_Logger.TextBox = outputTextBox;
+        }
+
+        private void EditorWindow_DragDrop(object sender, DragEventArgs e)
+        {
+            TreeNode draggedNode;
+            draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+
+            var assetPath = draggedNode.Tag.ToString();
+            var extension = Path.GetExtension(assetPath);
+
+            string resourceBundle = GetResourceBundle(assetPath);
+            string resourceBundleFullPath = Path.Combine(CurrentProjectDirectory, Path.GetFileNameWithoutExtension(resourceBundle));
+            string relativePath = assetPath.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "");
+
+            if (extension == ".cve")
+            {
+                AddEntityForm.LastEntityTypeResourceUsed = relativePath;
+                createEntityAsChildToolStripMenuItem_Click(sender, e);
+            }
+            else if (extension == ".cvs")
+            {
+                AddSubSceneForm.LastSceneUsed = assetPath;
+                AddSceneAsChildToolStripMenuItem_Click(sender, e);
+            }
+        }
+
+        private void EditorWindow_DragEnter(object sender, DragEventArgs e)
+        {
+            TreeNode draggedNode;
+            draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+
+            var assetPath = draggedNode.Tag.ToString();
+            var extension = Path.GetExtension(assetPath);
+
+            if (extension == ".cve" || extension == ".cvs")
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void AssetsTreeView_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            DoDragDrop(e.Item, DragDropEffects.Copy);
+        }
+
+        private void AssetsTreeView_DragDrop(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+        }
+
+        private void AssetsTreeView_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.None;
+        }
+
+        private void EditorForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            bool proceed = true;
+            if (UnsavedChanges)
+            {
+                UnsavedChangesForm confirmDialog = new UnsavedChangesForm();
+
+                if (confirmDialog.ShowDialog() != DialogResult.OK)
+                {
+                    proceed = false;
+                }
+                else if (confirmDialog.Save)
+                {
+                    saveSceneToolStripMenuItem_Click(sender, e);
+                }
+            }
+
+            if (!proceed)
+            {
+                e.Cancel = true;
+            }
         }
 
         public Vector3 GetTypePos(string type)
@@ -360,6 +530,8 @@ namespace CaravelEditor
             createEntityToolStripMenuItem.Enabled = true;
             editSceneToolStripMenuItem.Enabled = true;
             //createTypeToolStripMenuItem.Enabled = true;
+
+            UnsavedChanges = false; //we just loaded a new scene
         }
 
         public void SetSelectedEntity(Cv_EntityID entityId)
@@ -374,10 +546,24 @@ namespace CaravelEditor
             {
                 CurrentEntity = entityId; // Game starts Entity Ids at 1
 
+                while (!m_EntityTreeNodes.ContainsKey(CurrentEntity))
+                {
+                    var entity = EditorApp.Instance.Logic.GetEntity(CurrentEntity);
+
+                    if (entity == null)
+                    {
+                        SetSelectedEntity(Cv_EntityID.INVALID_ENTITY);
+                        MessageBox.Show("Error - Trying to select an entity that is not in the scene.");
+                        return;
+                    }
+
+                    CurrentEntity = entity.Parent;
+                }
+                
                 m_EntityTreeNodes[CurrentEntity].BackColor = System.Drawing.SystemColors.ControlDark;
                 m_EntityTreeNodes[CurrentEntity].ForeColor = System.Drawing.Color.White;
                 sceneEntitiesTreeView.SelectedNode = m_EntityTreeNodes[CurrentEntity];
-
+                
                 editorWindow.EditorApp.EditorLogic.EditorView.EditorSelectedEntity = entityId;
 
                 if (editorTabs.SelectedTab == sceneTab)
@@ -480,6 +666,7 @@ namespace CaravelEditor
             var stack = new Stack<TreeNode>();
             var rootDirectory = new DirectoryInfo(resourceBundleDirectory);
             var node = new TreeNode(rootDirectory.Name) { Tag = rootDirectory };
+            node.ImageKey = "directory";
             stack.Push(node);
 
             while (stack.Count > 0)
@@ -493,6 +680,8 @@ namespace CaravelEditor
                     {
                         var childDirectoryNode = new TreeNode(directory.Name);
                         childDirectoryNode.Tag = directory;
+                        childDirectoryNode.ImageKey = "directory";
+                        childDirectoryNode.SelectedImageKey = "directory";
                         currentNode.Nodes.Add(childDirectoryNode);
                         stack.Push(childDirectoryNode);
                     }
@@ -504,6 +693,17 @@ namespace CaravelEditor
                     if ((attributes & FileAttributes.Hidden) == 0)
                     {
                         var childNode = new TreeNode(file.Name);
+
+                        if (!m_AssetsImageList.Images.ContainsKey(file.Extension))
+                        {
+                            var iconForFile = SystemIcons.WinLogo;
+                            // If not, add the image to the image list.
+                            iconForFile = System.Drawing.Icon.ExtractAssociatedIcon(file.FullName);
+                            m_AssetsImageList.Images.Add(file.Extension, iconForFile);
+                        }
+
+                        childNode.ImageKey = file.Extension;
+                        childNode.SelectedImageKey = file.Extension;
                         childNode.Tag = file.FullName;
                         currentNode.Nodes.Add(childNode);
                     }
@@ -511,6 +711,16 @@ namespace CaravelEditor
             }
 
             assetsTreeView.Nodes.Add(node);
+            assetsTreeView.ExpandAll();
+
+            UpdateAssetPreview();
+            
+            foreach (var bundle in m_ResourceBundles)
+            {
+                editorWindow.EditorApp.ResourceManager.Unload(bundle.Value);
+            }
+
+            editorWindow.EditorApp.ResourceManager.UnloadManuallyManaged("*");
         }
         
         public void InitializePhysicsMaterials()
@@ -672,6 +882,7 @@ namespace CaravelEditor
                     editorWindow.EditorApp.Logic.ModifyEntity(e.Key, modifyXml.ChildNodes);
 
                     m_EntityXmlNodes[e.Key] = editorWindow.EditorApp.Logic.GetEntityXML(e.Key);
+                    UnsavedChanges = true;
                 }
             }
 
@@ -682,6 +893,39 @@ namespace CaravelEditor
         {
             editorToolStrip.Location = new System.Drawing.Point(editorWindow.Location.X + 10,
                                                     editorWindow.Location.Y + 10);
+        }
+
+        public void openProjectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            dialog.Filter = "Caravel Project files (*.cvp)|*.cvp";
+            dialog.FilterIndex = 1;
+            dialog.RestoreDirectory = true;
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                bool proceed = true;
+                if (UnsavedChanges)
+                {
+                    UnsavedChangesForm confirmDialog = new UnsavedChangesForm();
+
+                    if (confirmDialog.ShowDialog() != DialogResult.OK)
+                    {
+                        proceed = false;
+                    }
+                    else if (confirmDialog.Save)
+                    {
+                        saveSceneToolStripMenuItem_Click(sender, e);
+                    }
+                }
+
+                if (proceed)
+                {
+                    OpenProject(dialog.FileName);
+                }
+            }
         }
 
         private void entityTreeView_AfterSelect(object sender, TreeViewEventArgs e)
@@ -720,67 +964,6 @@ namespace CaravelEditor
             }
         }
 
-        private void openProjectToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            dialog.Filter = "Caravel Project files (*.cvp)|*.cvp";
-            dialog.FilterIndex = 1;
-            dialog.RestoreDirectory = true;
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                var doc = new XmlDocument();
-                doc.Load(dialog.FileName);
-                var root = doc.FirstChild;
-
-                ProjectName = root.Attributes["name"].Value;
-                toolStripProjectLabel.Text = ProjectName;
-                statusStrip1.Refresh();
-
-                var bundles = root.SelectSingleNode("//ResourceBundles");
-                CurrentProjectDirectory = Path.GetDirectoryName(dialog.FileName);
-
-                var loadedBundles = m_ResourceBundles.Keys.ToArray();
-                foreach (var bundle in loadedBundles)
-                {
-                    editorWindow.EditorApp.EditorUnloadResourceBundle(m_ResourceBundles[bundle]);
-                    m_ResourceBundles.Remove(bundle);
-                }
-
-                foreach (XmlElement element in bundles.ChildNodes)
-                {
-                    var bundleId = element.Attributes["name"].Value;
-                    var bundleFile = element.Attributes["file"].Value;
-                    editorWindow.EditorApp.EditorLoadResourceBundle(bundleId, CurrentProjectDirectory, bundleFile, editorWindow.Editor.services);
-                    m_ResourceBundles.Add(bundleFile, bundleId);
-                }
-
-                var materials = root.SelectSingleNode("//Materials");
-
-                if (materials != null)
-                {
-                    editorWindow.EditorApp.EditorReadMaterials(CurrentProjectDirectory);
-                    addNewMaterialToolStripMenuItem.Enabled = true;
-                }
-
-                var strings = root.SelectSingleNode("//Strings");
-
-                if (strings != null)
-                {
-                    editorWindow.EditorApp.EditorReadStrings(CurrentProjectDirectory);
-                }
-
-                editorWindow.EditorApp.EForm = this;
-
-                loadSceneToolStripMenuItem.Enabled = true;
-                newSceneToolStripMenuItem.Enabled = true;
-
-                InitializePhysicsMaterials();
-            }
-        }
-
         private void loadSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -792,30 +975,24 @@ namespace CaravelEditor
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                CurrentSceneFile = dialog.FileName;
-
-                string resourceBundle = GetResourceBundle(dialog.FileName);
-
-                if (resourceBundle == null)
+                bool proceed = true;
+                if (UnsavedChanges)
                 {
-                    string message = "Scene does not belong to any resource bundles in the current project.";
-                    string caption = "Error When Loading Scene";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, caption, buttons);
-                    CurrentSceneFile = null;
+                    UnsavedChangesForm confirmDialog = new UnsavedChangesForm();
+
+                    if (confirmDialog.ShowDialog() != DialogResult.OK)
+                    {
+                        proceed = false;
+                    }
+                    else if (confirmDialog.Save)
+                    {
+                        saveSceneToolStripMenuItem_Click(sender, e);
+                    }
                 }
-                else
-                {
-                    string resourceBundleFullPath = Path.Combine(CurrentProjectDirectory, Path.GetFileNameWithoutExtension(resourceBundle));
-                    CurrentResourceBundle = resourceBundle;
-                    CurrentSceneFile = CurrentSceneFile.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "");
-                    toolStripSceneLabel.Text = CurrentSceneFile;
-                    editorWindow.EditorApp.EWindow = editorWindow;
-                    editorWindow.EditorApp.CurrentScene = CurrentSceneFile;
-                    editorWindow.EditorApp.CurrentResourceBundle = m_ResourceBundles[resourceBundle];
-                    editorWindow.EditorApp.Logic.ChangeState(Cv_GameState.LoadingScene);
 
-                    SetSelectedEntity(Cv_EntityID.INVALID_ENTITY);
+                if (proceed)
+                {
+                    LoadNewScene(dialog.FileName);
                 }
             }
         }
@@ -846,6 +1023,37 @@ namespace CaravelEditor
             }
         }
 
+        private void assetsTreeView_LoadScene(object sender, EventArgs e)
+        {
+            TreeNode node = assetsTreeView.SelectedNode;
+            if (node != null && node.Nodes.Count == 0)
+            {
+                string file = node.Tag.ToString();
+                if (File.Exists(file))
+                {
+                    bool proceed = true;
+                    if (UnsavedChanges)
+                    {
+                        UnsavedChangesForm confirmDialog = new UnsavedChangesForm();
+
+                        if (confirmDialog.ShowDialog() != DialogResult.OK)
+                        {
+                            proceed = false;
+                        }
+                        else if (confirmDialog.Save)
+                        {
+                            saveSceneToolStripMenuItem_Click(sender, e);
+                        }
+                    }
+
+                    if (proceed)
+                    {
+                        LoadNewScene(file);
+                    }
+                }
+            }
+        }
+
         private void assetsTreeView_Delete(object sender, EventArgs e)
         {
             TreeNode node = assetsTreeView.SelectedNode;
@@ -860,6 +1068,8 @@ namespace CaravelEditor
                         assetsTreeView.SelectedNode.Parent.Nodes.Remove(assetsTreeView.SelectedNode);
                         editorWindow.EditorApp.ResourceManager.RefreshResourceBundle(m_ResourceBundles[CurrentResourceBundle]);
                         m_AssetContextMenu.Hide();
+                        m_AssetSceneContextMenu.Hide();
+                        UpdateAssetPreview();
                     }
                 }
             }
@@ -877,15 +1087,33 @@ namespace CaravelEditor
                     if (assetsTreeView.SelectedNode.Parent == null)
                     {
                         m_AssetContextMenu.Items[1].Enabled = false; //Disable delete button
+                        m_AssetSceneContextMenu.Items[2].Enabled = false;
                     }
                     else
                     {
                         m_AssetContextMenu.Items[1].Enabled = true;
+                        m_AssetSceneContextMenu.Items[2].Enabled = true;
                     }
 
-                    m_AssetContextMenu.Show(assetsTreeView, e.Location);
+                    var extension = Path.GetExtension(assetsTreeView.SelectedNode.Tag.ToString());
+
+                    if (extension == ".cvs")
+                    {
+                        m_AssetSceneContextMenu.Show(assetsTreeView, e.Location);
+                    }
+                    else
+                    {
+                        m_AssetContextMenu.Show(assetsTreeView, e.Location);
+                    }
+
+                    UpdateAssetPreview();
                 }
             }
+        }
+        
+        private void assetsTreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            UpdateAssetPreview();
         }
 
         private void entityTreeView_RightClick(object sender, MouseEventArgs e)
@@ -1056,7 +1284,6 @@ namespace CaravelEditor
             }
         }
 
-
         private void viewClickAreasToolStripMenuItem_Click(object sender, EventArgs e)
         {
             editorWindow.EditorApp.EditorLogic.EditorView.DebugDrawClickableAreas = !editorWindow.EditorApp.EditorLogic.EditorView.DebugDrawClickableAreas;
@@ -1120,7 +1347,7 @@ namespace CaravelEditor
             var pathsArray = new List<string>(pathsList).ToArray();
 
             var parent = editorWindow.EditorApp.Logic.GetEntity(CurrentEntity);
-            var parentPath = "";
+            var parentPath = "/Root";
 
             if (parent != null)
             {
@@ -1177,12 +1404,15 @@ namespace CaravelEditor
                 m_EntityXmlNodes[CurrentEntity] = newXml;
                 m_EntityComponentEditor.ShowEntityComponents(newXml);
             }
+
+            UnsavedChanges = true;
         }
 
         public void RemoveComponentFromEntity(string componentName)
         {
             editorWindow.EditorApp.Logic.RemoveComponent(CurrentEntity, componentName);
             UpdateEntityXml();
+            UnsavedChanges = true;
         }
 
         public void UpdateEntityXml(bool refreshView = true)
@@ -1192,6 +1422,7 @@ namespace CaravelEditor
             if (newXml != null)
             {
                 m_EntityXmlNodes[CurrentEntity] = newXml;
+                UnsavedChanges = true;
 
                 if (refreshView)
                 {
@@ -1234,6 +1465,128 @@ namespace CaravelEditor
                 sceneEntitiesTreeView.Nodes.Add(node);
                 m_EntityTreeNodes.Add(e.ID, node);
             }
+
+            UnsavedChanges = true;
+        }
+
+        public void OpenProject(string filename)
+        {
+            var doc = new XmlDocument();
+            doc.Load(filename);
+            var root = doc.FirstChild;
+
+            ProjectName = root.Attributes["name"].Value;
+            toolStripProjectLabel.Text = ProjectName;
+            statusStrip1.Refresh();
+
+            var bundles = root.SelectSingleNode("//ResourceBundles");
+            CurrentProjectDirectory = Path.GetDirectoryName(filename);
+
+            var loadedBundles = m_ResourceBundles.Keys.ToArray();
+            foreach (var bundle in loadedBundles)
+            {
+                editorWindow.EditorApp.EditorUnloadResourceBundle(m_ResourceBundles[bundle]);
+                m_ResourceBundles.Remove(bundle);
+            }
+
+            foreach (XmlElement element in bundles.ChildNodes)
+            {
+                var bundleId = element.Attributes["name"].Value;
+                var bundleFile = element.Attributes["file"].Value;
+                editorWindow.EditorApp.EditorLoadResourceBundle(bundleId, CurrentProjectDirectory, bundleFile, editorWindow.Editor.services);
+                m_ResourceBundles.Add(bundleFile, bundleId);
+            }
+
+            var materials = root.SelectSingleNode("//Materials");
+
+            if (materials != null)
+            {
+                editorWindow.EditorApp.EditorReadMaterials(CurrentProjectDirectory);
+                addNewMaterialToolStripMenuItem.Enabled = true;
+            }
+
+            var strings = root.SelectSingleNode("//Strings");
+
+            if (strings != null)
+            {
+                editorWindow.EditorApp.EditorReadStrings(CurrentProjectDirectory);
+            }
+
+            var startupSolution = root.SelectSingleNode("StartupProject");
+            if (startupSolution != null)
+            {
+                ProjectBuildFile = startupSolution.Attributes["file"].Value;
+            }
+
+            var outputPath = root.SelectSingleNode("OutputFolder");
+            if (outputPath != null)
+            {
+                ProjectOutputDirectory = outputPath.Attributes["path"].Value;
+            }
+
+            editorWindow.EditorApp.EForm = this;
+
+            loadSceneToolStripMenuItem.Enabled = true;
+            newSceneToolStripMenuItem.Enabled = true;
+
+            InitializePhysicsMaterials();
+
+            startupPage.Visible = false;
+            LastLoadedProjects.RemoveAll(p => p.ProjectName == ProjectName);
+            LastLoadedProjects.Add(new ProjectInfo(ProjectName, "", filename, ""));
+
+            if (LastLoadedProjects.Count > 6)
+            {
+                LastLoadedProjects.RemoveAt(0);
+            }
+
+            SaveSettings();
+
+            if (ProjectBuildFile != "")
+            {
+                playButton.Enabled = true;
+            }
+        }
+
+        public void LoadNewScene(string filename)
+        {
+            CurrentSceneFile = filename;
+
+            string resourceBundle = GetResourceBundle(filename);
+
+            if (resourceBundle == null)
+            {
+                string message = "Scene does not belong to any resource bundles in the current project.";
+                string caption = "Error When Loading Scene";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
+                CurrentSceneFile = null;
+            }
+            else
+            {
+                string resourceBundleFullPath = Path.Combine(CurrentProjectDirectory, Path.GetFileNameWithoutExtension(resourceBundle));
+                CurrentResourceBundle = resourceBundle;
+                CurrentSceneFile = CurrentSceneFile.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "");
+                toolStripSceneLabel.Text = CurrentSceneFile;
+                editorWindow.EditorApp.EWindow = editorWindow;
+                editorWindow.EditorApp.CurrentScene = CurrentSceneFile;
+                editorWindow.EditorApp.CurrentResourceBundle = m_ResourceBundles[resourceBundle];
+                editorWindow.EditorApp.Logic.ChangeState(Cv_GameState.LoadingScene);
+
+                var prevEntry = LastLoadedProjects.Find(p => p.ProjectName == ProjectName);
+                LastLoadedProjects.RemoveAll(p => p.ProjectName == ProjectName);
+                LastLoadedProjects.Add(new ProjectInfo(ProjectName, CurrentSceneFile, prevEntry.FullProjectPath, filename));
+
+                if (LastLoadedProjects.Count > 6)
+                {
+                    LastLoadedProjects.RemoveAt(0);
+                }
+
+                SetSelectedEntity(Cv_EntityID.INVALID_ENTITY);
+
+                SaveSettings();
+                sceneEntitiesTreeView.ExpandAll();
+            }
         }
 
         private void RemoveEntityFromEditor(Cv_EntityID eId)
@@ -1264,6 +1617,8 @@ namespace CaravelEditor
             }
 
             editorWindow.EditorApp.Logic.DestroyEntity(eId);
+
+            UnsavedChanges = true;
         }
 
         private void removeEntityToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1369,6 +1724,8 @@ namespace CaravelEditor
                     var entityTreeNode = m_EntityTreeNodes[CurrentEntity];
                     entityTreeNode.Name = entity.EntityPath;
                     entityTreeNode.Text = entity.EntityName + " (" + entity.EntityType + ")";
+
+                    UnsavedChanges = true;
                 }
             }
 
@@ -1513,6 +1870,8 @@ namespace CaravelEditor
                     {
                         m_EntityXmlNodes[entity.ID] = entityXml;
                     }
+
+                    UnsavedChanges = true;
                 }
             }
         }
@@ -1732,8 +2091,9 @@ namespace CaravelEditor
             {
                 doc.WriteContentTo(writer);
             }
-        }
 
+            UnsavedChanges = false;
+        }
 
         private void editSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1910,6 +2270,10 @@ namespace CaravelEditor
             {
                 parentPath = parent.EntityPath;
             }
+            else
+            {
+                parent = editorWindow.EditorApp.Logic.GetEntity("/Root");
+            }
 
             using (var form = new AddSubSceneForm(CurrentProjectDirectory, pathsArray, parentPath, CurrentResourceBundle))
             {
@@ -1917,7 +2281,7 @@ namespace CaravelEditor
 
                 if (result == DialogResult.OK)
                 {
-                    editorWindow.EditorApp.Logic.LoadScene(form.GetSceneResource(), m_ResourceBundles[CurrentResourceBundle], form.GetSceneName(), null, CurrentEntity);
+                    editorWindow.EditorApp.Logic.LoadScene(form.GetSceneResource(), m_ResourceBundles[CurrentResourceBundle], form.GetSceneName(), null, parent.ID);
 
                     Cv_Entity entity = editorWindow.EditorApp.Logic.GetEntity(parentPath + "/" + form.GetSceneName());
                     if (entity != null)
@@ -1931,6 +2295,91 @@ namespace CaravelEditor
                     return;
                 }
             }
+        }
+
+        private void SaveSettings()
+        {
+            XmlDocument doc = new XmlDocument();
+
+            var settings = doc.CreateElement("Settings");
+            var recentProjects = doc.CreateElement("LastProjects");
+
+            doc.AppendChild(settings);
+            settings.AppendChild(recentProjects);
+
+            var reversedProjList = LastLoadedProjects;
+            reversedProjList.Reverse();
+            foreach (var recentProj in reversedProjList)
+            {
+                var projElem = doc.CreateElement("Project");
+                projElem.SetAttribute("name", recentProj.ProjectName);
+                projElem.SetAttribute("scene", recentProj.ProjectScene);
+                projElem.SetAttribute("projPath", recentProj.FullProjectPath);
+                projElem.SetAttribute("scenePath", recentProj.FullScenePath);
+
+                recentProjects.AppendChild(projElem);
+            }
+
+            XmlWriterSettings oSettings = new XmlWriterSettings();
+            oSettings.Indent = true;
+            oSettings.OmitXmlDeclaration = true;
+            oSettings.Encoding = Encoding.UTF8;
+            oSettings.ConformanceLevel = ConformanceLevel.Auto;
+
+            using (XmlWriter writer = XmlWriter.Create("settings.xml", oSettings))
+            {
+                doc.WriteContentTo(writer);
+            }
+        }
+
+        private void UpdateAssetPreview()
+        {
+            if (assetsTreeView.SelectedNode == null)
+            {
+                assetsPictureBox.ImageLocation = "";
+                assetsPictureBox.Image = m_AssetsImageList.Images["directory"];
+                return;
+            }
+
+            var extension = Path.GetExtension(assetsTreeView.SelectedNode.Tag.ToString());
+
+            if (extension == ".jpg" || extension == ".png")
+            {
+                assetsPictureBox.ImageLocation = assetsTreeView.SelectedNode.Tag.ToString();
+            }
+            else
+            {
+                var key = Path.HasExtension(assetsTreeView.SelectedNode.Tag.ToString()) ? extension : "directory";
+                assetsPictureBox.ImageLocation = "";
+                assetsPictureBox.Image = m_AssetsImageList.Images[key];
+            }
+        }
+
+        private void playButton_Click(object sender, EventArgs e)
+        {
+            var projectFile = Path.Combine(CurrentProjectDirectory, ProjectBuildFile);
+            var outputFolder = Path.Combine(CurrentProjectDirectory, ProjectOutputDirectory, "Debug");
+            string assemblyName;
+            if (ProjectBuilder.Build(projectFile, outputFolder, m_Logger, out assemblyName))
+            {
+                ProcessStartInfo info = new ProcessStartInfo(Path.Combine(outputFolder, assemblyName + ".exe"));
+                info.WorkingDirectory = outputFolder;
+                info.UseShellExecute = false;
+
+                try
+                {
+                    Process.Start(info);
+                }
+                catch (Exception ex)
+                {
+                    m_Logger.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private void assetsRefreshButton_Click(object sender, EventArgs e)
+        {
+            InitializeAssets();
         }
     }
 }

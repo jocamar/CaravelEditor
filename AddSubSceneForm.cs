@@ -24,7 +24,8 @@ namespace CaravelEditor
         private string m_sFileName;
         private string m_sParentResourceBundle;
         private static int lastIdUsed = 0;
-        private static string lastSceneUsed = "";
+
+        public static string LastSceneUsed = "";
 
         public AddSubSceneForm(string currProject, string[] paths, string parentPath, string parentResourceBundle)
         {
@@ -49,8 +50,8 @@ namespace CaravelEditor
             string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(m_sParentResourceBundle));
 
             textBox.Text = placeHolderName;
-            sceneResourceTextBox.Text = lastSceneUsed.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/"); ;
-            m_sFileName = lastSceneUsed;
+            sceneResourceTextBox.Text = LastSceneUsed.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/"); ;
+            m_sFileName = LastSceneUsed;
 
             if (CanAddScene())
             {
@@ -71,6 +72,7 @@ namespace CaravelEditor
         {
             return sceneResourceTextBox.Text;
         }
+
         public void textBox_OnTextChanged(object sender, EventArgs eventArgs)
         {
             if (CanAddScene())
@@ -100,7 +102,7 @@ namespace CaravelEditor
                 {
                     m_sFileName = fileName;
                     sceneResourceTextBox.Text = fileName.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/");
-                    lastSceneUsed = fileName;
+                    LastSceneUsed = fileName;
 
                     if (CanAddScene())
                     {

@@ -111,19 +111,25 @@ namespace CaravelEditor
                     lineNum = AddComponentUI(entityValueComponent, editorComponent, lineNum);
                 }
 
-                AddElementLabel("", lineNum, 0, m_Panel.Width, 30, System.Drawing.Color.FromArgb(90, 90, 90));
 
-                Button button = new Button();
-                var location = new Point(m_Panel.Width / 4, lineNum * m_iLineSpacing + 3);
-                button.Name = EditorUtils.GetXPathToNode(m_EntityXml) + "AddComponentButton";
-                button.Text = "Add Component";
-                button.Location = location;
-                button.FlatStyle = FlatStyle.Flat;
-                button.FlatAppearance.BorderColor = m_BgColor;
-                button.Width = m_Panel.Width / 2;
-                button.MouseClick += new MouseEventHandler(AddNewComponent);
-                m_Panel.Controls.Add(button);
-                button.BringToFront();
+                var entity = EditorApp.Instance.Logic.GetEntity(m_EditorForm.CurrentEntity);
+
+                if (entity != null && !entity.SceneRoot)
+                {
+                    AddElementLabel("", lineNum, 0, m_Panel.Width, 30, System.Drawing.Color.FromArgb(90, 90, 90));
+
+                    Button button = new Button();
+                    var location = new Point(m_Panel.Width / 4, lineNum * m_iLineSpacing + 3);
+                    button.Name = EditorUtils.GetXPathToNode(m_EntityXml) + "AddComponentButton";
+                    button.Text = "Add Component";
+                    button.Location = location;
+                    button.FlatStyle = FlatStyle.Flat;
+                    button.FlatAppearance.BorderColor = m_BgColor;
+                    button.Width = m_Panel.Width / 2;
+                    button.MouseClick += new MouseEventHandler(AddNewComponent);
+                    m_Panel.Controls.Add(button);
+                    button.BringToFront();
+                }
 
                 m_Panel.VerticalScroll.Value = Math.Min(Math.Max(scrollValue, m_Panel.VerticalScroll.Minimum), m_Panel.VerticalScroll.Maximum);
                 m_Panel.PerformLayout();
@@ -443,6 +449,10 @@ namespace CaravelEditor
                 textBox.ReadOnly = true;
                 m_Panel.Controls.Add(textBox);
 
+                textBox.DragEnter += FileTextBox_DragEnter;
+                textBox.DragDrop += FileTextBox_DragDrop;
+                textBox.AllowDrop = true;
+
                 Button button = new Button();
                 location = new Point(m_iElementLabelWidth + m_iLeftPaddingElements + boxWidth + horizSpacing, lineNum * m_iLineSpacing);
                 button.Name = elementName + "/@" + field + "Button";
@@ -456,7 +466,97 @@ namespace CaravelEditor
 
             return lineNum;
         }
-        
+
+        private void FileTextBox_DragDrop(object sender, DragEventArgs e)
+        {
+            TreeNode draggedNode;
+            draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+
+            var assetPath = draggedNode.Tag.ToString();
+            var extension = Path.GetExtension(assetPath);
+
+            var textBox = (TextBox)sender;
+
+            string textBoxElementName = textBox.Name;
+            string elementName = textBoxElementName.Substring(0, textBoxElementName.LastIndexOf("/"));
+            string resourceBundleFullPath = Path.Combine(m_EditorForm.CurrentProjectDirectory, Path.GetFileNameWithoutExtension(m_EditorForm.CurrentResourceBundle));
+
+            XmlNode fileElement = FindEditorElementFromXPath(elementName);
+
+            var filter = fileElement.Attributes["extensions"].Value;
+
+            var filterStrings = filter.Split('|');
+            List<string> possibleExtensions = new List<string>();
+
+            for (var i = 1; i < filterStrings.Length; i += 2)
+            {
+                var substr = filterStrings[i];
+                var extensions = substr.Split(';');
+
+                foreach (var ext in extensions)
+                {
+                    possibleExtensions.Add(ext.Replace("*", "").ToLowerInvariant());
+                }
+            }
+
+            if (possibleExtensions.Contains(extension))
+            {
+                if (assetPath.StartsWith(resourceBundleFullPath))
+                {
+                    textBox.Text = assetPath.Substring(resourceBundleFullPath.Length + 1);
+                }
+                else
+                {
+                    MessageBox.Show("Error - This file isn't a part of the required resource bundle (it must be in " + resourceBundleFullPath + ").");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Error - This file isn't valid for this property.");
+            }
+        }
+
+        private void FileTextBox_DragEnter(object sender, DragEventArgs e)
+        {
+            TreeNode draggedNode;
+            draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+
+            var assetPath = draggedNode.Tag.ToString();
+            var extension = Path.GetExtension(assetPath);
+
+            var textBox = (TextBox)sender;
+
+            string textBoxElementName = textBox.Name;
+            string elementName = textBoxElementName.Substring(0, textBoxElementName.LastIndexOf("/"));
+
+            XmlNode fileElement = FindEditorElementFromXPath(elementName);
+
+            var filter = fileElement.Attributes["extensions"].Value;
+
+            var filterStrings = filter.Split('|');
+            List<string> possibleExtensions = new List<string>();
+            
+            for (var i = 1; i < filterStrings.Length; i+=2)
+            {
+                var substr = filterStrings[i];
+                var extensions = substr.Split(';');
+
+                foreach (var ext in extensions)
+                {
+                    possibleExtensions.Add(ext.Replace("*", "").ToLowerInvariant());
+                }
+            }
+
+            if (possibleExtensions.Contains(extension))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
         private void FileElementChanged(object sender, EventArgs e)
         {
             TextBox textBox = (TextBox)sender;
@@ -505,6 +605,7 @@ namespace CaravelEditor
             }
             else
             {
+                m_EditorForm.UnsavedChanges = true;
                 m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
             }
         }
@@ -783,6 +884,7 @@ namespace CaravelEditor
                 else
                 {
                     m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
+                    m_EditorForm.UnsavedChanges = true;
                 }
             }
             catch (Exception ex)
@@ -890,6 +992,7 @@ namespace CaravelEditor
                 }
                 else
                 {
+                    m_EditorForm.UnsavedChanges = true;
                     m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
                 }
             }
@@ -1022,6 +1125,7 @@ namespace CaravelEditor
                 }
                 else
                 {
+                    m_EditorForm.UnsavedChanges = true;
                     m_EditorApp.Logic.ModifyEntity(m_EditorForm.CurrentEntity, xmlEntity.ChildNodes);
                 }
             }

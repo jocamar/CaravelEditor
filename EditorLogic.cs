@@ -198,7 +198,7 @@ namespace CaravelEditor
 
                                     if (!m_bMovingEntity)
                                     {
-                                        m_EntityBeingMoved = GetEntity(entities[0]);
+                                        m_EntityBeingMoved = GetEntity(editorApp.EForm.CurrentEntity);
                                     }
                                 }
                                 else

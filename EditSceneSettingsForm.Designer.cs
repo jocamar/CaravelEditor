@@ -72,7 +72,7 @@
             this.widthTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.widthTextBox.ForeColor = System.Drawing.SystemColors.Control;
             this.widthTextBox.Location = new System.Drawing.Point(238, 54);
-            this.widthTextBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.widthTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.widthTextBox.Name = "widthTextBox";
             this.widthTextBox.Size = new System.Drawing.Size(124, 31);
             this.widthTextBox.TabIndex = 9;
@@ -84,7 +84,7 @@
             this.heightTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.heightTextBox.ForeColor = System.Drawing.SystemColors.Control;
             this.heightTextBox.Location = new System.Drawing.Point(238, 127);
-            this.heightTextBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.heightTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.heightTextBox.Name = "heightTextBox";
             this.heightTextBox.Size = new System.Drawing.Size(124, 31);
             this.heightTextBox.TabIndex = 10;
@@ -116,7 +116,7 @@
             this.preLoadScriptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.preLoadScriptTextBox.ForeColor = System.Drawing.SystemColors.Control;
             this.preLoadScriptTextBox.Location = new System.Drawing.Point(238, 213);
-            this.preLoadScriptTextBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.preLoadScriptTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.preLoadScriptTextBox.Name = "preLoadScriptTextBox";
             this.preLoadScriptTextBox.Size = new System.Drawing.Size(488, 31);
             this.preLoadScriptTextBox.TabIndex = 14;
@@ -127,7 +127,7 @@
             this.postLoadScriptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.postLoadScriptTextBox.ForeColor = System.Drawing.SystemColors.Control;
             this.postLoadScriptTextBox.Location = new System.Drawing.Point(238, 285);
-            this.postLoadScriptTextBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.postLoadScriptTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.postLoadScriptTextBox.Name = "postLoadScriptTextBox";
             this.postLoadScriptTextBox.Size = new System.Drawing.Size(488, 31);
             this.postLoadScriptTextBox.TabIndex = 16;
@@ -138,7 +138,7 @@
             this.browsePreLoadButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.browsePreLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.browsePreLoadButton.Location = new System.Drawing.Point(772, 208);
-            this.browsePreLoadButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.browsePreLoadButton.Margin = new System.Windows.Forms.Padding(6);
             this.browsePreLoadButton.Name = "browsePreLoadButton";
             this.browsePreLoadButton.Size = new System.Drawing.Size(150, 44);
             this.browsePreLoadButton.TabIndex = 17;
@@ -152,7 +152,7 @@
             this.browsePostLoadButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.browsePostLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.browsePostLoadButton.Location = new System.Drawing.Point(772, 279);
-            this.browsePostLoadButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.browsePostLoadButton.Margin = new System.Windows.Forms.Padding(6);
             this.browsePostLoadButton.Name = "browsePostLoadButton";
             this.browsePostLoadButton.Size = new System.Drawing.Size(150, 44);
             this.browsePostLoadButton.TabIndex = 18;
@@ -167,7 +167,7 @@
             this.saveButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.saveButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.saveButton.Location = new System.Drawing.Point(106, 438);
-            this.saveButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.saveButton.Margin = new System.Windows.Forms.Padding(6);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(346, 44);
             this.saveButton.TabIndex = 19;
@@ -181,7 +181,7 @@
             this.cancelButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cancelButton.Location = new System.Drawing.Point(526, 438);
-            this.cancelButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.cancelButton.Margin = new System.Windows.Forms.Padding(6);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(346, 44);
             this.cancelButton.TabIndex = 20;
@@ -194,7 +194,7 @@
             this.browseUnLoadButton.FlatAppearance.BorderColor = System.Drawing.SystemColors.ControlDark;
             this.browseUnLoadButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.browseUnLoadButton.Location = new System.Drawing.Point(772, 350);
-            this.browseUnLoadButton.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.browseUnLoadButton.Margin = new System.Windows.Forms.Padding(6);
             this.browseUnLoadButton.Name = "browseUnLoadButton";
             this.browseUnLoadButton.Size = new System.Drawing.Size(150, 44);
             this.browseUnLoadButton.TabIndex = 23;
@@ -207,7 +207,7 @@
             this.unLoadScriptTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.unLoadScriptTextBox.ForeColor = System.Drawing.SystemColors.Control;
             this.unLoadScriptTextBox.Location = new System.Drawing.Point(238, 356);
-            this.unLoadScriptTextBox.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.unLoadScriptTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.unLoadScriptTextBox.Name = "unLoadScriptTextBox";
             this.unLoadScriptTextBox.Size = new System.Drawing.Size(488, 31);
             this.unLoadScriptTextBox.TabIndex = 22;
@@ -246,8 +246,9 @@
             this.ForeColor = System.Drawing.SystemColors.Control;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "EditSceneSettingsForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Edit Scene Settings";
             this.ResumeLayout(false);
             this.PerformLayout();
