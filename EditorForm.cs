@@ -1133,7 +1133,7 @@ namespace CaravelEditor
                         item.Enabled = true;
                     }
 
-                    if (_entity == null || _entity.SceneRoot)
+                    if (_entity.SceneRoot)
                     {
                         foreach (ToolStripItem item in m_EntityContextMenu.Items)
                         {
@@ -1437,7 +1437,7 @@ namespace CaravelEditor
             node.Name = e.EntityPath;
             if (e.SceneRoot)
             {
-                node.Text = e.EntityName;
+                node.Text = e.SceneName + "/" + e.EntityName + " (Scene Root)";
             }
             else
             {
@@ -2017,49 +2017,21 @@ namespace CaravelEditor
             var entitiesNode = doc.CreateElement("StaticEntities");
             sceneNode.AppendChild(entitiesNode);
 
-            TreeNode currentSceneNode = null;
-
-            foreach (TreeNode node in sceneEntitiesTreeView.Nodes)
+            if (sceneEntitiesTreeView.Nodes.Count > 1)
             {
-                var entity = editorWindow.EditorApp.Logic.GetEntity(node.Name);
-                if (entity.SceneRoot && entity.SceneName == "Root")
-                {
-                    currentSceneNode = node;
-                    break;
-                }
+                MessageBox.Show("Error - Attempting to save a scene with more than one root.");
+                return;
             }
 
-            foreach (TreeNode node in currentSceneNode.Nodes)
+            if (sceneEntitiesTreeView.Nodes.Count <= 0)
+            {
+                MessageBox.Show("Error - Attempting to save a scene with more no root.");
+                return;
+            }
+
+            foreach (TreeNode node in sceneEntitiesTreeView.Nodes) //Should only contain the root node
             {
                 var entity = editorWindow.EditorApp.Logic.GetEntity(node.Name);
-                if (entity.SceneRoot)
-                {
-                    var sceneResource = editorWindow.EditorApp.Logic.GetSceneResource(entity.SceneID);
-
-                    var sceneXml = doc.CreateElement("Scene");
-                    sceneXml.SetAttribute("name", entity.EntityName);
-                    sceneXml.SetAttribute("resource", sceneResource);
-                    sceneXml.SetAttribute("visible", entity.Visible.ToString());
-
-                    var transformComp = entity.GetComponent<Cv_TransformComponent>();
-
-                    if (transformComp != null)
-                    {
-                        var componentXml = transformComp.VToXML();
-                        var positionXml = doc.ImportNode(componentXml.SelectSingleNode("Position"), true);
-                        var scaleXml = doc.ImportNode(componentXml.SelectSingleNode("Scale"), true);
-                        var rotationXml = doc.ImportNode(componentXml.SelectSingleNode("Rotation"), true);
-                        var originXml = doc.ImportNode(componentXml.SelectSingleNode("Origin"), true);
-
-                        sceneXml.AppendChild(positionXml);
-                        sceneXml.AppendChild(scaleXml);
-                        sceneXml.AppendChild(rotationXml);
-                        sceneXml.AppendChild(originXml);
-                    }
-
-                    entitiesNode.AppendChild(sceneXml);
-                    continue;
-                }
 
                 var xmlDiff = GetEntityXmlDiff(node.Name, doc);
                 var childXmlNodes = GetChildEntitiesXmlNodeDiffs(node.Name, doc);
@@ -2122,7 +2094,7 @@ namespace CaravelEditor
             }
         }
 
-        private XmlElement GetEntityXmlDiff(string entityName, XmlDocument doc)
+        private XmlElement GetEntityXmlDiff(string entityName, XmlDocument doc, XmlElement origElem = null)
         {
             var entity = editorWindow.EditorApp.Logic.GetEntity(entityName);
 
@@ -2135,6 +2107,11 @@ namespace CaravelEditor
             else
             {
                 typeXml = m_EntityTypeXmlNodes[entity.EntityTypeResource];
+            }
+
+            if (origElem != null)
+            {
+                typeXml = origElem;
             }
 
             var diffBetweenType = EditorUtils.GetDifference(typeXml, m_EntityXmlNodes[entity.ID]);
@@ -2198,21 +2175,14 @@ namespace CaravelEditor
                     sceneXml.SetAttribute("resource", sceneResource);
                     sceneXml.SetAttribute("visible", childEntity.Visible.ToString());
 
-                    var transformComp = childEntity.GetComponent<Cv_TransformComponent>();
-
-                    if (transformComp != null)
+                    var overrides = doc.CreateElement("Overrides");
+                    var sceneOverrides = GetEntityXmlDiff(node.Name, doc);
+                    foreach (XmlNode o in sceneOverrides.ChildNodes)
                     {
-                        var componentXml = transformComp.VToXML();
-                        var positionXml = doc.ImportNode(componentXml.SelectSingleNode("Position"), true);
-                        var scaleXml = doc.ImportNode(componentXml.SelectSingleNode("Scale"), true);
-                        var rotationXml = doc.ImportNode(componentXml.SelectSingleNode("Rotation"), true);
-                        var originXml = doc.ImportNode(componentXml.SelectSingleNode("Origin"), true);
-
-                        sceneXml.AppendChild(positionXml);
-                        sceneXml.AppendChild(scaleXml);
-                        sceneXml.AppendChild(rotationXml);
-                        sceneXml.AppendChild(originXml);
+                        overrides.AppendChild(o.CloneNode(true));
                     }
+
+                    sceneXml.AppendChild(overrides);
 
                     childList.Add(sceneXml);
                     continue;
