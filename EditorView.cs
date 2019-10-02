@@ -49,7 +49,7 @@ namespace CaravelEditor
             }
         }
 
-        public EditorView(PlayerIndex player, SpriteBatch sb) : base(player, new Vector2(1,1), Vector2.Zero, sb)
+        public EditorView(Cv_Player player, SpriteBatch sb) : base(player, new Vector2(1,1), Vector2.Zero, sb)
         {
             DebugDrawPhysicsShapes = true;
             DebugDrawCameras = true;

@@ -511,7 +511,7 @@ namespace CaravelEditor
 
                 if (e.Parent != Cv_EntityID.INVALID_ENTITY)
                 {
-                    if (!e.SceneRoot && e.SceneName != "Root")
+                    if (!e.SceneRoot && e.SceneName != "Root") //Do not add entities that do not belong to the main scene
                     {
                         continue;
                     }
@@ -1435,7 +1435,7 @@ namespace CaravelEditor
         {
             TreeNode node = new TreeNode();
             node.Name = e.EntityPath;
-            if (e.SceneRoot)
+            if (e.SceneRoot && e.SceneName != "Root")
             {
                 node.Text = e.SceneName + "/" + e.EntityName + " (Scene Root)";
             }
@@ -2171,7 +2171,7 @@ namespace CaravelEditor
                     var sceneResource = editorWindow.EditorApp.Logic.GetSceneResource(childEntity.SceneID);
 
                     var sceneXml = doc.CreateElement("Scene");
-                    sceneXml.SetAttribute("name", childEntity.EntityName);
+                    sceneXml.SetAttribute("name", childEntity.SceneName);
                     sceneXml.SetAttribute("resource", sceneResource);
                     sceneXml.SetAttribute("visible", childEntity.Visible.ToString());
 
@@ -2251,7 +2251,7 @@ namespace CaravelEditor
 
                 if (result == DialogResult.OK)
                 {
-                    editorWindow.EditorApp.Logic.LoadScene(form.GetSceneResource(), m_ResourceBundles[CurrentResourceBundle], form.GetSceneName(), null, parent.ID);
+                    editorWindow.EditorApp.Logic.LoadScene(form.GetSceneResource(), m_ResourceBundles[CurrentResourceBundle], form.GetSceneName(), null, null, parent.ID);
 
                     Cv_Entity entity = editorWindow.EditorApp.Logic.GetEntity(parentPath + "/" + form.GetSceneName());
                     if (entity != null)

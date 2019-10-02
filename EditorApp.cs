@@ -79,7 +79,7 @@ namespace CaravelEditor
         protected override Cv_GameView[] VCreateGameViews()
         {
             var gvs = new Cv_GameView[1];
-            gvs[0] = new EditorView(PlayerIndex.One, _updateService.spriteBatch);
+            gvs[0] = new EditorView(Cv_Player.One, _updateService.spriteBatch);
             return gvs;
         }
 

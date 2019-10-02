@@ -173,7 +173,7 @@ namespace CaravelEditor
             var mousePos = Cv_InputManager.Instance.GetMouseValues().MousePos;
             var mouseScroll = Cv_InputManager.Instance.GetMouseValues().MouseWheelVal;
 
-            if (Cv_InputManager.Instance.CommandActive("mouseLeftClick", PlayerIndex.One))
+            if (Cv_InputManager.Instance.CommandActive("mouseLeftClick", Cv_Player.One))
             {
                 if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
                 {
@@ -185,9 +185,9 @@ namespace CaravelEditor
                         Cv_EntityID[] entities;
                         EditorView.Pick(mousePos, out entities);
 
-                        if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", PlayerIndex.One))
+                        if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", Cv_Player.One))
                         {
-                            if (!Cv_InputManager.Instance.CommandActive("alternateMode", PlayerIndex.One))
+                            if (!Cv_InputManager.Instance.CommandActive("alternateMode", Cv_Player.One))
                             {
                                 if (entities.Length > 0)
                                 {
@@ -216,7 +216,7 @@ namespace CaravelEditor
                             }
                         }
 
-                        if (Cv_InputManager.Instance.CommandActive("mouseMove", PlayerIndex.One) && m_EntityBeingMoved != null)
+                        if (Cv_InputManager.Instance.CommandActive("mouseMove", Cv_Player.One) && m_EntityBeingMoved != null)
                         {
                             m_bMovingEntity = true;
                             var trasnfComp = m_EntityBeingMoved.GetComponent<Cv_TransformComponent>();
@@ -267,7 +267,7 @@ namespace CaravelEditor
                 }
                 else if (editorApp.Mode == EditorApp.EditorMode.CREATE)
                 {
-                    if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", PlayerIndex.One))
+                    if (Cv_InputManager.Instance.CommandActivated("mouseLeftClick", Cv_Player.One))
                     {
                         var timer = new Cv_TimerProcess(100, PaintEntity);
                         Caravel.ProcessManager.AttachProcess(timer);
@@ -288,7 +288,7 @@ namespace CaravelEditor
                 }
             }
 
-            if (Cv_InputManager.Instance.CommandActive("mouseWheelUp", PlayerIndex.One) || Cv_InputManager.Instance.CommandActive("mouseWheelDown", PlayerIndex.One))
+            if (Cv_InputManager.Instance.CommandActive("mouseWheelUp", Cv_Player.One) || Cv_InputManager.Instance.CommandActive("mouseWheelDown", Cv_Player.One))
             {
                 m_iIdleTime = 0;
                 var delta = mouseScroll - m_iPreviousScrollValue;

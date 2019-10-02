@@ -158,7 +158,7 @@
             this.browsePostLoadButton.TabIndex = 18;
             this.browsePostLoadButton.Text = "Choose File";
             this.browsePostLoadButton.UseVisualStyleBackColor = false;
-            this.browsePostLoadButton.Click += new System.EventHandler(this.browseUnLoadButton_Click);
+            this.browsePostLoadButton.Click += new System.EventHandler(this.browsePostLoadButton_Click);
             // 
             // saveButton
             // 
@@ -200,6 +200,7 @@
             this.browseUnLoadButton.TabIndex = 23;
             this.browseUnLoadButton.Text = "Choose File";
             this.browseUnLoadButton.UseVisualStyleBackColor = false;
+            this.browseUnLoadButton.Click += new System.EventHandler(this.browseUnLoadButton_Click);
             // 
             // unLoadScriptTextBox
             // 

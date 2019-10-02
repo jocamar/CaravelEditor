@@ -114,7 +114,7 @@ namespace CaravelEditor
 
                 var entity = EditorApp.Instance.Logic.GetEntity(m_EditorForm.CurrentEntity);
 
-                if (entity != null && !entity.SceneRoot)
+                if (entity != null && (!entity.SceneRoot || entity.SceneName == "Root"))
                 {
                     AddElementLabel("", lineNum, 0, m_Panel.Width, 30, System.Drawing.Color.FromArgb(90, 90, 90));
 
