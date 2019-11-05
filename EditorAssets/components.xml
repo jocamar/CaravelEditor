@@ -47,6 +47,7 @@
     <Element name="Interval" type="float" fieldNames="value" editorNames="Value"/>
     <Element name="ExecuteOnce" type="boolean" fieldNames="status"/>
     <Element name="Paused" type="boolean" fieldNames="status"/>
+    <Element name="RunInEditor" type="boolean" fieldNames="value"/>
 	</Component>
   
   <Component name="Cv_ClickableComponent">

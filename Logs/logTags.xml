@@ -3,5 +3,5 @@
 	<Tag name="Entity" writeToDebugger="true" writeToFile="false"/>
     <Tag name="Input" writeToDebugger="true" writeToFile="true"/>
     <Tag name="Physics" writeToDebugger="true" writeToFile="true"/>
-    <Tag name="LuaScript" writeToDebugger="true" writeToFile="true"/>
+    <Tag name="LuaScript" writeToDebugger="true" writeToFile="false"/>
 </LogTags>

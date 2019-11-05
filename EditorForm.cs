@@ -504,14 +504,20 @@ namespace CaravelEditor
             // Add each entity as its own node in the treeview.
             foreach (var e in listEntities)
             {
-                if (e.EntityName == "_editorCamera")
+                if (e.EntityName == "_editorCamera" )
                 {
                     continue;
                 }
 
                 if (e.Parent != Cv_EntityID.INVALID_ENTITY)
                 {
-                    if (!e.SceneRoot && e.SceneName != "Root") //Do not add entities that do not belong to the main scene
+                    var parentEntity = editorWindow.EditorApp.Logic.GetEntity(e.Parent);
+                    if (parentEntity.SceneName != "Root")
+                    {
+                        continue;
+                    }
+
+                    if (e.SceneName != "Root" && !e.SceneRoot) //Do not add entities that do not belong to the main scene unless they're scene roots for a sub scene
                     {
                         continue;
                     }
@@ -1586,6 +1592,8 @@ namespace CaravelEditor
 
                 SaveSettings();
                 sceneEntitiesTreeView.ExpandAll();
+
+                InitializeTools();
             }
         }
 
@@ -1808,8 +1816,17 @@ namespace CaravelEditor
                     scriptNode.SetAttribute("postLoad", form.GetPostLoadScript());
                     scriptNode.SetAttribute("unLoad", form.GetUnLoadScript());
 
+                    var entitiesNode = doc.CreateElement("StaticEntities");
+
+                    var rootEntityNode = doc.CreateElement("Entity");
+                    rootEntityNode.SetAttribute("name", "Root");
+                    rootEntityNode.SetAttribute("type", "");
+                    rootEntityNode.SetAttribute("Visible", "True");
+                    entitiesNode.AppendChild(rootEntityNode);
+
                     doc.AppendChild(sceneNode);
                     sceneNode.AppendChild(scriptNode);
+                    sceneNode.AppendChild(entitiesNode);
 
                     XmlWriterSettings oSettings = new XmlWriterSettings();
                     oSettings.Indent = true;
@@ -2251,9 +2268,9 @@ namespace CaravelEditor
 
                 if (result == DialogResult.OK)
                 {
-                    editorWindow.EditorApp.Logic.LoadScene(form.GetSceneResource(), m_ResourceBundles[CurrentResourceBundle], form.GetSceneName(), null, null, parent.ID);
+                    var sceneID = editorWindow.EditorApp.Logic.LoadScene(form.GetSceneResource(), m_ResourceBundles[CurrentResourceBundle], form.GetSceneName(), null, null, parent.ID);
 
-                    Cv_Entity entity = editorWindow.EditorApp.Logic.GetEntity(parentPath + "/" + form.GetSceneName());
+                    Cv_Entity entity = editorWindow.EditorApp.Logic.GetSceneRoot(sceneID);
                     if (entity != null)
                     {
                         AddNewEntityToEditor(entity, true);

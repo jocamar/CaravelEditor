@@ -32,7 +32,6 @@ namespace CaravelEditor
 
             EditorForm.InitializeComponentEditor();
             EditorForm.InitializeMaterialsEditor();
-            EditorForm.InitializeTools();
 
             _lastGameTime = new GameTime();
         }
