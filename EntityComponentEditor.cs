@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Caravel.Debugging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -234,6 +235,7 @@ namespace CaravelEditor
                 ++lineNum;
                 ++lineNum;
                 int elementNum = 0;
+                XmlNode lastNodeProcessed = null;
 
                 foreach (XmlNode inputField in editorComponentValues)
                 {
@@ -245,6 +247,24 @@ namespace CaravelEditor
                     string elementType = inputField.Attributes["type"].Value;
 
                     XmlNode entityValues = entityComponentValues.ChildNodes[elementNum];
+
+                    if (entityValues == null)
+                    {
+                        if (lastNodeProcessed == null)
+                        {
+                            entityComponentValues.AppendChild(GenerateMissingElement(inputField, entityComponentValues.OwnerDocument));
+                        }
+                        else
+                        {
+                            entityComponentValues.InsertAfter(GenerateMissingElement(inputField, entityComponentValues.OwnerDocument), lastNodeProcessed);
+                        }
+                        
+                        entityValues = entityComponentValues.ChildNodes[elementNum];
+
+                        Cv_Debug.Assert(entityValues.Name == inputField.Attributes["name"].Value, "Generated component element was placed in wrong position.");
+                    }
+
+                    lastNodeProcessed = entityValues;
 
                     AddElementLabel(elementName, lineNum, m_iLeftPaddingElements, m_iElementLabelWidth);
 
@@ -2516,5 +2536,30 @@ namespace CaravelEditor
             return lineNum;
         }
         #endregion
+
+        XmlElement GenerateMissingElement(XmlNode inputField, XmlDocument doc)
+        {
+            XmlElement newElem = doc.CreateElement(inputField.Attributes["name"].Value);
+            string fieldNames = inputField.Attributes["fieldNames"].Value;
+            string[] fields = fieldNames.Split(',');
+            string type = inputField.Attributes["type"].Value;
+            
+            string defaultValue = "";
+
+            switch (type)
+            {
+                case "int": defaultValue = default(int).ToString(); break;
+                case "boolean": defaultValue = default(bool).ToString(CultureInfo.InvariantCulture); break;
+                case "float": defaultValue = default(float).ToString(CultureInfo.InvariantCulture); break;
+                case "comboBox": defaultValue = inputField.Attributes["options"].Value.Split(',')[0]; break;
+            }
+
+            foreach (var field in fields)
+            {
+                newElem.SetAttribute(field, defaultValue);
+            }
+
+            return newElem;
+        }
     };
 }
