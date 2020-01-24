@@ -160,6 +160,12 @@
     <Compile Include="AlphaColorPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="AssetInfo.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AssetInfo.Designer.cs">
+      <DependentUpon>AssetInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="CameraToolOptions.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -262,6 +268,9 @@
     <Content Include="EditorAssets\icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="AssetInfo.resx">
+      <DependentUpon>AssetInfo.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UnsavedChangesForm.resx">
       <DependentUpon>UnsavedChangesForm.cs</DependentUpon>
     </EmbeddedResource>

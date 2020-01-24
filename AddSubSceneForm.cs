@@ -39,19 +39,21 @@ namespace CaravelEditor
             this.m_Paths = paths;
             this.addButton.Enabled = false;
 
+            string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(m_sParentResourceBundle));
+            sceneResourceTextBox.Text = LastSceneUsed.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/");
+            m_sFileName = LastSceneUsed;
+
+            lastIdUsed = 0;
             string placeHolderName;
             do
             {
-                placeHolderName = "Scene_" + lastIdUsed;
+                placeHolderName = Path.GetFileNameWithoutExtension(sceneResourceTextBox.Text) + "_" + lastIdUsed;
                 lastIdUsed++;
             }
             while (m_Paths.Contains(parentPath + "/" + placeHolderName));
 
-            string resourceBundleFullPath = Path.Combine(m_sCurrentProject, Path.GetFileNameWithoutExtension(m_sParentResourceBundle));
-
             textBox.Text = placeHolderName;
-            sceneResourceTextBox.Text = LastSceneUsed.Replace(resourceBundleFullPath + Path.DirectorySeparatorChar, "").Replace("\\", "/"); ;
-            m_sFileName = LastSceneUsed;
+            
 
             if (CanAddScene())
             {

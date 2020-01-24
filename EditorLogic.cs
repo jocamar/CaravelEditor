@@ -120,7 +120,7 @@ namespace CaravelEditor
         private Cv_Entity m_EntityBeingMoved;
         private Vector2 m_DeltaBuffer;
         private int m_iIdleTime = 0;
-        private int m_iLastIdUsed = 0;
+        private Dictionary<string, int> m_LastIDsUsed = new Dictionary<string, int>();
 
         public EditorLogic(CaravelApp app) : base(app)
         {
@@ -130,6 +130,37 @@ namespace CaravelEditor
             CurrentScenePostLoadScript = "";
             CurrentScenePreLoadScript = "";
             CurrentSceneUnLoadScript = "";
+        }
+
+        public Vector2 GetNewEntityWorldPos(int screenX, int screenY, int stepX, int stepY)
+        {
+            var editorApp = ((EditorApp)Caravel);
+            var parentPosition = Vector3.Zero;
+
+            var parentEntity = GetEntity(editorApp.EForm.CurrentEntity);
+            if (parentEntity != null)
+            {
+                if (parentEntity.GetComponent<Cv_TransformComponent>() != null)
+                {
+                    parentPosition = parentEntity.GetComponent<Cv_TransformComponent>().WorldPosition;
+                }
+            }
+
+            var worldPos = EditorView.GetWorldCoords(new Vector2(screenX, screenY));
+            Vector2 pos = Vector2.Zero;
+            if (worldPos != null)
+            {
+                int numStepsX = (int)(worldPos.Value.X) / stepX;
+                int numStepsY = (int)(worldPos.Value.Y) / stepY;
+
+                int signX = worldPos.Value.X < 0 ? -1 : 1;
+                int signY = worldPos.Value.Y < 0 ? -1 : 1;
+
+                pos = new Vector2((numStepsX + signX * 0.5f) * stepX, (numStepsY + signY * 0.5f) * stepY);
+                pos -= new Vector2(parentPosition.X, parentPosition.Y);
+            }
+
+            return pos;
         }
 
         protected override bool VGameOnPreLoadScene(XmlElement sceneData, string sceneID)
@@ -173,6 +204,7 @@ namespace CaravelEditor
             var mousePos = Cv_InputManager.Instance.GetMouseValues().MousePos;
             var mouseScroll = Cv_InputManager.Instance.GetMouseValues().MouseWheelVal;
 
+            //MOUSE ACTIONS
             if (Cv_InputManager.Instance.CommandActive("mouseLeftClick", Cv_Player.One))
             {
                 if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
@@ -333,6 +365,102 @@ namespace CaravelEditor
                 }
             }
 
+            //SAVE SHORTCUT
+            if (Cv_InputManager.Instance.CommandActive("alternateMode", Cv_Player.One) && Cv_InputManager.Instance.CommandDeactivated("save", Cv_Player.One))
+            {
+                if (editorApp.EForm.CurrentSceneFile != null && editorApp.EForm.CurrentSceneFile != "")
+                {
+                    editorApp.EForm.SaveScene();
+                }
+            }
+
+
+            //MOVE ENTITIES WITH ARROWS
+            if (Cv_InputManager.Instance.CommandActivated("Left", Cv_Player.One))
+            {
+                if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
+                {
+                    if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
+                    {
+                        var e = GetEntity(editorApp.EForm.CurrentEntity);
+
+                        if (e != null && e.GetComponent<Cv_TransformComponent>() != null)
+                        {
+                            var pos = e.GetComponent<Cv_TransformComponent>().Position;
+
+                            e.GetComponent<Cv_TransformComponent>().SetPosition(new Vector3(pos.X - 1, pos.Y, pos.Z));
+                        }
+                    }
+                }
+            }
+
+            if (Cv_InputManager.Instance.CommandActivated("Right", Cv_Player.One))
+            {
+                if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
+                {
+                    if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
+                    {
+                        var e = GetEntity(editorApp.EForm.CurrentEntity);
+
+                        if (e != null && e.GetComponent<Cv_TransformComponent>() != null)
+                        {
+                            var pos = e.GetComponent<Cv_TransformComponent>().Position;
+
+                            e.GetComponent<Cv_TransformComponent>().SetPosition(new Vector3(pos.X + 1, pos.Y, pos.Z));
+                        }
+                    }
+                }
+            }
+
+            if (Cv_InputManager.Instance.CommandActivated("Up", Cv_Player.One))
+            {
+                if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
+                {
+                    if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
+                    {
+                        var e = GetEntity(editorApp.EForm.CurrentEntity);
+
+                        if (e != null && e.GetComponent<Cv_TransformComponent>() != null)
+                        {
+                            var pos = e.GetComponent<Cv_TransformComponent>().Position;
+
+                            e.GetComponent<Cv_TransformComponent>().SetPosition(new Vector3(pos.X, pos.Y - 1, pos.Z));
+                        }
+                    }
+                }
+            }
+
+            if (Cv_InputManager.Instance.CommandActivated("Down", Cv_Player.One))
+            {
+                if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
+                {
+                    if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
+                    {
+                        var e = GetEntity(editorApp.EForm.CurrentEntity);
+
+                        if (e != null && e.GetComponent<Cv_TransformComponent>() != null)
+                        {
+                            var pos = e.GetComponent<Cv_TransformComponent>().Position;
+
+                            e.GetComponent<Cv_TransformComponent>().SetPosition(new Vector3(pos.X, pos.Y + 1, pos.Z));
+                        }
+                    }
+                }
+            }
+
+            //DELETE KEY
+            if (Cv_InputManager.Instance.CommandActivated("Delete", Cv_Player.One))
+            {
+                if (editorApp.Mode == EditorApp.EditorMode.TRANSFORM)
+                {
+                    if (editorApp.EForm.CurrentEntity != Cv_EntityID.INVALID_ENTITY)
+                    {
+                        editorApp.EForm.RemoveEntityFromEditor(editorApp.EForm.CurrentEntity);
+                        editorApp.EForm.SetSelectedEntity(Cv_EntityID.INVALID_ENTITY);
+                    }
+                }
+            }
+
             m_PrevMousePos = mousePos;
             m_iPreviousScrollValue = mouseScroll;
         }
@@ -397,46 +525,45 @@ namespace CaravelEditor
                 {
                     var transform = Cv_Transform.Identity;
 
-                    var parentPosition = Vector3.Zero;
-
                     var typePos = editorApp.EForm.GetTypePos(editorApp.EForm.CurrentEntityType);
-
-                    var parentEntity = GetEntity(editorApp.EForm.CurrentEntity);
-                    if (parentEntity != null && parentEntity.GetComponent<Cv_TransformComponent>() != null)
-                    {
-                        parentPosition = parentEntity.GetComponent<Cv_TransformComponent>().WorldPosition;
-                    }
-
-                    var worldPos = EditorView.GetWorldCoords(mousePos);
-                    if (worldPos != null)
-                    {
-                        int numStepsX = (int)(worldPos.Value.X) / EntityDragStepX;
-                        int numStepsY = (int)(worldPos.Value.Y) / EntityDragStepY;
-
-                        int signX = worldPos.Value.X < 0 ? -1 : 1;
-                        int signY = worldPos.Value.Y < 0 ? -1 : 1;
-
-                        var pos = new Vector3((numStepsX + signX * 0.5f) * EntityDragStepX, (numStepsY + signY * 0.5f) * EntityDragStepY, typePos.Z);
-                        pos -= parentPosition;
-
-                        transform = new Cv_Transform(pos, Vector2.One, 0);
-                    }
-
+                    
                     var entityNames = EntityNames;
+                    var parentEntity = GetEntity(editorApp.EForm.CurrentEntity);
+                    if (parentEntity != null)
+                    {
+                        entityNames = parentEntity.Children.Select(e => e.EntityName).ToArray();
+
+                        if (!m_LastIDsUsed.ContainsKey(parentEntity.EntityPath))
+                        {
+                            m_LastIDsUsed.Add(parentEntity.EntityPath, 0);
+                        }
+                    }
+                    else if (!m_LastIDsUsed.ContainsKey("Root"))
+                    {
+                        m_LastIDsUsed.Add("Root", 0);
+                    }
+                    
+                    Vector2 pos = GetNewEntityWorldPos((int) mousePos.X, (int) mousePos.Y, EntityDragStepX, EntityDragStepY);
+
                     var entityName = "";
+                    var parentKey = parentEntity != null ? parentEntity.EntityPath : "Root";
                     do
                     {
-                        entityName = "Entity_" + m_iLastIdUsed;
-                        m_iLastIdUsed++;
+                        entityName = editorApp.EForm.EntityTypeItems[editorApp.EForm.CurrentEntityType].Type + "_" + m_LastIDsUsed[parentKey];
+                        m_LastIDsUsed[parentKey] = m_LastIDsUsed[parentKey]+1;
                     }
                     while (entityNames.Contains(entityName));
 
-                    var entity = CreateEntity(editorApp.EForm.CurrentEntityType, entityName, editorApp.CurrentResourceBundle, true, editorApp.EForm.CurrentEntity, null, transform);
+                    var entity = CreateEntity(editorApp.EForm.CurrentEntityType, entityName, editorApp.CurrentResourceBundle, true, editorApp.EForm.CurrentEntity, null, null);
+                    var transformComp = entity.GetComponent<Cv_TransformComponent>();
+                    if (transformComp)
+                    {
+                        transformComp.SetPosition(new Vector3(pos, typePos.Z));
+                    }
 
                     if (entity != null)
                     {
                         editorApp.EForm.AddNewEntityToEditor(entity, true);
-                        //editorApp.EForm.SetSelectedEntity(entity.ID);
                     }
                 }
             }

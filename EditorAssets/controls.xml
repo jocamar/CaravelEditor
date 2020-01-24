@@ -6,5 +6,11 @@
     <Command id="mouseWheelUp" inputType="mouse" bindedTo="MouseWheelUp" />
     <Command id="mouseWheelDown" inputType="mouse" bindedTo="MouseWheelDown" />
     <Command id="alternateMode" inputType="keyboard" bindedTo="LeftControl" />
+    <Command id="save" inputType="keyboard" bindedTo="S" />
+    <Command id="Left" inputType="keyboard" bindedTo="Left" />
+    <Command id="Right" inputType="keyboard" bindedTo="Right" />
+    <Command id="Up" inputType="keyboard" bindedTo="Up" />
+    <Command id="Down" inputType="keyboard" bindedTo="Down" />
+    <Command id="Delete" inputType="keyboard" bindedTo="Delete" />
   </Bindings>
 </Controls>

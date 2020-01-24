@@ -109,10 +109,11 @@ namespace CaravelEditor
             get; private set;
         }
 
+        public Dictionary<string, EntityTypeItem> EntityTypeItems;
+
         private Dictionary<string, string> m_ResourceBundles;
         private Dictionary<Cv_EntityID, XmlElement> m_EntityXmlNodes;
         private Dictionary<Cv_EntityID, TreeNode> m_EntityTreeNodes;
-        private Dictionary<string, EntityTypeItem> m_EntityTypeItems;
         private Dictionary<string, string> m_EntityTypes;
         private Dictionary<string, XmlElement> m_EntityTypeXmlNodes;
         private Dictionary<string, XmlElement> m_OriginalEntityTypeXmlNodes;
@@ -171,7 +172,7 @@ namespace CaravelEditor
             m_EntityTreeNodes = new Dictionary<Cv_EntityID, TreeNode>();
             m_ResourceBundles = new Dictionary<string, string>();
             m_EntityTypes = new Dictionary<string, string>();
-            m_EntityTypeItems = new Dictionary<string, EntityTypeItem>();
+            EntityTypeItems = new Dictionary<string, EntityTypeItem>();
             m_EntityTypeXmlNodes = new Dictionary<string, XmlElement>();
             m_OriginalEntityTypeXmlNodes = new Dictionary<string, XmlElement>();
             m_OriginalEntityTypeNodesDoc = new XmlDocument();
@@ -307,6 +308,9 @@ namespace CaravelEditor
             editorWindow.DragDrop += EditorWindow_DragDrop;
 
             m_Logger.TextBox = outputTextBox;
+
+            PreviewKeyDown += new PreviewKeyDownEventHandler(editorForm_PreviewKeyDown);
+            editorWindow.PreviewKeyDown += new PreviewKeyDownEventHandler(editorForm_PreviewKeyDown);
         }
 
         private void EditorWindow_DragDrop(object sender, DragEventArgs e)
@@ -331,6 +335,10 @@ namespace CaravelEditor
                 AddSubSceneForm.LastSceneUsed = assetPath;
                 AddSceneAsChildToolStripMenuItem_Click(sender, e);
             }
+            else if (extension == ".png" || extension == ".jpg")
+            {
+                AddSpriteEntity(assetPath, relativePath, e.X, e.Y);
+            }
         }
 
         private void EditorWindow_DragEnter(object sender, DragEventArgs e)
@@ -341,7 +349,7 @@ namespace CaravelEditor
             var assetPath = draggedNode.Tag.ToString();
             var extension = Path.GetExtension(assetPath);
 
-            if (extension == ".cve" || extension == ".cvs")
+            if (extension == ".cve" || extension == ".cvs" || extension == ".jpg" || extension == ".png")
             {
                 e.Effect = DragDropEffects.Copy;
             }
@@ -748,7 +756,7 @@ namespace CaravelEditor
         public void InitializeEntityTypes()
         {
             m_EntityTypesList.Clear();
-            m_EntityTypeItems.Clear();
+            EntityTypeItems.Clear();
             m_EntityTypes.Clear();
             m_EntityTypeXmlNodes.Clear();
             m_OriginalEntityTypeXmlNodes.Clear();
@@ -788,7 +796,7 @@ namespace CaravelEditor
                             var childNode = new EntityTypeItem { Type = xmlNode.Attributes["type"].Value, Resource = file.FullName.Replace(resourceBundleDirectory + Path.DirectorySeparatorChar, "") };
                             childNode.Resource = childNode.Resource.Replace("\\", "/");
                             m_EntityTypesList.Add(childNode);
-                            m_EntityTypeItems.Add(childNode.Resource, childNode);
+                            EntityTypeItems.Add(childNode.Resource, childNode);
                             m_EntityTypes.Add(childNode.Resource, file.FullName);
                             m_EntityTypeXmlNodes.Add(childNode.Resource, xmlNode);
                             var origCopy = (XmlElement)m_OriginalEntityTypeNodesDoc.ImportNode(xmlNode, true);
@@ -899,6 +907,68 @@ namespace CaravelEditor
         {
             editorToolStrip.Location = new System.Drawing.Point(editorWindow.Location.X + 10,
                                                     editorWindow.Location.Y + 10);
+        }
+
+        public void SaveScene()
+        {
+            XmlDocument doc = new XmlDocument();
+
+            var sceneNode = doc.CreateElement("Scene");
+            sceneNode.SetAttribute("vWidth", editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualWidth.ToString());
+            sceneNode.SetAttribute("vHeight", editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualHeight.ToString());
+
+            doc.AppendChild(sceneNode);
+            var entitiesNode = doc.CreateElement("StaticEntities");
+            sceneNode.AppendChild(entitiesNode);
+
+            if (sceneEntitiesTreeView.Nodes.Count > 1)
+            {
+                MessageBox.Show("Error - Attempting to save a scene with more than one root.");
+                return;
+            }
+
+            if (sceneEntitiesTreeView.Nodes.Count <= 0)
+            {
+                MessageBox.Show("Error - Attempting to save a scene with more no root.");
+                return;
+            }
+
+            foreach (TreeNode node in sceneEntitiesTreeView.Nodes) //Should only contain the root node
+            {
+                var entity = editorWindow.EditorApp.Logic.GetEntity(node.Name);
+
+                var xmlDiff = GetEntityXmlDiff(node.Name, doc);
+                var childXmlNodes = GetChildEntitiesXmlNodeDiffs(node.Name, doc);
+
+                foreach (var childNode in childXmlNodes)
+                {
+                    xmlDiff.AppendChild(childNode);
+                }
+
+                entitiesNode.AppendChild(xmlDiff);
+            }
+
+            var scriptNode = doc.CreateElement("Script");
+            scriptNode.SetAttribute("preLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript);
+            scriptNode.SetAttribute("postLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript);
+            scriptNode.SetAttribute("unLoad", editorWindow.EditorApp.EditorLogic.CurrentSceneUnLoadScript);
+            sceneNode.AppendChild(scriptNode);
+
+            XmlWriterSettings oSettings = new XmlWriterSettings();
+            oSettings.Indent = true;
+            oSettings.OmitXmlDeclaration = true;
+            oSettings.Encoding = Encoding.UTF8;
+            oSettings.ConformanceLevel = ConformanceLevel.Auto;
+
+            string resourceBundleFullPath = Path.Combine(CurrentProjectDirectory, Path.GetFileNameWithoutExtension(CurrentResourceBundle));
+            string sceneLocation = Path.Combine(resourceBundleFullPath, CurrentSceneFile);
+
+            using (XmlWriter writer = XmlWriter.Create(sceneLocation, oSettings))
+            {
+                doc.WriteContentTo(writer);
+            }
+
+            UnsavedChanges = false;
         }
 
         public void openProjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1307,7 +1377,7 @@ namespace CaravelEditor
         private void createEntityToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<EntityTypeItem> typeList = new List<EntityTypeItem>();
-            typeList.AddRange(m_EntityTypeItems.Values);
+            typeList.AddRange(EntityTypeItems.Values);
 
             var pathsList = editorWindow.EditorApp.EditorLogic.EntityPathsMap.Keys;
 
@@ -1346,7 +1416,7 @@ namespace CaravelEditor
         private void createEntityAsChildToolStripMenuItem_Click(object sender, EventArgs e)
         {
             List<EntityTypeItem> typeList = new List<EntityTypeItem>();
-            typeList.AddRange(m_EntityTypeItems.Values);
+            typeList.AddRange(EntityTypeItems.Values);
 
             var pathsList = editorWindow.EditorApp.EditorLogic.EntityPathsMap.Keys;
 
@@ -1387,6 +1457,67 @@ namespace CaravelEditor
                 {
                     return;
                 }
+            }
+        }
+
+        public void AddSpriteEntity(string image, string relativePath, int x , int y)
+        {
+            var namesList = editorWindow.EditorApp.EditorLogic.EntityNames;
+
+            var parent = editorWindow.EditorApp.Logic.GetEntity(CurrentEntity);
+            var parentPath = "/Root";
+
+            if (parent != null)
+            {
+                parentPath = parent.EntityPath;
+                namesList = parent.Children.Select(e => e.EntityName).ToArray();
+            }
+
+            var lastUsedIdx = 0;
+            string placeHolderName = "";
+            do
+            {
+                string prefix = Path.GetFileNameWithoutExtension(image);
+
+                placeHolderName = prefix + "_" + lastUsedIdx;
+                lastUsedIdx++;
+            }
+            while (namesList.Contains(placeHolderName));
+
+            Cv_EntityID[] entities;
+            editorWindow.EditorApp.EditorLogic.EditorView.Pick(new Vector2(x,y), out entities);
+
+            float lastZ = 0;
+
+            if (entities.Length > 0)
+            {
+                var frontEnt = editorWindow.EditorApp.EditorLogic.GetEntity(entities[0]);
+                if (frontEnt != null && frontEnt.GetComponent<Cv_TransformComponent>() != null)
+                {
+                    lastZ = frontEnt.GetComponent<Cv_TransformComponent>().Position.Z;
+                }
+            }
+
+            Cv_Entity entity = null;
+            entity = editorWindow.EditorApp.Logic.CreateEmptyEntity(placeHolderName, m_ResourceBundles[CurrentResourceBundle], true, CurrentEntity);
+            var transform = editorWindow.EditorApp.EditorLogic.CreateComponent<Cv_TransformComponent>();
+            editorWindow.EditorApp.EditorLogic.AddComponent(entity.ID, transform);
+            var relativePos = editorWindow.PointToClient(new System.Drawing.Point(x, y));
+            transform.SetPosition(new Vector3(editorWindow.EditorApp.EditorLogic.GetNewEntityWorldPos(relativePos.X, relativePos.Y, 1, 1), lastZ));
+
+            var sprite = editorWindow.EditorApp.EditorLogic.CreateComponent<Cv_SpriteComponent>();
+            editorWindow.EditorApp.EditorLogic.AddComponent(entity.ID, sprite);
+            sprite.Texture = relativePath;
+
+            System.Drawing.Image img = System.Drawing.Image.FromFile(image);
+
+            sprite.Width = img.Width;
+            sprite.Height = img.Height;
+
+
+            if (entity != null)
+            {
+                AddNewEntityToEditor(entity, true);
             }
         }
 
@@ -1597,7 +1728,7 @@ namespace CaravelEditor
             }
         }
 
-        private void RemoveEntityFromEditor(Cv_EntityID eId)
+        public void RemoveEntityFromEditor(Cv_EntityID eId)
         {
             if (m_EntityTreeNodes.ContainsKey(eId))
             {
@@ -1642,7 +1773,7 @@ namespace CaravelEditor
         {
             List<string> typeList = new List<string>();
 
-            foreach (var type in m_EntityTypeItems.Values)
+            foreach (var type in EntityTypeItems.Values)
             {
                 typeList.Add(type.Type);
             }
@@ -1688,7 +1819,7 @@ namespace CaravelEditor
                     var typeItem = new EntityTypeItem { Type = entityTypeNode.Attributes["type"].Value, Resource = entityTypeNode.Attributes["resource"].Value };
                     typeItem.Resource = typeItem.Resource.Replace("\\", "/");
                     m_EntityTypesList.Add(typeItem);
-                    m_EntityTypeItems.Add(typeItem.Resource, typeItem);
+                    EntityTypeItems.Add(typeItem.Resource, typeItem);
                     m_EntityTypes.Add(typeItem.Resource, entityTypeLocation);
                     m_EntityTypeXmlNodes.Add(typeItem.Resource, entityTypeNode);
                     m_OriginalEntityTypeXmlNodes.Add(typeItem.Resource, (XmlElement) m_OriginalEntityTypeNodesDoc.ImportNode(entityTypeNode, true));
@@ -1723,7 +1854,7 @@ namespace CaravelEditor
 
             foreach (var entity in editorWindow.EditorApp.EditorLogic.EntityPathsMap.Values)
             {
-                if (entity.EntityType == m_EntityTypeItems[CurrentEntityType].Type)
+                if (entity.EntityType == EntityTypeItems[CurrentEntityType].Type)
                 {
                     editorWindow.EditorApp.Logic.ChangeType(entity.ID, "Unknown", "");
 
@@ -1738,7 +1869,7 @@ namespace CaravelEditor
             }
 
             m_EntityTypesList.RemoveAll(t => t.Resource == CurrentEntityType);
-            m_EntityTypeItems.Remove(CurrentEntityType);
+            EntityTypeItems.Remove(CurrentEntityType);
             m_EntityTypes.Remove(CurrentEntityType);
             m_EntityTypeXmlNodes.Remove(CurrentEntityType);
             m_OriginalEntityTypeXmlNodes.Remove(CurrentEntityType);
@@ -2024,64 +2155,7 @@ namespace CaravelEditor
 
         private void saveSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            XmlDocument doc = new XmlDocument();
-
-            var sceneNode = doc.CreateElement("Scene");
-            sceneNode.SetAttribute("vWidth", editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualWidth.ToString());
-            sceneNode.SetAttribute("vHeight", editorWindow.EditorApp.EditorLogic.EditorView.SceneVirtualHeight.ToString());
-
-            doc.AppendChild(sceneNode);
-            var entitiesNode = doc.CreateElement("StaticEntities");
-            sceneNode.AppendChild(entitiesNode);
-
-            if (sceneEntitiesTreeView.Nodes.Count > 1)
-            {
-                MessageBox.Show("Error - Attempting to save a scene with more than one root.");
-                return;
-            }
-
-            if (sceneEntitiesTreeView.Nodes.Count <= 0)
-            {
-                MessageBox.Show("Error - Attempting to save a scene with more no root.");
-                return;
-            }
-
-            foreach (TreeNode node in sceneEntitiesTreeView.Nodes) //Should only contain the root node
-            {
-                var entity = editorWindow.EditorApp.Logic.GetEntity(node.Name);
-
-                var xmlDiff = GetEntityXmlDiff(node.Name, doc);
-                var childXmlNodes = GetChildEntitiesXmlNodeDiffs(node.Name, doc);
-
-                foreach (var childNode in childXmlNodes)
-                {
-                    xmlDiff.AppendChild(childNode);
-                }
-
-                entitiesNode.AppendChild(xmlDiff);
-            }
-
-            var scriptNode = doc.CreateElement("Script");
-            scriptNode.SetAttribute("preLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePreLoadScript);
-            scriptNode.SetAttribute("postLoad", editorWindow.EditorApp.EditorLogic.CurrentScenePostLoadScript);
-            scriptNode.SetAttribute("unLoad", editorWindow.EditorApp.EditorLogic.CurrentSceneUnLoadScript);
-            sceneNode.AppendChild(scriptNode);
-
-            XmlWriterSettings oSettings = new XmlWriterSettings();
-            oSettings.Indent = true;
-            oSettings.OmitXmlDeclaration = true;
-            oSettings.Encoding = Encoding.UTF8;
-            oSettings.ConformanceLevel = ConformanceLevel.Auto;
-
-            string resourceBundleFullPath = Path.Combine(CurrentProjectDirectory, Path.GetFileNameWithoutExtension(CurrentResourceBundle));
-            string sceneLocation = Path.Combine(resourceBundleFullPath, CurrentSceneFile);
-
-            using (XmlWriter writer = XmlWriter.Create(sceneLocation, oSettings))
-            {
-                doc.WriteContentTo(writer);
-            }
-
-            UnsavedChanges = false;
+            SaveScene();
         }
 
         private void editSceneToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2333,12 +2407,30 @@ namespace CaravelEditor
             if (extension == ".jpg" || extension == ".png")
             {
                 assetsPictureBox.ImageLocation = assetsTreeView.SelectedNode.Tag.ToString();
+
+                long size = new System.IO.FileInfo(assetsTreeView.SelectedNode.Tag.ToString()).Length / (1024 * 1024);
+                assetInfo.SetSize((int) size);
+
+                System.Drawing.Image img = System.Drawing.Image.FromFile(assetsTreeView.SelectedNode.Tag.ToString());
+                assetInfo.SetDimensions(img.Width + " x " + img.Height);
             }
             else
             {
                 var key = Path.HasExtension(assetsTreeView.SelectedNode.Tag.ToString()) ? extension : "directory";
                 assetsPictureBox.ImageLocation = "";
                 assetsPictureBox.Image = m_AssetsImageList.Images[key];
+
+                if (key != "directory")
+                {
+                    var sizeInBytes = new System.IO.FileInfo(assetsTreeView.SelectedNode.Tag.ToString()).Length;
+                    assetInfo.SetSize((int)sizeInBytes);
+                }
+                else
+                {
+                    assetInfo.SetSize(0);
+                }
+
+                assetInfo.SetDimensions("N/A");
             }
         }
 
@@ -2367,6 +2459,24 @@ namespace CaravelEditor
         private void assetsRefreshButton_Click(object sender, EventArgs e)
         {
             InitializeAssets();
+        }
+
+        private void editorForm_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (ActiveControl == editorWindow)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.Up:
+                    case Keys.Down:
+                    case Keys.Left:
+                    case Keys.Right:
+                        e.IsInputKey = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }

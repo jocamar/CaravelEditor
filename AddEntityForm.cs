@@ -47,12 +47,19 @@ namespace CaravelEditor
             this.addButton.Enabled = false;
 
             var placeHolderName = "";
+
+            lastUsedIdx = 0;
             do
             {
-                placeHolderName = "Entity_" + lastIdUsed;
+                string prefix = "Entity";
+                if (typeComboBox.SelectedIndex > 0)
+                {
+                    prefix = types[lastUsedIdx].Type;
+                }
+
+                placeHolderName = prefix + "_" + lastIdUsed;
                 lastIdUsed++;
             }
-
             while (m_Paths.Contains(parentPath + "/" + placeHolderName));
             textBox.Text = placeHolderName;
         }
